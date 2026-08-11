@@ -63,7 +63,11 @@ export function ProviderPanel() {
     load().then(() => {
       // Select the first provider once loaded (async so no sync setState in effect)
       const first = useProvidersStore.getState().providers[0]
-      if (alive && first) setSelectedId(first.id)
+      if (!alive || !first) return
+      setSelectedId(first.id)
+      setBaseUrl(first.endpoint.baseUrl)
+      setFormat(first.endpoint.format)
+      setActiveCap(capsOf(first)[0] ?? 'chat')
     })
     walletLoad()
     return () => {
