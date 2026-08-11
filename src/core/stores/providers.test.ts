@@ -68,7 +68,8 @@ describe('providers store', () => {
       capabilities: ['chat'],
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
     })
-    expect(added.id).toBe('minimax')
+    // All presets are seeded in review mode → even the first add collides
+    expect(added.id).toMatch(/^minimax-/)
     expect(store.getState().providers).toHaveLength(10)
     // Adding the same preset again suffixes the id (no collisions)
     const second = store.getState().addFromPreset({
