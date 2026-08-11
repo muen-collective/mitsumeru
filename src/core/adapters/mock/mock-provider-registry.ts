@@ -164,36 +164,26 @@ const FETCHED: Record<string, ProviderModel[]> = Object.fromEntries(
   PRESETS.map((p) => [p.id, p.models]),
 )
 
-/** Seeded providers mirror the panel's initial state: DeepSeek configured,
- * Krea added without a key. (Ollama removed 2026-08-11 — local models are
- * untestable on dev hardware; the 'local' status stays for future adapters.) */
-const PROVIDERS: ProviderConfig[] = [
-  {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    description: 'Chat and reasoning. Cheap and strong at coding. No vision API.',
-    kind: 'catalog',
-    endpoint: { format: 'deepseek', baseUrl: 'https://api.deepseek.com' },
-    capabilities: ['chat', 'reasoning'],
-    models: [],
-    modelsFetched: false,
-    defaultModelId: 'deepseek-v4-flash',
-    keyStatus: 'valid',
-    status: 'ready',
-  },
-  {
-    id: 'krea',
-    name: 'Krea',
-    description: 'Image, video and 3D generation.',
-    kind: 'catalog',
-    endpoint: { format: 'custom', baseUrl: 'https://api.krea.ai/v1' },
-    capabilities: ['image', 'video', '3d'],
-    models: [],
-    modelsFetched: false,
-    keyStatus: 'unset',
-    status: 'unconfigured',
-  },
-]
+/**
+ * Seeded providers — review mode: EVERY catalog preset is pre-added so each
+ * provider's capability tabs + pull-models flow can be inspected immediately
+ * (2026-08-11, user request). DeepSeek starts configured (valid key demo);
+ * LM Studio is 'local' with its models fetched. The real adapter's initial
+ * state will come from the user's actual configured providers, not this list.
+ */
+const PROVIDERS: ProviderConfig[] = PRESETS.map((p) => ({
+  id: p.id,
+  name: p.name,
+  description: p.description,
+  kind: 'catalog',
+  endpoint: { ...p.endpoint },
+  capabilities: [...p.capabilities],
+  models: p.id === 'lm-studio' ? p.models.map((m) => ({ ...m })) : [],
+  modelsFetched: p.id === 'lm-studio',
+  defaultModelId: p.models.find((m) => m.capability === 'chat' && m.kept)?.id,
+  keyStatus: p.id === 'deepseek' ? 'valid' : 'unset',
+  status: p.id === 'deepseek' ? 'ready' : p.id === 'lm-studio' ? 'local' : 'unconfigured',
+}))
 
 export function mockProviderAdapter(): ProviderAdapter {
   return {

@@ -36,7 +36,7 @@ describe('ProviderPanel', () => {
     await waitFor(() => expect(screen.getByText('Connected — key works.')).toBeTruthy())
   })
 
-  it('adds a provider from the catalog dialog with category tabs', async () => {
+  it('catalog dialog shows category tabs, added state and coming-soon badges', async () => {
     render(<ProviderPanel />)
     fireEvent.click(await screen.findByRole('button', { name: /add provider/i }))
     // Category tabs per the settled prototype (patterns-settings)
@@ -44,13 +44,14 @@ describe('ProviderPanel', () => {
     expect(screen.getByText('Open Source')).toBeTruthy()
     expect(screen.getByText('Frontier')).toBeTruthy()
     expect(screen.getByText('Creative')).toBeTruthy()
-    // Frontier tab → add Anthropic → dialog closes, provider appears in the list
+    expect(screen.getAllByText('Coming soon').length).toBeGreaterThan(0)
+    // Review mode: every preset is seeded → entries show Added and are disabled
     // (this @radix-ui/react-tabs version activates on mousedown)
-    const frontierTab = screen.getByRole('tab', { name: 'Frontier' })
-    fireEvent.mouseDown(frontierTab)
-    fireEvent.click(frontierTab)
-    fireEvent.click(await screen.findByText('Anthropic'))
-    await waitFor(() => expect(screen.queryByText('Starter packs')).toBeNull())
-    expect(screen.getAllByText(/Anthropic/).length).toBeGreaterThan(0)
+    const osTab = screen.getByRole('tab', { name: 'Open Source' })
+    fireEvent.mouseDown(osTab)
+    fireEvent.click(osTab)
+    const qwenEntry = await screen.findByText('Qwen')
+    expect(qwenEntry.closest('button')?.disabled).toBe(true)
+    expect(screen.getAllByText('Added').length).toBeGreaterThan(0)
   })
 })
