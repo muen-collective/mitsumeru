@@ -137,14 +137,27 @@ export function AddProviderDialog({ open, onOpenChange, existingIds, onAdd }: Ad
           ))}
         </Tabs>
         <DialogFooter className="justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
-            onClick={() => onAdd(CUSTOM_PRESET)}
-          >
-            Custom
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
+              onClick={() => {
+                const local = presets.find((p) => p.id === 'lm-studio')
+                if (local) onAdd(local)
+              }}
+            >
+              LM Studio (local)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
+              onClick={() => onAdd(CUSTOM_PRESET)}
+            >
+              Custom
+            </Button>
+          </div>
           <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

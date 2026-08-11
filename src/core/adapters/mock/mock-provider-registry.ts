@@ -77,6 +77,30 @@ const PRESETS: ProviderPreset[] = [
     ],
   },
   {
+    id: 'lm-studio',
+    name: 'LM Studio (local)',
+    description:
+      'Local models via LM Studio — OpenAI-compatible server (localhost:1234). Small VL models (Qwen3-VL 4B/8B, incl. abliterated) run on most machines and cover vision when cloud chat providers lack it (DeepSeek has no vision API). The real adapter queries /v1/models for the actual local list.',
+    endpoint: { format: 'lm-studio', baseUrl: 'http://localhost:1234/v1' },
+    capabilities: ['chat', 'reasoning'],
+    models: [
+      {
+        id: 'qwen3-vl-4b-abliterated',
+        capability: 'chat',
+        name: 'Qwen3 VL 4B (abliterated, vision input)',
+        kept: true,
+      },
+      {
+        id: 'qwen3-vl-8b-abliterated',
+        capability: 'chat',
+        name: 'Qwen3 VL 8B (abliterated, vision input)',
+        kept: false,
+      },
+      { id: 'llama-3.2-3b', capability: 'chat', name: 'Llama 3.2 3B', kept: false },
+      { id: 'deepseek-r1-8b', capability: 'reasoning', name: 'DeepSeek R1 8B', kept: false },
+    ],
+  },
+  {
     id: 'openai',
     name: 'OpenAI',
     description: 'GPT chat/reasoning, GPT Image 2, Sora 2 video.',
