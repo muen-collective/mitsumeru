@@ -1,26 +1,228 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Mitsu Design System — Dark EVA Unit 01 tokens (canonical).
+ * Source of truth: DESIGN.md (frozen 2026-08-11, Kimi-audited + source-verified).
+ * Dark EVA is THE default theme. Values live in :root; Light EVA (Unit 00)
+ * lands as a `.light` override block at Block #2 — do not add hex literals
+ * in components, always reference tokens.
+ */
+
+/* ---------- Fonts (self-hosted, copied from claire-ai storybook assets) ---------- */
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Light-IqwJ_ZjS.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Regular-CPM9dct4.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Medium-ByP-Zb-9.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Bold-Bd5kKQ_U.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Black-DjnQuuRz.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Variable-Db4Uuiha.woff2") format("woff2");
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-tertiary-text: var(--tertiary-text);
+  --color-brand: var(--brand);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+  --color-chart-9: var(--chart-9);
+  --color-chart-10: var(--chart-10);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Neutrals (DESIGN.md: default surface + text) */
+  --background: oklch(0.13 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.08 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.08 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.68 0 0);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  /* Focus ring: 2px solid, ≥3:1 (6.2:1 on background, 6.4:1 on card — DESIGN.md Contrast). */
+  --ring: oklch(0.66 0.11 292);
+
+  --inverse: oklch(0.985 0 0);
+  --inverse-foreground: oklch(0.13 0 0);
+
+  --sidebar: oklch(0.15 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-accent: oklch(0.22 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-ring: var(--ring);
+
+  /* EVA brand triad (identity only) */
+  --primary: #765898;
+  --primary-foreground: #ffffff;
+  --secondary: #52d053;
+  --secondary-foreground: #0a0808;
+  --tertiary: #c62a3e;
+  --tertiary-foreground: #ffffff;
+  --tertiary-text: #e0485c;
+  --brand: var(--primary);
+
+  --accent: oklch(0.16 0.02 55);
+  --accent-foreground: oklch(0.94 0.02 55);
+
+  /* Feedback (status only — non-text, DESIGN.md Resolved #10) */
+  --destructive: oklch(0.52 0.19 28);
+  --destructive-foreground: oklch(0.9 0 0);
+  --success: oklch(0.5 0.12 145);
+  --success-foreground: oklch(0.95 0 0);
+  --warning: oklch(0.52 0.16 55);
+  --warning-foreground: oklch(0.95 0 0);
+  --info: oklch(0.5 0.15 260);
+  --info-foreground: oklch(0.95 0 0);
+
+  /* Dataviz (charts only) — first three are the brand triad */
+  --chart-1: #765898;
+  --chart-2: #52d053;
+  --chart-3: #c62a3e;
+  --chart-4: #e6770b;
+  --chart-5: #f6c026;
+  --chart-6: #68a8a8;
+  --chart-7: #d94a9c;
+  --chart-8: #b9a3c9;
+  --chart-9: #60a5fa;
+  --chart-10: #22d3ee;
+
+  /* Radius: 8px base, Tailwind mapping is the single canonical source (DESIGN.md Resolved #3) */
+  --radius: 0.5rem;
+
+  /* Elevation: no shadow tokens in dark scope — border + glow only (DESIGN.md Resolved #5) */
+  --glow-ring-shadow:
+    0 0 0 1px rgba(118, 88, 152, 0.4),
+    0 0 16px rgba(118, 88, 152, 0.3),
+    0 0 48px rgba(118, 88, 152, 0.25);
+  --shadow-toast:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  --gradient-bg: radial-gradient(
+    512px at top right,
+    color-mix(in oklab, var(--primary) 12%, transparent) 0%,
+    color-mix(in oklab, var(--secondary) 10%, transparent) 55%,
+    color-mix(in oklab, var(--secondary) 0%, transparent) 100%
+  );
+
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/*
+ * Dark EVA Unit 01 is the default (first login) — tokens live in :root.
+ * Light EVA (Unit 00) arrives as a `.light` override block before Block #2.
+ * `.dark` is kept as a no-op selector so `dark:` variants and html.dark
+ * (set in layout.tsx) behave predictably.
+ */
+.dark {
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
