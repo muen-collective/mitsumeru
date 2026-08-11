@@ -4,6 +4,9 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  // Block #1 dev/review surface; gate it behind sign-in when the settings
+  // shell (Block #2) lands and the pilot needs real session protection.
+  "/providers(.*)",
   // Stripe payment-link webhook + publish-adapter webhooks arrive here later (pilot epic 07)
   "/api/webhooks(.*)",
 ]);

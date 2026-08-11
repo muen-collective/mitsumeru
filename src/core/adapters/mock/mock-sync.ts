@@ -12,7 +12,7 @@ export function createMockSyncAdapter(initial: SyncState = { status: 'idle', con
     async getState() {
       return current
     },
-    async resolveConflict(conflict, resolution) {
+    async resolveConflict(conflict) {
       const conflicts: SyncConflict[] = current.conflicts
         .filter((c) => c.path !== conflict.path)
         .map((c) => c)

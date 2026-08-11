@@ -4,7 +4,7 @@
  * `real/` shells are the partner's integration contract. The UI never
  * imports adapters directly — only contracts.
  */
-import type { ProviderConfig, ProviderPreset } from '../contracts/provider'
+import type { ProviderConfig, ProviderModel, ProviderPreset } from '../contracts/provider'
 import type { KeychainState, KeyStatus } from '../contracts/keychain'
 import type { UsageRecord, WalletMeterState } from '../contracts/wallet'
 import type { PublishManifest } from '../contracts/publish'
@@ -16,6 +16,8 @@ import type { SyncConflict, SyncState } from '../contracts/sync'
 export interface ProviderAdapter {
   listPresets(): Promise<ProviderPreset[]>
   loadProviders(): Promise<ProviderConfig[]>
+  /** Pull the provider's real model list (v0.1 — panel "Pull models" flow). */
+  fetchModels(providerId: string): Promise<ProviderModel[]>
 }
 
 export interface KeychainAdapter {

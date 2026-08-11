@@ -1,9 +1,9 @@
 /**
- * ProviderConfig v0 — Block #1 provider settings right panel.
+ * ProviderConfig v0.1 — Block #1 provider settings right panel.
  * Source story: claire-ai `Patterns/Mitsu provider panel` (MitsuProvidersPanel.tsx,
  * MitsuProviderEditor.tsx) + `ai/providerCatalog.ts`.
- * Open shape questions (epic 10 §3): catalog preset vs custom form; capability
- * flags; default-model selection.
+ * v0.1 additions (Block 1, flagged for ratification): `modelsFetched` and
+ * `ProviderModel.kept` — the panel's pull-models / keep-model flows.
  * BYOK rule: this contract never carries key material — key state lives in
  * KeychainState, referenced by providerId (status booleans only).
  */
@@ -31,6 +31,8 @@ export interface ProviderModel {
   capability: ProviderCapability
   /** Display name — catalog only; custom providers show the raw id until fetched. */
   name?: string
+  /** Whether the user keeps this model enabled (v0.1 — model-list curation). */
+  kept: boolean
 }
 
 export interface ProviderConfig {
@@ -43,6 +45,8 @@ export interface ProviderConfig {
   /** Capabilities this provider offers, independent of its (possibly empty) model list. */
   capabilities: ProviderCapability[]
   models: ProviderModel[]
+  /** v0.1 — mirrors the panel's "pull models" flow; false until the user pulls. */
+  modelsFetched: boolean
   defaultModelId?: string
   /** Derived from KeychainState by providerId — status booleans only, never material. */
   keyStatus: KeyStatus

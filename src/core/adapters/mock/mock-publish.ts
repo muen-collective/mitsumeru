@@ -4,7 +4,6 @@
  * preview/publish/rollback → site-content/*.json → one git commit (epic 07).
  */
 import type { PublishAdapter } from '../ports'
-import type { PublishManifest } from '../../contracts/publish'
 
 const FAKE_DELAY_MS = 3000
 
