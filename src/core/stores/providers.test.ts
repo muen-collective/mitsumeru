@@ -56,7 +56,7 @@ describe('providers store', () => {
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
     })
     expect(added.id).toBe('minimax')
-    expect(store.getState().providers).toHaveLength(4)
+    expect(store.getState().providers).toHaveLength(3)
     // Adding the same preset again suffixes the id (no collisions)
     const second = store.getState().addFromPreset({
       id: 'minimax',
@@ -67,9 +67,9 @@ describe('providers store', () => {
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
     })
     expect(second.id).toMatch(/^minimax-/)
-    expect(store.getState().providers).toHaveLength(5)
+    expect(store.getState().providers).toHaveLength(4)
     store.getState().removeProvider(added.id)
     store.getState().removeProvider(second.id)
-    expect(store.getState().providers).toHaveLength(3)
+    expect(store.getState().providers).toHaveLength(2)
   })
 })
