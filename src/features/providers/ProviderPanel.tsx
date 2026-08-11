@@ -78,7 +78,9 @@ export function ProviderPanel() {
   const selected = providers.find((p) => p.id === selectedId) ?? providers[0] ?? null
 
   const selectProvider = (id: string) => {
-    const p = providers.find((x) => x.id === id)
+    // Read from the store, not the hook closure — add flows can fire two adds
+    // in one handler (e.g. the fashion pack) where the closure lags behind.
+    const p = useProvidersStore.getState().providers.find((x) => x.id === id)
     if (!p) return
     setSelectedId(id)
     setApiKey('')

@@ -90,6 +90,32 @@ const PRESETS: ProviderPreset[] = [
     ],
   },
   {
+    id: 'gemini',
+    name: 'Google Gemini',
+    description:
+      'Chat and reasoning. Image (Nano Banana 2) / video (Veo 3.1) claims need a Google-docs verify pass before enabling those tabs.',
+    endpoint: {
+      format: 'google',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    },
+    capabilities: ['chat', 'reasoning'],
+    models: [
+      { id: 'gemini-2.5-pro', capability: 'chat', name: 'Gemini 2.5 Pro', kept: true },
+      { id: 'gemini-2.5-flash', capability: 'chat', name: 'Gemini 2.5 Flash', kept: true },
+    ],
+  },
+  {
+    id: 'anthropic',
+    name: 'Anthropic (Claude)',
+    description: 'Chat and reasoning — premium text/coding tier.',
+    endpoint: { format: 'anthropic', baseUrl: 'https://api.anthropic.com/v1' },
+    capabilities: ['chat', 'reasoning'],
+    models: [
+      { id: 'claude-sonnet-4-5', capability: 'chat', name: 'Claude Sonnet 4.5', kept: true },
+      { id: 'claude-opus-4', capability: 'reasoning', name: 'Claude Opus 4', kept: true },
+    ],
+  },
+  {
     id: 'krea',
     name: 'Krea',
     description: 'Image, video and 3D generation.',

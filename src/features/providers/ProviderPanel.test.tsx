@@ -36,4 +36,22 @@ describe('ProviderPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Test connection' }))
     await waitFor(() => expect(screen.getByText('Connected — key works.')).toBeTruthy())
   })
+
+  it('adds a provider from the catalog dialog with category tabs', async () => {
+    render(<ProviderPanel />)
+    fireEvent.click(await screen.findByRole('button', { name: /add provider/i }))
+    // Category tabs per the settled prototype (patterns-settings)
+    expect(await screen.findByText('Starter packs')).toBeTruthy()
+    expect(screen.getByText('Open Source')).toBeTruthy()
+    expect(screen.getByText('Frontier')).toBeTruthy()
+    expect(screen.getByText('Creative')).toBeTruthy()
+    // Frontier tab → add Anthropic → dialog closes, provider appears in the list
+    // (Radix tabs activate on pointerdown; fireEvent.click alone doesn't switch)
+    const frontierTab = screen.getByRole('tab', { name: 'Frontier' })
+    fireEvent.pointerDown(frontierTab)
+    fireEvent.click(frontierTab)
+    fireEvent.click(await screen.findByText('Anthropic'))
+    await waitFor(() => expect(screen.queryByText('Starter packs')).toBeNull())
+    expect(screen.getAllByText(/Anthropic/).length).toBeGreaterThan(0)
+  })
 })
