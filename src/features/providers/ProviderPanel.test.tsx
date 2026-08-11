@@ -13,7 +13,6 @@ describe('ProviderPanel', () => {
     // DeepSeek appears in the list AND the editor header
     expect((await screen.findAllByText('DeepSeek')).length).toBeGreaterThan(0)
     expect(screen.getByText('Krea')).toBeTruthy()
-    expect(screen.getByText('Ollama (local)')).toBeTruthy()
     // First provider is selected → connection tab with the API key field
     expect(await screen.findByLabelText('API key')).toBeTruthy()
   })

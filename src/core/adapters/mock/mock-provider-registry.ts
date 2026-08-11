@@ -133,19 +133,6 @@ const PRESETS: ProviderPreset[] = [
       { id: 'trellis-2', capability: '3d', name: 'Trellis 2', kept: false },
     ],
   },
-  {
-    id: 'ollama',
-    name: 'Ollama (local)',
-    description: 'Local models, no key needed — chat, reasoning, vision.',
-    endpoint: { format: 'openai', baseUrl: 'http://localhost:11434/v1' },
-    capabilities: ['chat', 'reasoning'],
-    models: [
-      { id: 'llama3.2:3b', capability: 'chat', name: 'Llama 3.2 3B', kept: true },
-      { id: 'qwen2.5:7b', capability: 'chat', name: 'Qwen 2.5 7B', kept: true },
-      { id: 'deepseek-r1:8b', capability: 'reasoning', name: 'DeepSeek R1 8B', kept: true },
-      { id: 'llama3.2-vision', capability: 'chat', name: 'Llama 3.2 Vision', kept: false },
-    ],
-  },
 ]
 
 /** Simulated fetched model lists, keyed by provider id (mirrors the story's FETCHED). */
@@ -154,7 +141,8 @@ const FETCHED: Record<string, ProviderModel[]> = Object.fromEntries(
 )
 
 /** Seeded providers mirror the panel's initial state: DeepSeek configured,
- * Krea added without a key, plus a local (keyless) Ollama custom provider. */
+ * Krea added without a key. (Ollama removed 2026-08-11 — local models are
+ * untestable on dev hardware; the 'local' status stays for future adapters.) */
 const PROVIDERS: ProviderConfig[] = [
   {
     id: 'deepseek',
@@ -180,18 +168,6 @@ const PROVIDERS: ProviderConfig[] = [
     modelsFetched: false,
     keyStatus: 'unset',
     status: 'unconfigured',
-  },
-  {
-    id: 'ollama',
-    name: 'Ollama (local)',
-    kind: 'custom',
-    endpoint: { format: 'openai', baseUrl: 'http://localhost:11434/v1' },
-    capabilities: ['chat', 'reasoning'],
-    models: FETCHED['ollama'] ?? [],
-    modelsFetched: true,
-    defaultModelId: 'llama3.2:3b',
-    keyStatus: 'unset',
-    status: 'local',
   },
 ]
 

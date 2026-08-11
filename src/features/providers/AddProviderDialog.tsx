@@ -137,27 +137,14 @@ export function AddProviderDialog({ open, onOpenChange, existingIds, onAdd }: Ad
           ))}
         </Tabs>
         <DialogFooter className="justify-between">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
-              onClick={() => {
-                const ollama = presets.find((p) => p.id === 'ollama')
-                if (ollama) onAdd(ollama)
-              }}
-            >
-              Ollama (local)
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
-              onClick={() => onAdd(CUSTOM_PRESET)}
-            >
-              Custom
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
+            onClick={() => onAdd(CUSTOM_PRESET)}
+          >
+            Custom
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

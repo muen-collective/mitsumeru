@@ -7,7 +7,7 @@ describe('providers store', () => {
     await store.getState().load()
     const { providers, status } = store.getState()
     expect(status).toBe('ready')
-    expect(providers.map((p) => p.id)).toEqual(['deepseek', 'krea', 'ollama'])
+    expect(providers.map((p) => p.id)).toEqual(['deepseek', 'krea'])
     expect(providers[0].keyStatus).toBe('valid')
   })
 

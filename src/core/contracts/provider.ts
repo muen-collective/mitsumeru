@@ -20,7 +20,7 @@ export const PROVIDER_CAPABILITIES: readonly ProviderCapability[] = [
 ]
 
 /**
- * ready = configured and usable · local = no key needed (Ollama) ·
+ * ready = configured and usable · local = no key needed (local endpoints) ·
  * issue = last key test failed · unconfigured = added, no key yet.
  */
 export type ProviderStatus = 'ready' | 'local' | 'issue' | 'unconfigured'
