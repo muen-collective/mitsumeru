@@ -46,9 +46,9 @@ describe('ProviderPanel', () => {
     expect(screen.getByText('Frontier')).toBeTruthy()
     expect(screen.getByText('Creative')).toBeTruthy()
     // Frontier tab → add Anthropic → dialog closes, provider appears in the list
-    // (Radix tabs activate on pointerdown; fireEvent.click alone doesn't switch)
+    // (this @radix-ui/react-tabs version activates on mousedown)
     const frontierTab = screen.getByRole('tab', { name: 'Frontier' })
-    fireEvent.pointerDown(frontierTab)
+    fireEvent.mouseDown(frontierTab)
     fireEvent.click(frontierTab)
     fireEvent.click(await screen.findByText('Anthropic'))
     await waitFor(() => expect(screen.queryByText('Starter packs')).toBeNull())
