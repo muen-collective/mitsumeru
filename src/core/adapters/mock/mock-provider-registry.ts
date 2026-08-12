@@ -8,7 +8,7 @@
  * - DeepSeek: api-docs.deepseek.com (chat+reasoning only; no vision API)
  * - Qwen/DashScope: alibabacloud.com/help/en/model-studio/{text-to-image,use-video-generation,3d-generation}
  * - MiniMax: platform.minimaxi.com/docs/guides/models-intro
- * - Moonshot/Kimi: platform.kimi.com/docs/guide/use-kimi-vision-model.md
+ * - Moonshot/Kimi: platform.kimi.ai/docs/overview (base api.moonshot.ai/v1; verified 2026-08-12)
  * - OpenAI: developers.openai.com/api/docs/models (sora-2: v1/videos)
  * - Krea: krea.ai/docs
  * Note: "capabilities" (tabs) are independent of the model list — a tab may
@@ -68,12 +68,18 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'moonshot',
     name: 'Moonshot (Kimi)',
-    description: 'Long-context chat, reasoning and multimodal understanding (image + video input).',
-    endpoint: { format: 'openai', baseUrl: 'https://api.moonshot.cn/v1' },
+    description:
+      'Kimi K3 — 1M ctx, native visual understanding (image + video input), deep reasoning via reasoning_effort (low/high/max, default max). K2.7 Code high-speed for coding.',
+    endpoint: { format: 'openai', baseUrl: 'https://api.moonshot.ai/v1' },
     capabilities: ['chat', 'reasoning'],
     models: [
       { id: 'kimi-k3', capability: 'chat', name: 'Kimi K3', kept: true },
-      { id: 'kimi-k2.7-code', capability: 'reasoning', name: 'Kimi K2.7 Code', kept: true },
+      {
+        id: 'kimi-k2.7-code-highspeed',
+        capability: 'reasoning',
+        name: 'Kimi K2.7 Code (high speed)',
+        kept: true,
+      },
       { id: 'kimi-k2.5', capability: 'chat', name: 'Kimi K2.5', kept: false },
     ],
   },
