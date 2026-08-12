@@ -151,7 +151,7 @@ const PRESETS: ProviderPreset[] = [
   },
   {
     id: 'zai',
-    name: 'Z.ai (Zhipu)',
+    name: 'Z.ai (GLM)',
     description:
       'GLM-5.2 chat with built-in reasoning, GLM-5V Turbo vision input, CogVideoX-3 video gen. OpenAI-compatible /api/paas/v4 (Bearer). GLM Coding Plan subscription ($18/mo) uses a dedicated endpoint.',
     endpoint: { format: 'openai', baseUrl: 'https://api.z.ai/api/paas/v4' },
