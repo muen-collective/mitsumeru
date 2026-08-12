@@ -271,8 +271,8 @@ const PRESETS: ProviderPreset[] = [
     id: 'runninghub',
     name: 'RunningHub',
     description:
-      'Workflow + model aggregator (ComfyUI native): run full ComfyUI workflows as APIs plus standard model endpoints — Sora 2, Kling 3.0/o-series, Seedance 2.5, Vidu, Wan, Midjourney, Suno, Meshy 3D, Topaz. Async tasks + webhooks, LoRA/uploads. Base URL TBD — verify against docs before the real adapter.',
-    endpoint: { format: 'custom', baseUrl: '' },
+      'Workflow + model aggregator (ComfyUI native): run full ComfyUI workflows as APIs plus standard model endpoints — Sora 2, Kling 3.0/o-series, Seedance 2.5, Vidu, Wan, Midjourney, Suno, Meshy 3D, Topaz. Async tasks + webhooks, LoRA/uploads. Base https://www.runninghub.ai; AI App contract verified in claire-ai services/runninghub.ts (submit /task/openapi/ai-app/run {webappId, apiKey, nodeInfoList}; poll /task/openapi/outputs; v2 /run/ai-app/{appId} Bearer).',
+    endpoint: { format: 'custom', baseUrl: 'https://www.runninghub.ai' },
     capabilities: ['image', 'video', '3d'],
     models: [
       {
