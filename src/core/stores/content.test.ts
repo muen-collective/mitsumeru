@@ -11,4 +11,13 @@ describe('content store', () => {
     expect(s.tree?.type).toBe('site')
     expect(s.tree?.children?.length).toBeGreaterThan(0)
   })
+
+  it('holds read-only selection state (canvas ↔ tree sync)', () => {
+    const store = createContentStore()
+    expect(store.getState().selectedId).toBeNull()
+    store.getState().select('hero-image')
+    expect(store.getState().selectedId).toBe('hero-image')
+    store.getState().select(null)
+    expect(store.getState().selectedId).toBeNull()
+  })
 })

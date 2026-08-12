@@ -10,14 +10,14 @@ afterEach(() => {
 })
 
 describe('FileTreePanel', () => {
-  it('loads and renders the site content tree (sections + leaves)', async () => {
+  it('loads and renders the site content tree (block names + content labels)', async () => {
     render(<FileTreePanel />)
     expect(await screen.findByText('Hand Me Up · content')).toBeTruthy()
-    // Sections use their data.title.
-    expect(await screen.findByText('Hand-me-up')).toBeTruthy()
-    expect(await screen.findByText('Lookbook')).toBeTruthy()
-    // Leaves fall back to their id.
-    expect(await screen.findByText('hero-text')).toBeTruthy()
-    expect(await screen.findByText('lookbook-grid')).toBeTruthy()
+    // Sections label by their template block name (shadcn-store style).
+    expect(await screen.findByText('Storefront Hero')).toBeTruthy()
+    expect(await screen.findByText('Product Carousel')).toBeTruthy()
+    // Leaves label by content: markdown for text, alt for images.
+    expect(await screen.findByText('Fashion that moves forward.')).toBeTruthy()
+    expect(await screen.findByText('Velvet trouser look')).toBeTruthy()
   })
 })

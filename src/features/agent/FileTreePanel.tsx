@@ -4,6 +4,7 @@ import * as React from "react"
 import { FileText, Folder, Image as ImageIcon, LayoutGrid } from "lucide-react"
 import { useContentStore } from "@/core/stores/content"
 import type { ContentNode } from "@/core/contracts/content"
+import { nodeTitle } from "@/core/contracts/content"
 import { cn } from "@/lib/utils"
 
 const nodeIcon = (type: string) => {
@@ -15,7 +16,7 @@ const nodeIcon = (type: string) => {
 }
 
 function TreeNode({ node, depth }: { node: ContentNode; depth: number }) {
-  const label = (node.data?.title as string | undefined) ?? node.id
+  const label = nodeTitle(node)
   return (
     <div>
       <div
