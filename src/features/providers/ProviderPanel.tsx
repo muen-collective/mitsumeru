@@ -32,7 +32,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
  * mock seam (stores → adapters); key material never lives in UI state — the
  * key input is a transient field passed to the keychain adapter.
  */
-export function ProviderPanel() {
+export function ProviderPanel({ embedded = false }: { embedded?: boolean }) {
   const providers = useProvidersStore((s) => s.providers)
   const load = useProvidersStore((s) => s.load)
   const patchProvider = useProvidersStore((s) => s.patchProvider)
@@ -130,13 +130,18 @@ export function ProviderPanel() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between">
-        <h2 className="text-xl font-semibold">Providers</h2>
-        <span className="mt-0.5 text-xs text-muted-foreground">Your keys, your models</span>
-      </div>
-      <p className="text-sm text-muted-foreground">
-        Add a provider, then pull and curate its model list per capability.
-      </p>
+      {/* Section header — hidden when embedded (the settings page provides its own) */}
+      {!embedded && (
+        <>
+          <div className="flex items-start justify-between">
+            <h2 className="text-xl font-semibold">Providers</h2>
+            <span className="mt-0.5 text-xs text-muted-foreground">Your keys, your models</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Add a provider, then pull and curate its model list per capability.
+          </p>
+        </>
+      )}
 
       <div className="flex rounded-lg border border-border bg-card">
         <ProviderList
