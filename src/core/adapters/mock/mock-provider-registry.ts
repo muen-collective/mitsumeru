@@ -158,15 +158,24 @@ const PRESETS: ProviderPreset[] = [
     id: 'gemini',
     name: 'Google Gemini',
     description:
-      'Chat and reasoning. Image (Nano Banana 2) / video (Veo 3.1) claims need a Google-docs verify pass before enabling those tabs.',
+      'Chat/reasoning (Gemini 3.6/3.5 Flash, 3.1 Pro), image (Nano Banana 2/Pro), video (Veo 3.1), omni/TTS. Free tier + Prepay credits ($10 min / $5k max, 12-mo expiry) or Postpay; Batch API −50%.',
     endpoint: {
       format: 'google',
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     },
-    capabilities: ['chat', 'reasoning'],
+    capabilities: ['chat', 'reasoning', 'image', 'video'],
     models: [
-      { id: 'gemini-2.5-pro', capability: 'chat', name: 'Gemini 2.5 Pro', kept: true },
-      { id: 'gemini-2.5-flash', capability: 'chat', name: 'Gemini 2.5 Flash', kept: true },
+      { id: 'gemini-3.6-flash', capability: 'chat', name: 'Gemini 3.6 Flash', kept: true },
+      { id: 'gemini-3.5-flash', capability: 'chat', name: 'Gemini 3.5 Flash', kept: true },
+      {
+        id: 'gemini-3.1-pro-preview',
+        capability: 'reasoning',
+        name: 'Gemini 3.1 Pro (preview)',
+        kept: true,
+      },
+      { id: 'gemini-3.1-flash-image', capability: 'image', name: 'Nano Banana 2', kept: true },
+      { id: 'gemini-3-pro-image', capability: 'image', name: 'Nano Banana Pro', kept: false },
+      { id: 'veo-3.1', capability: 'video', name: 'Veo 3.1', kept: true },
     ],
   },
   {
