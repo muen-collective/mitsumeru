@@ -267,6 +267,28 @@ const PRESETS: ProviderPreset[] = [
       // Real adapter maps these to the API's model values (docs 2026-08-12)
     ],
   },
+  {
+    id: 'runninghub',
+    name: 'RunningHub',
+    description:
+      'Workflow + model aggregator (ComfyUI native): run full ComfyUI workflows as APIs plus standard model endpoints — Sora 2, Kling 3.0/o-series, Seedance 2.5, Vidu, Wan, Midjourney, Suno, Meshy 3D, Topaz. Async tasks + webhooks, LoRA/uploads. Base URL TBD — verify against docs before the real adapter.',
+    endpoint: { format: 'custom', baseUrl: '' },
+    capabilities: ['image', 'video', '3d'],
+    models: [
+      {
+        id: 'kling-v3.0-pro-image-to-video',
+        capability: 'video',
+        name: 'Kling 3.0 Pro (image-to-video)',
+        kept: true,
+      },
+      { id: 'seedance-2.5/image-to-video', capability: 'video', name: 'Seedance 2.5 (i2v)', kept: true },
+      { id: 'vidu-image-to-video-q3-pro', capability: 'video', name: 'Vidu Q3 Pro (i2v)', kept: false },
+      { id: 'nano-banana', capability: 'image', name: 'Nano Banana (image)', kept: true },
+      { id: 'gpt-image', capability: 'image', name: 'GPT Image', kept: false },
+      { id: 'meshy', capability: '3d', name: 'Meshy (3D)', kept: true },
+      // Full catalog = per-model endpoints (docs 2026-08-12); LLM API is new/UNVERIFIED
+    ],
+  },
 ]
 
 /** Simulated fetched model lists, keyed by provider id (mirrors the story's FETCHED). */

@@ -21,6 +21,7 @@ describe('providers store', () => {
       'krea',
       'openrouter',
       'magnific',
+      'runninghub',
     ])
     expect(providers[0].keyStatus).toBe('valid')
     const local = providers.find((p) => p.id === 'lm-studio')
@@ -74,7 +75,7 @@ describe('providers store', () => {
     })
     // All presets are seeded in review mode → even the first add collides
     expect(added.id).toMatch(/^minimax-/)
-    expect(store.getState().providers).toHaveLength(14)
+    expect(store.getState().providers).toHaveLength(15)
     // Adding the same preset again suffixes the id (no collisions)
     const second = store.getState().addFromPreset({
       id: 'minimax',
@@ -85,9 +86,9 @@ describe('providers store', () => {
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
     })
     expect(second.id).toMatch(/^minimax-/)
-    expect(store.getState().providers).toHaveLength(15)
+    expect(store.getState().providers).toHaveLength(16)
     store.getState().removeProvider(added.id)
     store.getState().removeProvider(second.id)
-    expect(store.getState().providers).toHaveLength(13)
+    expect(store.getState().providers).toHaveLength(14)
   })
 })

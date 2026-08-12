@@ -67,6 +67,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
     entries: [
       { id: 'krea', name: 'Krea', desc: 'Aggregator API — 40+ image/video models (Nano Banana, Flux, Imagen, Veo, Kling, Sora) on one endpoint, compute-unit pricing ($0.04–$0.15/image, $0.05–$0.50/sec video). Topaz upscale to 22K, LoRA training.', setupUrl: 'https://www.krea.ai/app/api/tokens' },
       { id: 'magnific', name: 'Magnific (Freepik)', desc: 'The creative suite (ex-Freepik) — Mystic image gen, the flagship Magnific upscaler, image editing, Kling v2 video, stock library. One credit balance across your plan, async + webhooks.', setupUrl: 'https://www.magnific.com/user/api-keys' },
+      { id: 'runninghub', name: 'RunningHub', desc: 'Workflow + model aggregator (ComfyUI native) — Sora 2, Kling 3.0, Seedance 2.5, Vidu, Midjourney, Suno, Meshy 3D, Topaz. Run full ComfyUI workflows as APIs; async tasks + webhooks; LoRA uploads.', setupUrl: 'https://www.runninghub.ai/enterprise-api/consumerApi' },
     ],
   },
 ]
@@ -80,4 +81,5 @@ export const ENTRY_TO_PRESET: Record<string, string> = {
   zai: 'zai',
   openrouter: 'openrouter',
   magnific: 'magnific',
+  runninghub: 'runninghub',
 }
