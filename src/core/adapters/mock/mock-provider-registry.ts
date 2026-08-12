@@ -183,12 +183,15 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'anthropic',
     name: 'Anthropic (Claude)',
-    description: 'Chat and reasoning — premium text/coding tier.',
+    description:
+      'Fable 5 / Opus 5 frontier reasoning; Sonnet 5 at $2/$10 (intro extended — no Sept 1 increase); Haiku 4.5 $1/$5. Cache writes $1.25–$20/MTok; 10% regional-endpoint premium (4.5+).',
     endpoint: { format: 'anthropic', baseUrl: 'https://api.anthropic.com/v1' },
     capabilities: ['chat', 'reasoning'],
     models: [
-      { id: 'claude-sonnet-4-5', capability: 'chat', name: 'Claude Sonnet 4.5', kept: true },
-      { id: 'claude-opus-4', capability: 'reasoning', name: 'Claude Opus 4', kept: true },
+      { id: 'claude-sonnet-5', capability: 'chat', name: 'Claude Sonnet 5', kept: true },
+      { id: 'claude-haiku-4.5', capability: 'chat', name: 'Claude Haiku 4.5', kept: false },
+      { id: 'claude-opus-5', capability: 'reasoning', name: 'Claude Opus 5', kept: true },
+      { id: 'claude-fable-5', capability: 'reasoning', name: 'Claude Fable 5', kept: false },
     ],
   },
   {
