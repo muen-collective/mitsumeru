@@ -134,6 +134,20 @@ const PRESETS: ProviderPreset[] = [
     ],
   },
   {
+    id: 'zai',
+    name: 'Z.ai (Zhipu)',
+    description:
+      'GLM-5.2 chat with built-in reasoning, GLM-5V Turbo vision input, CogVideoX-3 video gen. OpenAI-compatible /api/paas/v4 (Bearer). GLM Coding Plan subscription ($18/mo) uses a dedicated endpoint.',
+    endpoint: { format: 'openai', baseUrl: 'https://api.z.ai/api/paas/v4' },
+    capabilities: ['chat', 'reasoning', 'video'],
+    models: [
+      // reasoning is a mode on GLM-5.2 (no separate model id), like DeepSeek
+      { id: 'glm-5.2', capability: 'chat', name: 'GLM-5.2', kept: true },
+      { id: 'glm-5v-turbo', capability: 'chat', name: 'GLM-5V Turbo (vision input)', kept: true },
+      { id: 'cogvideox-3', capability: 'video', name: 'CogVideoX-3', kept: true },
+    ],
+  },
+  {
     id: 'gemini',
     name: 'Google Gemini',
     description:

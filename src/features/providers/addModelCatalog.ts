@@ -48,6 +48,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
       { id: 'qwen', name: 'Qwen', desc: 'Excellent all-rounder — and the deepest family: Qwen3.8 Max (#5 text), Qwen Image 3.0 Pro (#5 image), Wan 2.7 video (i2v #6), plus VL and image-edit lines. Open-source alternative to ChatGPT and Gemini.', setupUrl: 'https://modelstudio.console.alibabacloud.com' },
       { id: 'minimax', name: 'MiniMax', desc: 'One API for text, image and video — M3 (arena #69, multimodal) plus H3 video at #4, just behind Seedance 2.0, at a fraction of the price. A clear pick if video is your main output.', setupUrl: 'https://platform.minimax.io' },
       { id: 'lm-studio', name: 'LM Studio (local)', desc: 'Local models via LM Studio (localhost:1234). Small VL models — Qwen3-VL 4B/8B, abliterated variants included — run on most machines and give you vision when cloud chat providers do not (DeepSeek has no vision API). No account, no per-token cost.' },
+      { id: 'zai', name: 'Z.ai (GLM)', desc: 'Open-source GLM line — GLM-5.2 flagship (reasoning built-in), GLM-5V Turbo vision, CogVideoX-3 video gen. GLM Coding Plan from $18/mo for coding tools.', setupUrl: 'https://z.ai/manage-apikey/apikey-list' },
     ],
   },
   {
@@ -74,4 +75,5 @@ export const ENTRY_TO_PRESET: Record<string, string> = {
   google: 'gemini',
   'lm-studio': 'lm-studio',
   xiaomi: 'mimo',
+  zai: 'zai',
 }

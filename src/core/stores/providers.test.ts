@@ -15,6 +15,7 @@ describe('providers store', () => {
       'mimo',
       'lm-studio',
       'openai',
+      'zai',
       'gemini',
       'anthropic',
       'krea',
@@ -71,7 +72,7 @@ describe('providers store', () => {
     })
     // All presets are seeded in review mode → even the first add collides
     expect(added.id).toMatch(/^minimax-/)
-    expect(store.getState().providers).toHaveLength(11)
+    expect(store.getState().providers).toHaveLength(12)
     // Adding the same preset again suffixes the id (no collisions)
     const second = store.getState().addFromPreset({
       id: 'minimax',
@@ -82,9 +83,9 @@ describe('providers store', () => {
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
     })
     expect(second.id).toMatch(/^minimax-/)
-    expect(store.getState().providers).toHaveLength(12)
+    expect(store.getState().providers).toHaveLength(13)
     store.getState().removeProvider(added.id)
     store.getState().removeProvider(second.id)
-    expect(store.getState().providers).toHaveLength(10)
+    expect(store.getState().providers).toHaveLength(11)
   })
 })
