@@ -130,11 +130,13 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'openai',
     name: 'OpenAI',
-    description: 'GPT chat/reasoning, GPT Image 2, Sora 2 video.',
+    description:
+      'GPT-5.6 Sol/Terra/Luna (reasoning/chat tiers), GPT Image 2, Sora 2 video. Pricing tiers: Standard / Batch (−50%) / Flex (−50%) / Fast (2×). Luna ≈ $0.20 in / $1.20 out per 1M.',
     endpoint: { format: 'openai', baseUrl: 'https://api.openai.com/v1' },
     capabilities: ['chat', 'reasoning', 'image', 'video'],
     models: [
       { id: 'gpt-5.6-luna', capability: 'chat', name: 'GPT-5.6 Luna', kept: true },
+      { id: 'gpt-5.6-terra', capability: 'chat', name: 'GPT-5.6 Terra', kept: false },
       { id: 'gpt-5.6-sol', capability: 'reasoning', name: 'GPT-5.6 Sol', kept: true },
       { id: 'gpt-image-2', capability: 'image', name: 'GPT Image 2', kept: true },
       { id: 'sora-2', capability: 'video', name: 'Sora 2 (text/image to video)', kept: true },

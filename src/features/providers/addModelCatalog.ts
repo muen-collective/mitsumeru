@@ -55,7 +55,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
     id: 'frontier',
     label: 'Frontier',
     entries: [
-      { id: 'openai', name: 'OpenAI', desc: 'The full-stack leader — GPT Image 2 is #1 on arena.ai image, GPT-5.6 Sol XHigh is top-15 on text and #4 on the coding harness, Sora 2 Pro #6 on video. GPT-5.6 Luna was cut ~80% on July 30, 2026 — a compelling value pick.', setupUrl: 'https://platform.openai.com/api-keys' },
+      { id: 'openai', name: 'OpenAI', desc: 'The full-stack leader — GPT Image 2 is #1 on arena.ai image, GPT-5.6 Sol XHigh is top-15 on text and #4 on the coding harness, Sora 2 Pro #6 on video. GPT-5.6 Luna is the value pick ($0.20 in / $1.20 out per 1M); Batch/Flex tiers are −50%.', setupUrl: 'https://platform.openai.com/api-keys' },
       { id: 'google', name: 'Google Gemini', desc: 'The all-in-one — Gemini 3.6/3.5 Flash text, Nano Banana 2/Pro image, Veo 3.1 video, Omni Flash. Free tier; paid = Prepay credits or Postpay, batch −50%.', setupUrl: 'https://aistudio.google.com/apikey' },
       { id: 'anthropic', name: 'Anthropic', desc: 'The text and coding king — Fable 5 and the Opus line hold ranks #1-8 on arena.ai, with Opus 4.8 close behind. Premium price, though: for day-to-day work DeepSeek V4 Flash and Qwen deliver comparable quality at a fraction of the cost. Requires separate creative models — pair it with the Fashion Starter Pack or Krea.ai.', setupUrl: 'https://console.anthropic.com' },
     ],
