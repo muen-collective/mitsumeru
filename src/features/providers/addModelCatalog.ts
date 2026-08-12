@@ -43,7 +43,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
     label: 'Open Source',
     entries: [
       { id: 'deepseek', name: 'DeepSeek', desc: 'Best bang for your buck — V4 Pro is top-50 on arena.ai text, but newer checkpoints like V4 Flash 0731 beat it on coding. Checkpoints move fast; ranks are per version.', setupUrl: 'https://platform.deepseek.com/api_keys' },
-      { id: 'xiaomi', name: 'Xiaomi MiMo', desc: 'Arena rank #40 — above Kimi K2.6, Qwen3.7 Plus and DeepSeek V4 Pro on the text board at a budget price. Multimodal with vision models.', setupUrl: 'https://platform.mimo.xiaomi.com' },
+      { id: 'xiaomi', name: 'Xiaomi MiMo', desc: 'Arena rank #40 — above Kimi K2.6, Qwen3.7 Plus and DeepSeek V4 Pro on the text board. Multimodal with vision models. Subscription plans from $5.28/mo (credits-based, not per-token).', setupUrl: 'https://platform.xiaomimimo.com' },
       { id: 'moonshot', name: 'Moonshot (Kimi)', desc: 'Kimi K3 Max ranks #13 on arena.ai — frontier-tier, ahead of DeepSeek and Qwen on the text board. Easy to set up.', setupUrl: 'https://platform.moonshot.cn' },
       { id: 'qwen', name: 'Qwen', desc: 'Excellent all-rounder — and the deepest family: Qwen3.8 Max (#5 text), Qwen Image 3.0 Pro (#5 image), Wan 2.7 video (i2v #6), plus VL and image-edit lines. Open-source alternative to ChatGPT and Gemini.', setupUrl: 'https://modelstudio.console.alibabacloud.com' },
       { id: 'minimax', name: 'MiniMax', desc: 'One API for text, image and video — M3 (arena #69, multimodal) plus H3 video at #4, just behind Seedance 2.0, at a fraction of the price. A clear pick if video is your main output.', setupUrl: 'https://platform.minimax.io' },
