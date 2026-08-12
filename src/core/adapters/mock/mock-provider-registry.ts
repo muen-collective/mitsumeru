@@ -55,15 +55,22 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'minimax',
     name: 'MiniMax',
-    description: 'Language, video (H3), image, speech and music.',
-    endpoint: { format: 'openai', baseUrl: 'https://api.minimax.chat/v1' },
+    description:
+      'M3 (1M ctx, multimodal) / M2.7 LLMs, H3 video, image-01, speech-2.8. Base https://api.minimax.io/v1 (OpenAI-compat) or /anthropic. Pay-as-you-go or Token Plan subscription (monthly quota reset); separate key types per billing mode.',
+    endpoint: { format: 'openai', baseUrl: 'https://api.minimax.io/v1' },
     capabilities: ['chat', 'image', 'video'],
     models: [
-      { id: 'minimax-m3', capability: 'chat', name: 'MiniMax M3', kept: true },
+      { id: 'minimax-m3', capability: 'chat', name: 'MiniMax M3 (multimodal, 1M ctx)', kept: true },
       { id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true },
+      {
+        id: 'minimax-m2.7-highspeed',
+        capability: 'chat',
+        name: 'MiniMax M2.7 Highspeed',
+        kept: false,
+      },
       { id: 'image-01', capability: 'image', name: 'MiniMax Image-01', kept: true },
-      { id: 'minimax-h3', capability: 'video', name: 'MiniMax H3 (text/image to video)', kept: true },
-      // speech (Speech-2.8-HD) + music (music-3.0) exist but are outside the CapTab set
+      { id: 'minimax-h3', capability: 'video', name: 'MiniMax H3 (multimodal to video)', kept: true },
+      // speech (speech-2.8-hd/turbo) + music (music-3.0) exist but are outside the CapTab set
     ],
   },
   {

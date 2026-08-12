@@ -17,6 +17,6 @@ export const ENDPOINT_FORMATS: EndpointFormat[] = [
   { id: 'google', label: 'Google Gemini', base: 'https://generativelanguage.googleapis.com/v1beta/openai', path: '/chat/completions' },
   { id: 'moonshot', label: 'Moonshot (Kimi)', base: 'https://api.moonshot.ai/v1', path: '/chat/completions' },
   { id: 'lm-studio', label: 'LM Studio (local)', base: 'http://localhost:1234/v1', path: '/chat/completions' },
-  { id: 'minimax', label: 'MiniMax', base: 'https://api.minimax.chat/v1', path: '/text/chatcompletion_v2' },
+  { id: 'minimax', label: 'MiniMax', base: 'https://api.minimax.io/v1', path: '/chat/completions' },
   { id: 'custom', label: 'Custom', base: '', path: '' },
 ]
