@@ -86,6 +86,7 @@ export function createProvidersStore() {
         capabilities: [...preset.capabilities],
         models: preset.models.map((m) => ({ ...m })),
         modelsFetched: preset.models.length > 0,
+        setupUrl: preset.setupUrl,
         defaultModelId: preset.models.find((m) => m.capability === 'chat' && m.kept)?.id,
         keyStatus: 'unset',
         status: 'unconfigured',

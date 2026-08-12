@@ -48,6 +48,9 @@ export interface ProviderConfig {
   /** v0.1 — mirrors the panel's "pull models" flow; false until the user pulls. */
   modelsFetched: boolean
   defaultModelId?: string
+  /** v0.2 — where the user gets keys/credits for this provider (console URL).
+   * Absent for custom/local providers. Shown in the connection tab. */
+  setupUrl?: string
   /** Derived from KeychainState by providerId — status booleans only, never material. */
   keyStatus: KeyStatus
   status: ProviderStatus
@@ -61,4 +64,6 @@ export interface ProviderPreset {
   endpoint: { format: string; baseUrl: string }
   capabilities: ProviderCapability[]
   models: ProviderModel[]
+  /** v0.2 — console URL for keys/credits; copied into ProviderConfig on add. */
+  setupUrl?: string
 }

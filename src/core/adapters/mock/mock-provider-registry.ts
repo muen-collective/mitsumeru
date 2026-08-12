@@ -22,6 +22,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'deepseek',
     name: 'DeepSeek',
+    setupUrl: 'https://platform.deepseek.com/api_keys',
     description:
       'Chat + built-in thinking mode (1M ctx, 384K out). No vision API. Price increase announced 2026-08.',
     endpoint: { format: 'deepseek', baseUrl: 'https://api.deepseek.com' },
@@ -35,6 +36,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'qwen',
     name: 'Qwen (DashScope)',
+    setupUrl: 'https://home.qwencloud.com/api-keys',
     description:
       'Chat + built-in reasoning, image (Wan/Qwen-Image), video (Wan), 3D (Tripo) and TTS. International API base (dashscope-intl); Token Plan subscription also available (QwenCloud).',
     endpoint: { format: 'openai', baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1' },
@@ -55,6 +57,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'minimax',
     name: 'MiniMax',
+    setupUrl: 'https://platform.minimax.io/',
     description:
       'M3 (1M ctx, multimodal) / M2.7 LLMs, H3 video, image-01, speech-2.8. Base https://api.minimax.io/v1 (OpenAI-compat) or /anthropic. Pay-as-you-go or Token Plan subscription (monthly quota reset); separate key types per billing mode.',
     endpoint: { format: 'openai', baseUrl: 'https://api.minimax.io/v1' },
@@ -76,6 +79,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'moonshot',
     name: 'Moonshot (Kimi)',
+    setupUrl: 'https://platform.kimi.ai/console/api-keys',
     description:
       'Kimi K3 — 1M ctx, native visual understanding (image + video input), deep reasoning via reasoning_effort (low/high/max, default max). K2.7 Code high-speed for coding.',
     endpoint: { format: 'openai', baseUrl: 'https://api.moonshot.ai/v1' },
@@ -94,6 +98,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'mimo',
     name: 'Xiaomi MiMo',
+    setupUrl: 'https://platform.xiaomimimo.com/console/api-keys',
     description:
       'V2.5 series — cheap + agentic. mimo-v2.5 native multimodal input (1M ctx), v2.5-pro reasoning (thinking mode default on). V2 deprecated 2026-06-30. Auth: api-key header. Token plan = subscription credits; pay-as-you-go also exists.',
     endpoint: { format: 'openai', baseUrl: 'https://api.xiaomimimo.com/v1' },
@@ -137,6 +142,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'openai',
     name: 'OpenAI',
+    setupUrl: 'https://platform.openai.com/api-keys',
     description:
       'GPT-5.6 Sol/Terra/Luna (reasoning/chat tiers), GPT Image 2, Sora 2 video. Pricing tiers: Standard / Batch (−50%) / Flex (−50%) / Fast (2×). Luna ≈ $0.20 in / $1.20 out per 1M.',
     endpoint: { format: 'openai', baseUrl: 'https://api.openai.com/v1' },
@@ -152,6 +158,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'zai',
     name: 'Z.ai (GLM)',
+    setupUrl: 'https://z.ai/manage-apikey/apikey-list',
     description:
       'GLM-5.2 chat with built-in reasoning, GLM-5V Turbo vision input, CogVideoX-3 video gen. OpenAI-compatible /api/paas/v4 (Bearer). GLM Coding Plan subscription ($18/mo) uses a dedicated endpoint.',
     endpoint: { format: 'openai', baseUrl: 'https://api.z.ai/api/paas/v4' },
@@ -166,6 +173,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'gemini',
     name: 'Google Gemini',
+    setupUrl: 'https://aistudio.google.com/apikey',
     description:
       'Chat/reasoning (Gemini 3.6/3.5 Flash, 3.1 Pro), image (Nano Banana 2/Pro), video (Veo 3.1), omni/TTS. Free tier + Prepay credits ($10 min / $5k max, 12-mo expiry) or Postpay; Batch API −50%.',
     endpoint: {
@@ -190,6 +198,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'anthropic',
     name: 'Anthropic (Claude)',
+    setupUrl: 'https://platform.claude.com/',
     description:
       'Fable 5 / Opus 5 frontier reasoning; Sonnet 5 at $2/$10 (intro extended — no Sept 1 increase); Haiku 4.5 $1/$5. Cache writes $1.25–$20/MTok; 10% regional-endpoint premium (4.5+).',
     endpoint: { format: 'anthropic', baseUrl: 'https://api.anthropic.com/v1' },
@@ -204,6 +213,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'krea',
     name: 'Krea',
+    setupUrl: 'https://www.krea.ai/app/api/tokens',
     description:
       'Aggregator API — 40+ image/video models on one endpoint (Nano Banana 2/Pro, Flux, Imagen 4, Veo 3.1, Kling, Sora 2). Compute-unit pricing: $0.04–$0.15/image, $0.05–$0.50/sec video; Topaz upscale to 22K; LoRA training; webhooks.',
     endpoint: { format: 'custom', baseUrl: 'https://api.krea.ai/v1' },
@@ -223,6 +233,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'openrouter',
     name: 'OpenRouter',
+    setupUrl: 'https://openrouter.ai/keys',
     description:
       'Aggregator router — 500+ models across every provider (406 text / 41 image / 22 video / 33 embedding / 19 speech), one OpenAI-compatible endpoint. Pay-per-token (or per-unit for image/video), free models, automatic routing + fallbacks. Credits top-up, no subscription.',
     endpoint: { format: 'openai', baseUrl: 'https://openrouter.ai/api/v1' },
@@ -256,6 +267,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'magnific',
     name: 'Magnific (Freepik)',
+    setupUrl: 'https://www.magnific.com/user/api-keys',
     description:
       'Freepik rebrand — REST API (api.magnific.com, magnificApiKey, async + webhooks): Mystic ultra-realistic image gen, the flagship Magnific upscaler, image editing, Kling v2 image-to-video, stock library, classifier, MCP. One credit balance with the subscription plan.',
     endpoint: { format: 'custom', baseUrl: 'https://api.magnific.com' },
@@ -270,6 +282,7 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'runninghub',
     name: 'RunningHub',
+    setupUrl: 'https://www.runninghub.ai/enterprise-api/consumerApi',
     description:
       'Workflow + model aggregator (ComfyUI native): run full ComfyUI workflows as APIs plus standard model endpoints — Sora 2, Kling 3.0/o-series, Seedance 2.5, Vidu, Wan, Midjourney, Suno, Meshy 3D, Topaz. Async tasks + webhooks, LoRA/uploads. Base https://www.runninghub.ai; AI App contract verified in claire-ai services/runninghub.ts (submit /task/openapi/ai-app/run {webappId, apiKey, nodeInfoList}; poll /task/openapi/outputs; v2 /run/ai-app/{appId} Bearer).',
     endpoint: { format: 'custom', baseUrl: 'https://www.runninghub.ai' },

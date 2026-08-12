@@ -1,6 +1,6 @@
 'use client'
 
-import { RefreshCw } from 'lucide-react'
+import { ExternalLink, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -143,6 +143,17 @@ export function ProviderEditor(props: ProviderEditorProps) {
                 />
                 {testResult.msg}
               </p>
+            )}
+            {provider.setupUrl && (
+              <a
+                href={provider.setupUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+              >
+                Get your key at {new URL(provider.setupUrl).hostname}
+                <ExternalLink className="size-3" aria-hidden="true" />
+              </a>
             )}
           </div>
 

@@ -27,6 +27,8 @@ describe('providers store', () => {
     const local = providers.find((p) => p.id === 'lm-studio')
     expect(local?.status).toBe('local')
     expect(local?.modelsFetched).toBe(true)
+    // v0.2: presets carry the console URL where users get keys/credits
+    expect(providers[0].setupUrl).toBe('https://platform.deepseek.com/api_keys')
   })
 
   it('saveKey updates keyStatus without exposing key material', async () => {
@@ -72,7 +74,9 @@ describe('providers store', () => {
       endpoint: { format: 'openai', baseUrl: 'https://api.minimax.chat/v1' },
       capabilities: ['chat'],
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
+      setupUrl: 'https://platform.minimax.io/',
     })
+    expect(added.setupUrl).toBe('https://platform.minimax.io/')
     // All presets are seeded in review mode → even the first add collides
     expect(added.id).toMatch(/^minimax-/)
     expect(store.getState().providers).toHaveLength(15)

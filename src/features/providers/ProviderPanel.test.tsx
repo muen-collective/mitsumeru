@@ -15,6 +15,8 @@ describe('ProviderPanel', () => {
     expect(screen.getByText('Krea')).toBeTruthy()
     // First provider is selected → connection tab with the API key field
     expect(await screen.findByLabelText('API key')).toBeTruthy()
+    // v0.2: the connection tab links to the right console for keys/credits
+    expect(await screen.findByText('Get your key at platform.deepseek.com')).toBeTruthy()
   })
 
   it('rejects a short key with an error caption and aria-invalid', async () => {
