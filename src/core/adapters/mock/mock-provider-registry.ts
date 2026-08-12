@@ -114,8 +114,8 @@ const PRESETS: ProviderPreset[] = [
     id: 'lm-studio',
     name: 'LM Studio (local)',
     description:
-      'Local models via LM Studio — OpenAI-compatible server (localhost:1234). Small VL models (Qwen3-VL 4B/8B, incl. abliterated) run on most machines and cover vision when cloud chat providers lack it (DeepSeek has no vision API). The real adapter queries /v1/models for the actual local list.',
-    endpoint: { format: 'lm-studio', baseUrl: 'http://localhost:1234/v1' },
+      'Local models via LM Studio — native REST at localhost:1234/api/v1 (stateful /api/v1/chat with `input`; /api/v1/models; download endpoint; MCP integrations via `integrations`). No auth by default, optional Bearer token. Small VL models (Qwen3-VL 4B/8B, incl. abliterated) cover vision when cloud chat providers lack it. OpenAI-compat base (/v1) exists per separate docs — unverified here.',
+    endpoint: { format: 'lm-studio', baseUrl: 'http://localhost:1234/api/v1' },
     capabilities: ['chat', 'reasoning'],
     models: [
       {
