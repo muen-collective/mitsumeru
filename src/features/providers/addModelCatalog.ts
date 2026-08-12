@@ -58,6 +58,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
       { id: 'openai', name: 'OpenAI', desc: 'The full-stack leader — GPT Image 2 is #1 on arena.ai image, GPT-5.6 Sol XHigh is top-15 on text and #4 on the coding harness, Sora 2 Pro #6 on video. GPT-5.6 Luna is the value pick ($0.20 in / $1.20 out per 1M); Batch/Flex tiers are −50%.', setupUrl: 'https://platform.openai.com/api-keys' },
       { id: 'google', name: 'Google Gemini', desc: 'The all-in-one — Gemini 3.6/3.5 Flash text, Nano Banana 2/Pro image, Veo 3.1 video, Omni Flash. Free tier; paid = Prepay credits or Postpay, batch −50%.', setupUrl: 'https://aistudio.google.com/apikey' },
       { id: 'anthropic', name: 'Anthropic', desc: 'The text and coding king — Fable 5 flagship ($10/$50 per MTok), Opus 5 ($5/$25), Sonnet 5 at $2/$10 (intro extended). Premium vs DeepSeek/Qwen value; pair with the Fashion Starter Pack or Krea for creative.', setupUrl: 'https://platform.claude.com/' },
+      { id: 'openrouter', name: 'OpenRouter', desc: 'One API, 500+ models across every provider — 406 text, 41 image, 22 video, free models, automatic routing and fallbacks. Pay-per-token (credits top-up, no subscription). One key replaces many.', setupUrl: 'https://openrouter.ai/keys' },
     ],
   },
   {
@@ -76,4 +77,5 @@ export const ENTRY_TO_PRESET: Record<string, string> = {
   'lm-studio': 'lm-studio',
   xiaomi: 'mimo',
   zai: 'zai',
+  openrouter: 'openrouter',
 }

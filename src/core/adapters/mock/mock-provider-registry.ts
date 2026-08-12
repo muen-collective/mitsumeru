@@ -220,6 +220,37 @@ const PRESETS: ProviderPreset[] = [
       { id: 'trellis-2', capability: '3d', name: 'Trellis 2', kept: false },
     ],
   },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    description:
+      'Aggregator router — 500+ models across every provider (406 text / 41 image / 22 video / 33 embedding / 19 speech), one OpenAI-compatible endpoint. Pay-per-token (or per-unit for image/video), free models, automatic routing + fallbacks. Credits top-up, no subscription.',
+    endpoint: { format: 'openai', baseUrl: 'https://openrouter.ai/api/v1' },
+    capabilities: ['chat', 'reasoning', 'image', 'video'],
+    models: [
+      {
+        id: 'deepseek/deepseek-v4-flash',
+        capability: 'chat',
+        name: 'DeepSeek V4 Flash (routed)',
+        kept: true,
+      },
+      { id: 'openai/gpt-5.6-sol', capability: 'reasoning', name: 'GPT-5.6 Sol (routed)', kept: true },
+      {
+        id: 'anthropic/claude-sonnet-5',
+        capability: 'chat',
+        name: 'Claude Sonnet 5 (routed)',
+        kept: false,
+      },
+      { id: 'qwen/qwen-image-3-pro', capability: 'image', name: 'Qwen Image 3 Pro (routed)', kept: true },
+      {
+        id: 'bytedance/seedance-2.5',
+        capability: 'video',
+        name: 'Seedance 2.5 (routed)',
+        kept: false,
+      },
+      // The real adapter queries GET /models — ~545 models; these are examples
+    ],
+  },
 ]
 
 /** Simulated fetched model lists, keyed by provider id (mirrors the story's FETCHED). */
