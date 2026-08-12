@@ -73,4 +73,5 @@ export const ENTRY_TO_PRESET: Record<string, string> = {
   moonshot: 'moonshot',
   google: 'gemini',
   'lm-studio': 'lm-studio',
+  xiaomi: 'mimo',
 }

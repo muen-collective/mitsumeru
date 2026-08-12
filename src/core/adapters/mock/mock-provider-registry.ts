@@ -78,6 +78,25 @@ const PRESETS: ProviderPreset[] = [
     ],
   },
   {
+    id: 'mimo',
+    name: 'Xiaomi MiMo',
+    description:
+      'V2.5 series — cheap + agentic. mimo-v2.5 native multimodal input (1M ctx), v2.5-pro reasoning (thinking mode default on). V2 deprecated 2026-06-30. Auth: api-key header. Token plan = subscription credits; pay-as-you-go also exists.',
+    endpoint: { format: 'openai', baseUrl: 'https://api.xiaomimimo.com/v1' },
+    capabilities: ['chat', 'reasoning'],
+    models: [
+      { id: 'mimo-v2.5', capability: 'chat', name: 'MiMo-V2.5 (multimodal input)', kept: true },
+      { id: 'mimo-v2.5-pro', capability: 'reasoning', name: 'MiMo-V2.5-Pro (agent/reasoning)', kept: true },
+      {
+        id: 'mimo-v2.5-pro-ultraspeed',
+        capability: 'reasoning',
+        name: 'MiMo-V2.5-Pro-UltraSpeed (closed beta)',
+        kept: false,
+      },
+      // TTS/ASR exist (MiMo-V2.5-TTS) but are outside the CapTab set
+    ],
+  },
+  {
     id: 'lm-studio',
     name: 'LM Studio (local)',
     description:
