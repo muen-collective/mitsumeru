@@ -12,16 +12,32 @@ const DEFAULT_INTERVAL_MS = 300
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
 const SEQUENCE: DistributiveOmit<AgentEvent, 'at'>[] = [
-  { type: 'thinking', id: 'ev-1', text: 'Planning the publish flow…' },
+  { type: 'thinking', id: 'ev-1', text: 'Reading the current site content…' },
   {
     type: 'tool_call',
     id: 'ev-2',
     tool: 'content.read',
     input: { path: 'site-content/index.json' },
   },
-  { type: 'tool_result', id: 'ev-3', tool: 'content.read', ok: true, summary: '3 sections' },
-  { type: 'text_chunk', id: 'ev-4', text: 'Draft looks consistent with the live site.' },
-  { type: 'done', id: 'ev-5' },
+  { type: 'tool_result', id: 'ev-3', tool: 'content.read', ok: true, summary: '3 sections · landing.json' },
+  { type: 'thinking', id: 'ev-4', text: 'Drafting the spring hero for the event card…' },
+  {
+    type: 'tool_call',
+    id: 'ev-5',
+    tool: 'image.generate',
+    input: { prompt: 'spring hero — editorial flatlay', provider: 'krea' },
+  },
+  {
+    type: 'tool_result',
+    id: 'ev-6',
+    tool: 'image.generate',
+    ok: true,
+    summary: 'flatlay-generated.svg · krea',
+    media: { kind: 'image', url: '/demo-images/flatlay-generated.svg' },
+  },
+  { type: 'text_chunk', id: 'ev-7', text: 'Hero image generated for the spring campaign.' },
+  { type: 'text_chunk', id: 'ev-8', text: ' Preview it in the publish panel before it goes live.' },
+  { type: 'done', id: 'ev-9' },
 ]
 
 export function createMockAgentStreamAdapter(intervalMs: number = DEFAULT_INTERVAL_MS): AgentStreamAdapter {

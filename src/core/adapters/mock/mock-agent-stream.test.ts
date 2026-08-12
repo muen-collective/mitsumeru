@@ -16,12 +16,16 @@ const collect = (intervalMs: number) =>
   })
 
 describe('mock agent stream', () => {
-  it('emits an SSE-shaped sequence ending in done', async () => {
+  it('emits the settled Block #4 sequence ending in done', async () => {
     const events = await collect(1)
     expect(events.map((e) => e.type)).toEqual([
       'thinking',
       'tool_call',
       'tool_result',
+      'thinking',
+      'tool_call',
+      'tool_result',
+      'text_chunk',
       'text_chunk',
       'done',
     ])
@@ -29,7 +33,12 @@ describe('mock agent stream', () => {
       expect(event.id).toBeTruthy()
       expect(event.at).toBeTruthy()
     }
-    const toolCall = events.find((e) => e.type === 'tool_call')
-    expect(toolCall && toolCall.type === 'tool_call' ? toolCall.tool : '').toBe('content.read')
+    const tools = events.filter((e) => e.type === 'tool_call')
+    expect(tools.map((e) => (e.type === 'tool_call' ? e.tool : ''))).toEqual(['content.read', 'image.generate'])
+    const imageResult = events.find((e) => e.type === 'tool_result' && e.tool === 'image.generate')
+    expect(imageResult && imageResult.type === 'tool_result' ? imageResult.media : undefined).toEqual({
+      kind: 'image',
+      url: '/demo-images/flatlay-generated.svg',
+    })
   })
 })
