@@ -327,6 +327,7 @@ const PROVIDERS: ProviderConfig[] = PRESETS.map((p) => ({
   modelsFetched: p.id === 'lm-studio',
   defaultModelId: p.models.find((m) => m.capability === 'chat' && m.kept)?.id,
   keyStatus: p.id === 'deepseek' ? 'valid' : 'unset',
+  setupUrl: p.setupUrl,
   status: p.id === 'deepseek' ? 'ready' : p.id === 'lm-studio' ? 'local' : 'unconfigured',
 }))
 
