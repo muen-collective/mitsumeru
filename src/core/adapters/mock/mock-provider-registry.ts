@@ -36,12 +36,13 @@ const PRESETS: ProviderPreset[] = [
     id: 'qwen',
     name: 'Qwen (DashScope)',
     description:
-      'Chat + built-in reasoning, image (Wan/Qwen-Image), video (Wan), 3D (Tripo) and TTS.',
-    endpoint: { format: 'openai', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
+      'Chat + built-in reasoning, image (Wan/Qwen-Image), video (Wan), 3D (Tripo) and TTS. International API base (dashscope-intl); Token Plan subscription also available (QwenCloud).',
+    endpoint: { format: 'openai', baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1' },
     capabilities: ['chat', 'reasoning', 'image', 'video', '3d'],
     models: [
       { id: 'qwen3.8-max', capability: 'chat', name: 'Qwen3.8 Max', kept: true },
       { id: 'qwen3.7-plus', capability: 'chat', name: 'Qwen3.7 Plus', kept: true },
+      { id: 'qwen3.7-flash', capability: 'chat', name: 'Qwen3.7 Flash (cost)', kept: false },
       { id: 'qwen3-vl-plus', capability: 'chat', name: 'Qwen3 VL Plus (vision input)', kept: true },
       { id: 'qwen-image-3.0-pro', capability: 'image', name: 'Qwen Image 3.0 Pro', kept: true },
       { id: 'wan2.7-image-pro', capability: 'image', name: 'Wan 2.7 Image Pro', kept: false },
