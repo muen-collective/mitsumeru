@@ -9,6 +9,9 @@ import type { UsageRecord, WalletMeterState } from '../../contracts/wallet'
 let seq = 0
 const nextId = () => `usage-${++seq}`
 
+/** Seed records dated today (hours ago) so the cost bar shows a non-zero today. */
+const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000).toISOString()
+
 const SEED: UsageRecord[] = [
   {
     id: 'usage-1',
@@ -18,7 +21,7 @@ const SEED: UsageRecord[] = [
     tokensIn: 4200,
     tokensOut: 860,
     costUsd: 0.031,
-    at: '2026-08-11T09:12:00.000Z',
+    at: hoursAgo(2),
   },
   {
     id: 'usage-2',
@@ -28,7 +31,7 @@ const SEED: UsageRecord[] = [
     tokensIn: 2100,
     tokensOut: 340,
     costUsd: 0.014,
-    at: '2026-08-11T10:03:00.000Z',
+    at: hoursAgo(1),
   },
 ]
 

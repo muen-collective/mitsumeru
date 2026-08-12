@@ -5,7 +5,7 @@
  */
 import type { PublishAdapter } from '../ports'
 
-const FAKE_DELAY_MS = 3000
+const FAKE_DELAY_MS = 600
 
 const fakeSha = (prefix: string) => `${prefix}-${Math.random().toString(16).slice(2, 10)}`
 
