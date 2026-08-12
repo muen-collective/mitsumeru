@@ -22,13 +22,14 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'deepseek',
     name: 'DeepSeek',
-    description: 'Chat and reasoning. Cheap and strong at coding. No vision API.',
+    description:
+      'Chat + built-in thinking mode (1M ctx, 384K out). No vision API. Price increase announced 2026-08.',
     endpoint: { format: 'deepseek', baseUrl: 'https://api.deepseek.com' },
     capabilities: ['chat', 'reasoning'],
     models: [
+      // Thinking is a MODE on both models (docs 2026-08-12) — there is no separate reasoner model
       { id: 'deepseek-v4-flash', capability: 'chat', name: 'DeepSeek V4 Flash', kept: true },
       { id: 'deepseek-v4-pro', capability: 'chat', name: 'DeepSeek V4 Pro', kept: true },
-      { id: 'deepseek-reasoner', capability: 'reasoning', name: 'DeepSeek Reasoner', kept: true },
     ],
   },
   {
