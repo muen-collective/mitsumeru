@@ -21,6 +21,7 @@ const CUSTOM_PRESET: ProviderPreset = {
   endpoint: { format: 'custom', baseUrl: '' },
   capabilities: ['chat'],
   models: [],
+  keyMode: 'api',
 }
 
 /** Entry with no registry preset becomes an editable custom stub. */
@@ -31,6 +32,8 @@ const stubFor = (entry: AddModelEntry): ProviderPreset => ({
   endpoint: { format: 'custom', baseUrl: '' },
   capabilities: ['chat'],
   models: [],
+  keyMode: 'api',
+  setupApiUrl: entry.setupApiUrl,
 })
 
 interface AddProviderDialogProps {

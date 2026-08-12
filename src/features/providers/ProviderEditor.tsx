@@ -144,16 +144,31 @@ export function ProviderEditor(props: ProviderEditorProps) {
                 {testResult.msg}
               </p>
             )}
-            {provider.setupUrl && (
-              <a
-                href={provider.setupUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+            {provider.keyMode !== 'subscription' && provider.setupApiUrl && (
+              <Button
+                asChild
+                variant="outline"
+                size="xs"
+                className="mt-2 border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
               >
-                Get your key at {new URL(provider.setupUrl).hostname}
-                <ExternalLink className="size-3" aria-hidden="true" />
-              </a>
+                <a href={provider.setupApiUrl} target="_blank" rel="noreferrer">
+                  Get your key at {new URL(provider.setupApiUrl).hostname}
+                  <ExternalLink className="size-3" aria-hidden="true" />
+                </a>
+              </Button>
+            )}
+            {provider.keyMode !== 'api' && provider.setupPlanUrl && (
+              <Button
+                asChild
+                variant="outline"
+                size="xs"
+                className="mt-2 border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary"
+              >
+                <a href={provider.setupPlanUrl} target="_blank" rel="noreferrer">
+                  Token plan at {new URL(provider.setupPlanUrl).hostname}
+                  <ExternalLink className="size-3" aria-hidden="true" />
+                </a>
+              </Button>
             )}
           </div>
 

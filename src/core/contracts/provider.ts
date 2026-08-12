@@ -48,9 +48,12 @@ export interface ProviderConfig {
   /** v0.1 — mirrors the panel's "pull models" flow; false until the user pulls. */
   modelsFetched: boolean
   defaultModelId?: string
-  /** v0.2 — where the user gets keys/credits for this provider (console URL).
-   * Absent for custom/local providers. Shown in the connection tab. */
-  setupUrl?: string
+  /** v0.2 — billing/key mode: which key type this provider uses. `both` = user picks. */
+  keyMode: 'api' | 'subscription' | 'both'
+  /** v0.2 — console for the pay-as-you-go API key (shown in the connection tab). */
+  setupApiUrl?: string
+  /** v0.2 — console/plan page for the subscription (token plan) key. */
+  setupPlanUrl?: string
   /** Derived from KeychainState by providerId — status booleans only, never material. */
   keyStatus: KeyStatus
   status: ProviderStatus
@@ -64,6 +67,8 @@ export interface ProviderPreset {
   endpoint: { format: string; baseUrl: string }
   capabilities: ProviderCapability[]
   models: ProviderModel[]
-  /** v0.2 — console URL for keys/credits; copied into ProviderConfig on add. */
-  setupUrl?: string
+  /** v0.2 — billing/key mode; copied into ProviderConfig on add. */
+  keyMode: 'api' | 'subscription' | 'both'
+  setupApiUrl?: string
+  setupPlanUrl?: string
 }

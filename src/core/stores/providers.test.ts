@@ -27,8 +27,12 @@ describe('providers store', () => {
     const local = providers.find((p) => p.id === 'lm-studio')
     expect(local?.status).toBe('local')
     expect(local?.modelsFetched).toBe(true)
-    // v0.2: presets carry the console URL where users get keys/credits
-    expect(providers[0].setupUrl).toBe('https://platform.deepseek.com/api_keys')
+    // v0.2: presets carry key mode + console URLs (api key / token plan)
+    expect(providers[0].keyMode).toBe('api')
+    expect(providers[0].setupApiUrl).toBe('https://platform.deepseek.com/api_keys')
+    const qwen = providers.find((p) => p.id === 'qwen')
+    expect(qwen?.keyMode).toBe('both')
+    expect(qwen?.setupPlanUrl).toBe('https://www.qwencloud.com/pricing/token-plan')
   })
 
   it('saveKey updates keyStatus without exposing key material', async () => {
@@ -74,9 +78,12 @@ describe('providers store', () => {
       endpoint: { format: 'openai', baseUrl: 'https://api.minimax.chat/v1' },
       capabilities: ['chat'],
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
-      setupUrl: 'https://platform.minimax.io/',
+      keyMode: 'both',
+      setupApiUrl: 'https://platform.minimax.io/user-center/basic-information/interface-key',
+      setupPlanUrl: 'https://platform.minimax.io/user-center/payment/token-plan',
     })
-    expect(added.setupUrl).toBe('https://platform.minimax.io/')
+    expect(added.keyMode).toBe('both')
+    expect(added.setupApiUrl).toBe('https://platform.minimax.io/user-center/basic-information/interface-key')
     // All presets are seeded in review mode → even the first add collides
     expect(added.id).toMatch(/^minimax-/)
     expect(store.getState().providers).toHaveLength(15)
@@ -88,6 +95,7 @@ describe('providers store', () => {
       endpoint: { format: 'openai', baseUrl: 'https://api.minimax.chat/v1' },
       capabilities: ['chat'],
       models: [{ id: 'minimax-m2.7', capability: 'chat', name: 'MiniMax M2.7', kept: true }],
+      keyMode: 'both',
     })
     expect(second.id).toMatch(/^minimax-/)
     expect(store.getState().providers).toHaveLength(16)
