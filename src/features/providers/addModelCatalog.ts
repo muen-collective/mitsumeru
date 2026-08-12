@@ -66,6 +66,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
     label: 'Creative',
     entries: [
       { id: 'krea', name: 'Krea', desc: 'Aggregator API — 40+ image/video models (Nano Banana, Flux, Imagen, Veo, Kling, Sora) on one endpoint, compute-unit pricing ($0.04–$0.15/image, $0.05–$0.50/sec video). Topaz upscale to 22K, LoRA training.', setupUrl: 'https://www.krea.ai/app/api/tokens' },
+      { id: 'magnific', name: 'Magnific (Freepik)', desc: 'The creative suite (ex-Freepik) — Mystic image gen, the flagship Magnific upscaler, image editing, Kling v2 video, stock library. One credit balance across your plan, async + webhooks.', setupUrl: 'https://www.magnific.com/user/api-keys' },
     ],
   },
 ]
@@ -78,4 +79,5 @@ export const ENTRY_TO_PRESET: Record<string, string> = {
   xiaomi: 'mimo',
   zai: 'zai',
   openrouter: 'openrouter',
+  magnific: 'magnific',
 }

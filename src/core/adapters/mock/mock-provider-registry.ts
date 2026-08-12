@@ -248,7 +248,23 @@ const PRESETS: ProviderPreset[] = [
         name: 'Seedance 2.5 (routed)',
         kept: false,
       },
-      // The real adapter queries GET /models — ~545 models; these are examples
+      // Real adapter: GET /api/v1/models (~545 models); Bearer auth with optional
+      // HTTP-Referer + X-OpenRouter-Title attribution headers; "~provider/model"
+      // latest-aliases resolve to the newest flagship (docs quickstart 2026-08-12)
+    ],
+  },
+  {
+    id: 'magnific',
+    name: 'Magnific (Freepik)',
+    description:
+      'Freepik rebrand — REST API (api.magnific.com, magnificApiKey, async + webhooks): Mystic ultra-realistic image gen, the flagship Magnific upscaler, image editing, Kling v2 image-to-video, stock library, classifier, MCP. One credit balance with the subscription plan.',
+    endpoint: { format: 'custom', baseUrl: 'https://api.magnific.com' },
+    capabilities: ['image', 'video'],
+    models: [
+      { id: 'mystic', capability: 'image', name: 'Mystic (ultra-realistic image gen)', kept: true },
+      { id: 'image-upscaler', capability: 'image', name: 'Magnific Upscaler', kept: true },
+      { id: 'kling-v2', capability: 'video', name: 'Kling V2 (image-to-video)', kept: true },
+      // Real adapter maps these to the API's model values (docs 2026-08-12)
     ],
   },
 ]
