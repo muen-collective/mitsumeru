@@ -204,17 +204,18 @@ const PRESETS: ProviderPreset[] = [
   {
     id: 'krea',
     name: 'Krea',
-    description: 'Image, video and 3D generation.',
+    description:
+      'Aggregator API — 40+ image/video models on one endpoint (Nano Banana 2/Pro, Flux, Imagen 4, Veo 3.1, Kling, Sora 2). Compute-unit pricing: $0.04–$0.15/image, $0.05–$0.50/sec video; Topaz upscale to 22K; LoRA training; webhooks.',
     endpoint: { format: 'custom', baseUrl: 'https://api.krea.ai/v1' },
     capabilities: ['image', 'video', '3d'],
     models: [
-      { id: 'krea-2-medium', capability: 'image', name: 'Krea 2 Medium', kept: true },
-      { id: 'krea-2-large', capability: 'image', name: 'Krea 2 Large', kept: true },
       { id: 'nano-banana-2', capability: 'image', name: 'Nano Banana 2', kept: true },
-      { id: 'flux-1.1-pro', capability: 'image', name: 'Flux 1.1 Pro', kept: false },
+      { id: 'flux-1.1-pro', capability: 'image', name: 'Flux 1.1 Pro', kept: true },
+      { id: 'imagen-4', capability: 'image', name: 'Imagen 4', kept: false },
       { id: 'veo-3.1', capability: 'video', name: 'Veo 3.1', kept: true },
-      { id: 'kling-2.5', capability: 'video', name: 'Kling 2.5', kept: true },
+      { id: 'kling-2.6', capability: 'video', name: 'Kling 2.6', kept: true },
       { id: 'wan-2.5', capability: 'video', name: 'Wan 2.5', kept: false },
+      { id: 'sora-2', capability: 'video', name: 'Sora 2', kept: false },
       { id: 'hunyuan3d-2-mini-turbo', capability: '3d', name: 'Hunyuan3D 2 Mini Turbo', kept: true },
       { id: 'trellis-2', capability: '3d', name: 'Trellis 2', kept: false },
     ],

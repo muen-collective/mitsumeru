@@ -64,7 +64,7 @@ export const ADD_MODEL_CATEGORIES: AddModelCategory[] = [
     id: 'creative',
     label: 'Creative',
     entries: [
-      { id: 'krea', name: 'Krea', desc: 'Krea 2, Nano Banana, Flux — image and video.', setupUrl: 'https://krea.ai' },
+      { id: 'krea', name: 'Krea', desc: 'Aggregator API — 40+ image/video models (Nano Banana, Flux, Imagen, Veo, Kling, Sora) on one endpoint, compute-unit pricing ($0.04–$0.15/image, $0.05–$0.50/sec video). Topaz upscale to 22K, LoRA training.', setupUrl: 'https://www.krea.ai/app/api/tokens' },
     ],
   },
 ]
