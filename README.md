@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mitsumeru
 
-## Getting Started
+Mitsumeru is the Muen product workspace: a lightweight, AI-first system for turning conversations, meetings, and product work into durable, reviewable GitHub artifacts.
 
-First, run the development server:
+## Operating model
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Discord** is for fast communication, coordination, and voice/video meetings.
+- **GitHub** is the source of truth for code, work, decisions, specifications, and deliverables.
+- **Mitsu/DSh** records approved Discord meetings, transcribes them locally with OpenAI Whisper, and drafts Markdown notes.
+- **AI drafts; humans approve.** No generated meeting note or client commitment is published without review.
+- **Vercel** announces deployment status in the private development channel.
+
+## Repository
+
+This is the Muen-owned `Mitsumeru` repository. Client engagements remain in client-owned repositories, where Muen contributes with developer access.
+
+Recommended documentation structure:
+
+```text
+docs/
+  protocol.md
+  goals/
+  decisions/
+  meetings/
+  specs/
+  clients/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Meeting workflow
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+Discord voice channel
+  → Claire recording identity
+  → Mitsu/DSh plugin
+  → local OpenAI Whisper transcription
+  → local AI-generated Markdown draft
+  → human review
+  → commit or pull request
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Audio and raw transcripts are not committed by default. Client meeting artifacts should normally be published through a pull request.
 
-## Learn More
+## Work model
 
-To learn more about Next.js, take a look at the following resources:
+Use three levels only:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Goal** — a meaningful outcome.
+- **Work item** — a concrete GitHub Issue or pull request.
+- **Checklist item** — a small step inside a work item.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The GitHub Project uses:
 
-## Deploy on Vercel
+```text
+Inbox → Ready → Doing → Blocked → Done
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Local development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [`docs/development.md`](docs/development.md) for local setup and development instructions.
+
+## Initiative
+
+The communication operating system is documented in [`docs/initiatives/muen-communication-operating-system.md`](docs/initiatives/muen-communication-operating-system.md).
