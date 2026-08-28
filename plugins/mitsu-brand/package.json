@@ -1,7 +1,7 @@
 {
   "name": "@muen/mitsu-brand",
   "version": "0.1.0",
-  "description": "Mitsu brand mark plugin — replaces DeepSeek branding in DSH sidebar and hero slots.",
+  "description": "Mitsu brand mark plugin \u2014 replaces DeepSeek branding in DSH sidebar and hero slots.",
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
@@ -12,9 +12,7 @@
   },
   "dsh": {
     "client": {
-      "inject": [
-        "@deepseek-ai/dsh-client-runtime"
-      ],
+      "inject": [],
       "platform": "web"
     },
     "bundle": {
