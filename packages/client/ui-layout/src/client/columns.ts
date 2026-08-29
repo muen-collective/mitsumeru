@@ -57,11 +57,11 @@ export function clampWidth(px: number, min: number, max: number): number {
  * @param viewport - available frame width in px.
  * @param sidebar - sidebar width preference in px (0 = closed).
  * @param details - details width preference in px (0 = closed).
- * @returns resolved widths; details 0 means visually closed (never unmounted), while a closed sidebar keeps its compact rail.
+ * @returns resolved widths; details 0 means visually closed (never unmounted), while a closed sidebar resolves to zero width.
  */
 export function computeColumns(viewport: number, sidebar: number, details: number): Columns {
-  // The sidebar is fixed at its preference (or the rail) — it never concedes.
-  const s = sidebar === 0 ? SIDEBAR_COLLAPSED : clampWidth(sidebar, SIDEBAR_MIN, SIDEBAR_MAX)
+  // The sidebar is fixed at its preference (or zero when closed) — it never concedes.
+  const s = sidebar === 0 ? 0 : clampWidth(sidebar, SIDEBAR_MIN, SIDEBAR_MAX)
   const d0 = details === 0 ? 0 : clampWidth(details, DETAILS_MIN, DETAILS_MAX)
 
   // Step 1: everything fits at preferred widths.
