@@ -20,7 +20,7 @@
 - button "Settings":
   - img
   - text: Settings
-- text: A Muen Collective Product Preview
+- text: Muen Collective Preview
 - button "Choose workspace":
   - img
   - text: workspace
