@@ -126,7 +126,15 @@ window.__ModuleLoader__.load({
 
     const TREE_ITEM = { id: 'tree', icon: PanelLeftIcon, label: 'Tree' }
     const surfaceById = (id) => getSurfaces().find(s => s.id === id)
-    const railItems = () => [TREE_ITEM, ...getSurfaces()]
+    const RAIL_ORDER = { browser: 1, docs: 2, assets: 3 }
+    const railItems = () => {
+      const surfaces = getSurfaces().slice().sort((a, b) => {
+        const ao = RAIL_ORDER[a.id] ?? 99
+        const bo = RAIL_ORDER[b.id] ?? 99
+        return ao - bo
+      })
+      return [TREE_ITEM, ...surfaces]
+    }
     const PanelContent = ({ id }) => {
       const surface = surfaceById(id)
       return surface ? surface.panel() : null
