@@ -210,7 +210,7 @@ export const en = {
   'access.confirm.cancel': 'Cancel',
   'access.confirm.enable': 'Enable Full access',
   'access.fullLabel': 'Full access',
-  'hero.headline': 'A Muen Collective Product',
+  'hero.headline': 'The liberation begins here.',
   'hero.preview': 'Preview',
   'hero.chooseWorkspace': 'Choose workspace',
   'session.hierarchy': 'Session hierarchy',

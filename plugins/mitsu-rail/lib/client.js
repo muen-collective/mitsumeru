@@ -184,7 +184,7 @@ window.__ModuleLoader__.load({
           fontSize: 20,
           letterSpacing: '0.02em',
           whiteSpace: 'nowrap',
-          padding: '0 16px',
+          padding: '0 18px',
         },
       },
         'Mitsumeru',
