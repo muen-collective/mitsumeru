@@ -58,8 +58,8 @@ window.__ModuleLoader__.load({
       .mitsu-sidebar-header { transition: opacity 150ms var(--ds-ease-in-out), visibility 0s linear 150ms; }
       .fading .mitsu-sidebar-header,
       .collapsed .mitsu-sidebar-header { opacity: 0; visibility: hidden; pointer-events: none; }
-      .mitsu-dock { display: flex; height: 100%; min-width: 0; }
-      .mitsu-dock-panel { height: 100%; flex: none; border-left: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 16px; overflow-y: auto; position: relative; }
+      .mitsu-dock { display: flex; height: 100%; min-width: 0; width: 100%; }
+      .mitsu-dock-panel { height: 100%; flex: 1 1 0; min-width: 220px; border-left: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 16px; overflow-y: auto; position: relative; }
       .mitsu-dock-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
       .mitsu-dock-note { font-size: 12px; color: var(--dsw-alias-label-secondary); }
       .mitsu-dock-handle { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: ew-resize; z-index: 2; }
@@ -164,7 +164,11 @@ window.__ModuleLoader__.load({
           h('div', {
             key: id,
             className: 'mitsu-dock-panel',
-            style: { width: state.widths[id] || PANEL_WIDTH },
+            style: {
+              flexGrow: state.widths[id] || PANEL_WIDTH,
+              flexBasis: 0,
+              minWidth: MIN_PANEL_WIDTH,
+            },
           },
             index > 0 && h(DockHandle, { id, onWidthChange: refreshLayout }),
             h('div', { className: 'mitsu-dock-title' }, (surfaceById(id)?.label) || id),
