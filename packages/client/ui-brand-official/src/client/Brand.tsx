@@ -4,7 +4,7 @@ import type { SidebarBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-side
 type OfficialBrandMarkProps = HeroBrandMarkOwnerProps & SidebarBrandMarkOwnerProps
 
 const MITSU = {
-  text: '#0a0a0a',
+  text: 'var(--dsw-alias-label-primary)',
   dot: '#765898',
 }
 
@@ -32,7 +32,7 @@ function BrandDot({ size = 6 }) {
  */
 export function OfficialBrandMark({ size, className }: OfficialBrandMarkProps) {
   // Sidebar uses size 24; hide the old mark there and let the name slot own
-  // the Mitsumeru wordmark+dot. The hero mark (size 34) renders full brand.
+  // the Mitsu wordmark+dot. The hero mark (size 34) renders full brand.
   if (size <= 24) return null
 
   return (
@@ -74,7 +74,7 @@ export function OfficialBrandName() {
         alignItems: 'baseline',
       }}
     >
-      Mitsumeru
+      Mitsu
       <BrandDot size={6} />
     </span>
   )
