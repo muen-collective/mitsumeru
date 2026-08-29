@@ -8,20 +8,19 @@ const MITSU = {
   dot: '#765898',
 }
 
-function BrandDot({ size = 6 }) {
+function BrandDot() {
   return (
     <span
       aria-hidden
       style={{
-        display: 'inline-block',
-        width: size,
-        height: size,
-        marginLeft: '0.2em',
-        borderRadius: 999,
-        backgroundColor: MITSU.dot,
-        verticalAlign: 'baseline',
+        fontSize: '2.4em',
+        lineHeight: 0,
+        marginLeft: '0.03em',
+        color: MITSU.dot,
       }}
-    />
+    >
+      .
+    </span>
   )
 }
 
@@ -46,12 +45,10 @@ export function OfficialBrandName() {
         fontSize: 18,
         letterSpacing: '0.02em',
         whiteSpace: 'nowrap',
-        display: 'inline-flex',
-        alignItems: 'baseline',
       }}
     >
       Mitsumeru
-      <BrandDot size={6} />
+      <BrandDot />
     </span>
   )
 }
