@@ -67,26 +67,73 @@ window.__ModuleLoader__.load({
         h('div', { className: 'mitsu-provider-caps' },
           provider.caps.map((cap) => h('span', { className: 'mitsu-cap', key: cap }, cap))))
 
-    const MitsuProvidersPanel = () => {
+    const MitsuProvidersPanel = (props) => {
       const [query, setQuery] = useState('')
       const [selectedId, setSelectedId] = useState('mimo')
       const [key, setKey] = useState('')
+      const [baseURL, setBaseURL] = useState(PROVIDERS[0].base)
       const [testStatus, setTestStatus] = useState(null)
       const [pulled, setPulled] = useState(false)
+      const [models, setModels] = useState(PROVIDERS[0].models)
+      const [busy, setBusy] = useState(false)
 
       ensureStyle()
 
       const selected = useMemo(() => PROVIDERS.find((p) => p.id === selectedId) || PROVIDERS[0], [selectedId])
+
+      const selectProvider = (provider) => {
+        setSelectedId(provider.id)
+        setBaseURL(provider.base)
+        setModels(provider.models)
+        setTestStatus(null)
+        setPulled(false)
+      }
+
       const filtered = PROVIDERS.filter((p) =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.desc.toLowerCase().includes(query.toLowerCase()))
 
-      const testKey = () => {
-        setTestStatus(key.trim() ? { ok: true, text: 'Key looks valid' } : { ok: false, text: 'Enter an API key first' })
+      const api = props.api
+
+      const probe = async () => {
+        if (!key.trim()) {
+          setTestStatus({ ok: false, text: 'Enter an API key first' })
+          return null
+        }
+        setBusy(true)
+        setTestStatus(null)
+        try {
+          const result = await api.llm.discoverModels('llm-pi-ai', {
+            provider: selected.id,
+            ...(baseURL ? { baseURL } : {}),
+            ...(key ? { apiKey: key } : {}),
+          })
+          const list = Array.isArray(result) ? result : (result && result.models) || []
+          setBusy(false)
+          return list
+        } catch (error) {
+          setBusy(false)
+          setTestStatus({ ok: false, text: String((error && error.message) || error) })
+          return null
+        }
       }
 
-      const pullModels = () => {
-        setPulled(true)
+      const testKey = async () => {
+        const list = await probe()
+        if (list !== null) {
+          setTestStatus({ ok: true, text: 'Key works — models available' })
+        }
+      }
+
+      const pullModels = async () => {
+        const list = await probe()
+        if (list !== null && list.length > 0) {
+          setModels(list.map((m) => typeof m === 'string' ? m : (m.id || m.name)))
+          setPulled(true)
+          setTestStatus({ ok: true, text: 'Models pulled' })
+        } else if (list !== null) {
+          setTestStatus({ ok: false, text: 'No models returned' })
+        }
       }
 
       return h('div', { className: 'mitsu-providers' },
@@ -101,7 +148,7 @@ window.__ModuleLoader__.load({
               value: query,
               onChange: (e) => setQuery(e.target.value),
             }),
-            filtered.map((p) => h(ProviderCard, { key: p.id, provider: p, selected: p.id === selectedId, onSelect: () => setSelectedId(p.id) }))),
+            filtered.map((p) => h(ProviderCard, { key: p.id, provider: p, selected: p.id === selectedId, onSelect: () => selectProvider(p) }))),
           h('div', { className: 'mitsu-providers-editor' },
             h('div', { className: 'mitsu-editor-title' }, selected.name),
             h('div', { className: 'mitsu-editor-sub' }, selected.desc),
@@ -116,14 +163,22 @@ window.__ModuleLoader__.load({
                   value: key,
                   onChange: (e) => setKey(e.target.value),
                 }),
-                h('button', { className: 'mitsu-btn primary', onClick: testKey }, 'Test'),
-                h('button', { className: 'mitsu-btn', onClick: pullModels }, 'Pull models'))),
+                h('button', { className: 'mitsu-btn primary', onClick: () => void testKey(), disabled: busy }, busy ? 'Testing…' : 'Test'),
+                h('button', { className: 'mitsu-btn', onClick: () => void pullModels(), disabled: busy }, busy ? 'Pulling…' : 'Pull models'))),
+            h('div', { className: 'mitsu-field' },
+              h('label', { className: 'mitsu-label' }, 'Base URL'),
+              h('input', {
+                className: 'mitsu-input',
+                placeholder: 'https://api.example.com/v1',
+                value: baseURL,
+                onChange: (e) => setBaseURL(e.target.value),
+              })),
             testStatus && h('div', { className: 'mitsu-status' + (testStatus.ok ? '' : ' error') }, testStatus.text),
             h('div', { className: 'mitsu-section-title' }, 'Models'),
-            (pulled ? selected.models : selected.models.map((m) => ({ id: m, name: m }))).map((model) =>
-              h('div', { className: 'mitsu-model', key: model.id || model },
+            models.map((model) =>
+              h('div', { className: 'mitsu-model', key: typeof model === 'string' ? model : model.id || model.name },
                 h('input', { type: 'checkbox', defaultChecked: true }),
-                h('span', null, model.name || model))),
+                h('span', null, typeof model === 'string' ? model : model.name || model.id))),
             h('div', { className: 'mitsu-section-title' }, 'Diffusion presets'),
             h('div', { className: 'mitsu-provider-caps' },
               ['Cinematic', 'Product', 'Fashion', 'Illustration'].map((preset) =>
@@ -131,8 +186,15 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      inject: ['slots'],
+      inject: ['slots', 'remote', 'remote.credentials', 'remote.llm', 'remote.settings'],
       apply(ctx) {
+        const injected = () => ({
+          api: {
+            credentials: ctx.remote.credentials,
+            llm: ctx.remote.llm,
+            settings: ctx.remote.settings,
+          },
+        })
         ctx.slots.inject('settings.section', () =>
           ctx.slots.register(
             {
@@ -140,6 +202,7 @@ window.__ModuleLoader__.load({
               id: 'models',
               order: 10,
               label: () => 'Mitsu Providers',
+              inject: injected,
             },
             MitsuProvidersPanel,
           ))
