@@ -259,9 +259,9 @@ window.__ModuleLoader__.load({
             name: 'sidebar.header',
             id: 'mitsu-sidebar-header',
           }, MitsuSidebarHeader))
-        ctx.slots.inject('details', () =>
+        ctx.slots.inject('rightDock', () =>
           ctx.slots.register({
-            name: 'details',
+            name: 'rightDock',
             id: 'mitsu-dock',
             priority: -1,
           }, MitsuDock))
