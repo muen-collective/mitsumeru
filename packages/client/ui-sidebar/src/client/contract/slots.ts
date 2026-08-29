@@ -27,6 +27,12 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
      */
     'sidebar.brand.name': { kind: 'single'; scope: 'root'; owner: SidebarBrandNameOwnerProps }
     /**
+     * Entire sidebar header row. Declared by this package's `sidebar` entry;
+     * Mitsu replaces the default brand + toggle controls with its own HTML
+     * header.
+     */
+    'sidebar.header': { kind: 'single'; scope: 'root'; owner: SidebarHeaderOwnerProps }
+    /**
      * The workspace/session browsing region: section header, search, the
      * grouped/flat session list, and every workspace dialog. Declared by this
      * package's 'sidebar' entry (declaring is claiming); ui-workspace
@@ -56,6 +62,12 @@ export interface SidebarBrandMarkOwnerProps {
 /** Empty owner share for the sidebar brand-name occupant. */
 export interface SidebarBrandNameOwnerProps {
   /** Marker field: the occupant owns its own content and width. */
+  children?: never
+}
+
+/** Owner share of the entire sidebar header row. */
+export interface SidebarHeaderOwnerProps {
+  /** Marker field: the header occupant owns its own content. */
   children?: never
 }
 
@@ -109,6 +121,7 @@ export type SidebarRootInjected = {
 export type SidebarRootComponentProps =
   PropsRuntime<'sidebar'>
   & PropsRenderSlots<
+    | 'sidebar.header'
     | 'sidebar.brand.mark'
     | 'sidebar.brand.name'
     | 'sidebar.workspaces'

@@ -173,6 +173,31 @@ window.__ModuleLoader__.load({
             h(PanelContent, { id }))))
     }
 
+    const MitsuSidebarHeader = () =>
+      h('div', {
+        style: {
+          display: 'inline-flex',
+          alignItems: 'baseline',
+          color: 'var(--dsw-alias-label-primary)',
+          fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
+          fontWeight: 700,
+          fontSize: 20,
+          letterSpacing: '0.02em',
+          whiteSpace: 'nowrap',
+          padding: '0 16px',
+        },
+      },
+        'Mitsumeru',
+        h('span', {
+          'aria-hidden': true,
+          style: {
+            fontSize: '1.8em',
+            lineHeight: 'normal',
+            marginLeft: '0.02em',
+            color: '#765898',
+          },
+        }, '.'))
+
     const RIGHT_RAIL = (props) => {
       const [state, setState] = useState(getState())
       useEffect(() => subscribe(setState), [])
@@ -224,6 +249,11 @@ window.__ModuleLoader__.load({
             label: 'Mitsu right rail',
             inject: injected,
           }, RIGHT_RAIL))
+        ctx.slots.inject('sidebar.header', () =>
+          ctx.slots.register({
+            name: 'sidebar.header',
+            id: 'mitsu-sidebar-header',
+          }, MitsuSidebarHeader))
         ctx.slots.inject('details', () =>
           ctx.slots.register({
             name: 'details',
