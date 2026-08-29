@@ -13,9 +13,10 @@ function BrandDot() {
     <span
       aria-hidden
       style={{
-        fontSize: '2.4em',
-        lineHeight: 0,
-        marginLeft: '0.03em',
+        fontSize: '1.8em',
+        lineHeight: 'normal',
+        verticalAlign: 'baseline',
+        marginLeft: '0.04em',
         color: MITSU.dot,
       }}
     >

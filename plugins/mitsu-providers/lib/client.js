@@ -18,7 +18,7 @@ window.__ModuleLoader__.load({
 
     const STYLE = `
       .mitsu-providers * { box-sizing: border-box; }
-      .mitsu-providers { position: fixed; inset: 0; z-index: 999; display: flex; flex-direction: column; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); --mitsu-primary: #765898; }
+      .mitsu-providers { display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); --mitsu-primary: #765898; }
       .mitsu-providers-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); flex-shrink: 0; }
       .mitsu-providers-title { font-size: 16px; font-weight: 700; }
       .mitsu-providers-body { display: flex; flex: 1; min-height: 0; }
@@ -139,7 +139,6 @@ window.__ModuleLoader__.load({
 
       return h('div', { className: 'mitsu-providers' },
         h('div', { className: 'mitsu-providers-head' },
-          h('button', { className: 'mitsu-back', onClick: props.close }, '← Settings'),
           h('span', { className: 'mitsu-providers-title' }, 'Mitsu Providers')),
         h('div', { className: 'mitsu-providers-body' },
           h('div', { className: 'mitsu-providers-list' },
