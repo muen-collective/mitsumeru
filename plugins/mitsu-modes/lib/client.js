@@ -30,11 +30,6 @@ window.__ModuleLoader__.load({
 
     const applyMode = (mode) => {
       window.__MITSU_MODE__ = mode
-      if (window.__MITSU_RAIL__ && window.__MITSU_RAIL__.openSurface) {
-        if (mode === 'code') window.__MITSU_RAIL__.openSurface('browser')
-        if (mode === 'write') window.__MITSU_RAIL__.openSurface('docs')
-        if (mode === 'create') window.__MITSU_RAIL__.openSurface('assets')
-      }
     }
 
     const ModeTabs = () => {
@@ -57,11 +52,11 @@ window.__ModuleLoader__.load({
     return {
       inject: ['slots'],
       apply(ctx) {
-        ctx.slots.inject('conversation.input.dock', () =>
+        ctx.slots.inject('conversation.hero.agentPreset', () =>
           ctx.slots.register({
-            name: 'conversation.input.dock',
+            name: 'conversation.hero.agentPreset',
             id: 'mitsu-modes',
-            order: -100,
+            priority: -1,
           }, ModeTabs))
       },
     }
