@@ -8,23 +8,6 @@ const MITSU = {
   dot: '#765898',
 }
 
-function BrandDot() {
-  return (
-    <span
-      aria-hidden
-      style={{
-        fontSize: '1.8em',
-        lineHeight: 'normal',
-        verticalAlign: 'baseline',
-        marginLeft: '0.02em',
-        color: MITSU.dot,
-      }}
-    >
-      .
-    </span>
-  )
-}
-
 /**
  * Temporary Mitsu brand mark for localhost review.
  * The mark is hidden in both sidebar and hero; the name/headline own the brand text.
@@ -40,6 +23,8 @@ export function OfficialBrandName() {
   return (
     <span
       style={{
+        display: 'inline-flex',
+        alignItems: 'baseline',
         color: MITSU.text,
         fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
         fontWeight: 700,
@@ -49,7 +34,17 @@ export function OfficialBrandName() {
       }}
     >
       Mitsumeru
-      <BrandDot />
+      <span
+        aria-hidden
+        style={{
+          fontSize: '1.8em',
+          lineHeight: 'normal',
+          marginLeft: '0.02em',
+          color: MITSU.dot,
+        }}
+      >
+        .
+      </span>
     </span>
   )
 }
