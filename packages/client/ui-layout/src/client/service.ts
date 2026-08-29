@@ -27,6 +27,8 @@ export interface ILayout {
   openDetails(): void
   /** Close the details panel. */
   closeDetails(): void
+  /** Set the details panel width in pixels (clamped to the contract range). */
+  setDetailsWidth(px: number): void
 }
 
 /** Cross-plugin panel-action face (ctx.layout). */
@@ -57,6 +59,11 @@ export class LayoutController implements ILayout {
   /** Close the details panel. */
   closeDetails(): void {
     this.#require().closeDetails()
+  }
+
+  /** Set the details panel width in pixels (clamped to the contract range). */
+  setDetailsWidth(px: number): void {
+    this.#require().setDetails(px)
   }
 
   #require(): PanelActions {

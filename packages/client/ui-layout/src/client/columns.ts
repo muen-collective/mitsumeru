@@ -32,9 +32,9 @@ export const SIDEBAR_COLLAPSED = 56
  * (stores.ts narrowExpanded). */
 export const SIDEBAR_AUTO_COLLAPSE = 1024
 /** Details drag clamp floor. */
-export const DETAILS_MIN = 300
+export const DETAILS_MIN = 260
 /** Details drag clamp ceiling. */
-export const DETAILS_MAX = 520
+export const DETAILS_MAX = 1400
 /** Details width before any user drag. */
 export const DETAILS_DEFAULT = 360
 

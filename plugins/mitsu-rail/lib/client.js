@@ -1,12 +1,28 @@
 // @muen/mitsu-rail — browser half.
 // Raw loader plugin: React arrives via factory(require). Lucide icons are
-// embedded as inline SVG components so no external module-table dependency is needed.
+// embedded as inline SVG components. The right dock uses DSH's details column
+// so panels push the agent loop instead of overlaying it.
 window.__ModuleLoader__.load({
   id: '@muen/mitsu-rail',
   factory: (require) => {
     const React = require('react')
     const h = React.createElement
-    const { useState } = React
+    const { useState, useEffect } = React
+
+    // Shared dock state between the rail and the details-slot dock.
+    const DOCK = { panels: [], listeners: [] }
+    const getPanels = () => DOCK.panels
+    const setPanels = (panels) => {
+      DOCK.panels = panels
+      for (const fn of DOCK.listeners) fn(panels)
+    }
+    const subscribePanels = (fn) => {
+      DOCK.listeners.push(fn)
+      return () => {
+        const i = DOCK.listeners.indexOf(fn)
+        if (i >= 0) DOCK.listeners.splice(i, 1)
+      }
+    }
 
     const STYLE = `
       .mitsu-rail-nav { position: fixed; top: 0; right: 0; bottom: 0; width: 52px; z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0; background: var(--dsw-alias-bg-layer-1); border-left: 1px solid var(--dsw-alias-border-l2); }
@@ -14,9 +30,9 @@ window.__ModuleLoader__.load({
       .mitsu-rail-btn:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
       .mitsu-rail-btn.active { border-color: var(--mitsu-primary, #765898); color: var(--mitsu-primary, #765898); background: color-mix(in srgb, var(--mitsu-primary, #765898) 8%, transparent); }
       .mitsu-rail-avatar { margin-top: auto; width: 30px; height: 30px; border-radius: 999px; background: color-mix(in srgb, var(--mitsu-primary, #765898) 25%, transparent); color: var(--dsw-alias-label-primary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; cursor: pointer; }
-      .mitsu-rail-panel { position: fixed; top: 0; right: 52px; bottom: 0; width: 300px; z-index: 945; background: var(--dsw-alias-bg-layer-2); border-left: 1px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 20px; overflow-y: auto; }
-      .mitsu-rail-panel-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
-      .mitsu-rail-panel-note { font-size: 12px; color: var(--dsw-alias-label-secondary); }
+      .mitsu-dock-panel { height: 100%; width: 300px; flex: none; border-left: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 16px; overflow-y: auto; }
+      .mitsu-dock-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+      .mitsu-dock-note { font-size: 12px; color: var(--dsw-alias-label-secondary); }
     `
 
     let styleInjected = false
@@ -73,31 +89,54 @@ window.__ModuleLoader__.load({
       { id: 'browser', icon: GlobeIcon, label: 'Browser' },
     ]
 
-    const RIGHT_RAIL = (props) => {
-      const [open, setOpen] = useState(null)
-      const { toggleSidebar } = props
+    const PANEL_LABELS = {
+      assets: 'Assets',
+      docs: 'Docs',
+      browser: 'Browser',
+    }
+
+    const MitsuDock = () => {
+      const [panels, setPanelsState] = useState(getPanels())
+      useEffect(() => subscribePanels(setPanelsState), [])
       ensureStyle()
-      const toggle = (id) => setOpen(prev => prev === id ? null : id)
+      return h('div', { style: { display: 'flex', height: '100%', minWidth: 0 } },
+        panels.map(id => h('div', { key: id, className: 'mitsu-dock-panel' },
+          h('div', { className: 'mitsu-dock-title' }, PANEL_LABELS[id] || id),
+          h('div', { className: 'mitsu-dock-note' }, 'Mitsu ' + (PANEL_LABELS[id] || id) + ' surface.'))))
+    }
+
+    const RIGHT_RAIL = (props) => {
+      const [panels, setPanelsState] = useState(getPanels())
+      useEffect(() => subscribePanels(setPanelsState), [])
+      const { toggleSidebar, openDetails, closeDetails, setDetailsWidth } = props
+      ensureStyle()
+
       const handleClick = (id) => {
         if (id === 'tree') {
           toggleSidebar()
           return
         }
-        toggle(id)
+        const next = panels.includes(id)
+          ? panels.filter(x => x !== id)
+          : [...panels, id]
+        setPanels(next)
+        if (next.length > 0) {
+          setDetailsWidth(next.length * 300)
+          openDetails()
+        } else {
+          closeDetails()
+        }
       }
-      const activePanel = ITEMS.find(i => i.id === open && i.id !== 'tree')
+
       return h('div', { className: 'mitsu-rail-nav' },
         ITEMS.map(item => h('button', {
           key: item.id,
-          className: 'mitsu-rail-btn' + (open === item.id ? ' active' : ''),
+          className: 'mitsu-rail-btn' + (item.id !== 'tree' && panels.includes(item.id) ? ' active' : ''),
           title: item.label,
           'aria-label': item.label,
           onClick: () => handleClick(item.id),
         }, h(item.icon))),
-        h('div', { className: 'mitsu-rail-avatar', title: 'Account' }, 'TP'),
-        activePanel && h('div', { className: 'mitsu-rail-panel' },
-          h('div', { className: 'mitsu-rail-panel-title' }, activePanel.label),
-          h('div', { className: 'mitsu-rail-panel-note' }, 'Mitsu ' + activePanel.label + ' surface placeholder.')))
+        h('div', { className: 'mitsu-rail-avatar', title: 'Account' }, 'TP'))
     }
 
     return {
@@ -105,6 +144,9 @@ window.__ModuleLoader__.load({
       apply(ctx) {
         const injected = () => ({
           toggleSidebar: () => ctx.layout.toggleSidebar(),
+          openDetails: () => ctx.layout.openDetails(),
+          closeDetails: () => ctx.layout.closeDetails(),
+          setDetailsWidth: (px) => ctx.layout.setDetailsWidth(px),
         })
         ctx.slots.inject('shell.overlay', () =>
           ctx.slots.register({
@@ -114,6 +156,12 @@ window.__ModuleLoader__.load({
             label: 'Mitsu right rail',
             inject: injected,
           }, RIGHT_RAIL))
+        ctx.slots.inject('details', () =>
+          ctx.slots.register({
+            name: 'details',
+            id: 'mitsu-dock',
+            priority: -1,
+          }, MitsuDock))
       },
     }
   },
