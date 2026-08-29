@@ -9,20 +9,32 @@ window.__ModuleLoader__.load({
     const h = React.createElement
     const { useState, useEffect } = React
 
+    const PANEL_WIDTH = 300
+    const MIN_PANEL_WIDTH = 220
+    const MAX_PANEL_WIDTH = 520
+
     // Shared dock state between the rail and the details-slot dock.
-    const DOCK = { panels: [], listeners: [] }
-    const getPanels = () => DOCK.panels
-    const setPanels = (panels) => {
-      DOCK.panels = panels
-      for (const fn of DOCK.listeners) fn(panels)
-    }
-    const subscribePanels = (fn) => {
+    const DOCK = { panels: [], widths: {}, listeners: [] }
+    const getState = () => ({ panels: DOCK.panels, widths: { ...DOCK.widths } })
+    const emit = () => { for (const fn of DOCK.listeners) fn(getState()) }
+    const subscribe = (fn) => {
       DOCK.listeners.push(fn)
       return () => {
         const i = DOCK.listeners.indexOf(fn)
         if (i >= 0) DOCK.listeners.splice(i, 1)
       }
     }
+    const setPanels = (panels) => {
+      DOCK.panels = panels
+      for (const id of panels) if (DOCK.widths[id] === undefined) DOCK.widths[id] = PANEL_WIDTH
+      for (const id of Object.keys(DOCK.widths)) if (!panels.includes(id)) delete DOCK.widths[id]
+      emit()
+    }
+    const setWidth = (id, width) => {
+      DOCK.widths[id] = Math.min(MAX_PANEL_WIDTH, Math.max(MIN_PANEL_WIDTH, width))
+      emit()
+    }
+    const totalWidth = () => DOCK.panels.reduce((sum, id) => sum + (DOCK.widths[id] || PANEL_WIDTH), 0)
 
     const STYLE = `
       .mitsu-rail-nav { position: fixed; top: 0; right: 0; bottom: 0; width: 52px; z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0; background: var(--dsw-alias-bg-layer-1); border-left: 1px solid var(--dsw-alias-border-l2); }
@@ -30,9 +42,15 @@ window.__ModuleLoader__.load({
       .mitsu-rail-btn:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
       .mitsu-rail-btn.active { border-color: var(--mitsu-primary, #765898); color: var(--mitsu-primary, #765898); background: color-mix(in srgb, var(--mitsu-primary, #765898) 8%, transparent); }
       .mitsu-rail-avatar { margin-top: auto; width: 30px; height: 30px; border-radius: 999px; background: color-mix(in srgb, var(--mitsu-primary, #765898) 25%, transparent); color: var(--dsw-alias-label-primary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; cursor: pointer; }
-      .mitsu-dock-panel { height: 100%; width: 300px; flex: none; border-left: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 16px; overflow-y: auto; }
+      .mitsu-dock { display: flex; height: 100%; min-width: 0; }
+      .mitsu-dock-panel { height: 100%; flex: none; border-left: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 16px; overflow-y: auto; position: relative; }
       .mitsu-dock-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
       .mitsu-dock-note { font-size: 12px; color: var(--dsw-alias-label-secondary); }
+      .mitsu-dock-handle { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: ew-resize; z-index: 2; }
+      .mitsu-dock-handle:hover { background: color-mix(in srgb, var(--mitsu-primary, #765898) 30%, transparent); }
+      .mitsu-dock-card { border: 1px solid var(--dsw-alias-border-l2); border-radius: 10px; padding: 10px; margin-bottom: 8px; background: var(--dsw-alias-bg-layer-1); }
+      .mitsu-dock-card-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+      .mitsu-dock-card-meta { font-size: 10px; color: var(--dsw-alias-label-secondary); }
     `
 
     let styleInjected = false
@@ -95,19 +113,69 @@ window.__ModuleLoader__.load({
       browser: 'Browser',
     }
 
+    const PanelContent = ({ id }) => {
+      if (id === 'assets') return h('div', null,
+        h('div', { className: 'mitsu-dock-card' },
+          h('div', { className: 'mitsu-dock-card-title' }, 'Editorial look 01'),
+          h('div', { className: 'mitsu-dock-card-meta' }, 'Text-to-image · 4K')),
+        h('div', { className: 'mitsu-dock-card' },
+          h('div', { className: 'mitsu-dock-card-title' }, 'Silk slip dress'),
+          h('div', { className: 'mitsu-dock-card-meta' }, 'Text-to-image · 6K')),
+        h('div', { className: 'mitsu-dock-card' },
+          h('div', { className: 'mitsu-dock-card-title' }, 'Sketch → flat lay'),
+          h('div', { className: 'mitsu-dock-card-meta' }, 'Sketch-to-image')))
+      if (id === 'docs') return h('div', null,
+        h('div', { className: 'mitsu-dock-card' },
+          h('div', { className: 'mitsu-dock-card-title' }, 'Spring Campaign — Mood Board'),
+          h('div', { className: 'mitsu-dock-card-meta' }, 'Campaigns · .md')),
+        h('div', { className: 'mitsu-dock-card' },
+          h('div', { className: 'mitsu-dock-card-title' }, 'Using Mitsu'),
+          h('div', { className: 'mitsu-dock-card-meta' }, '!Welcome · .md')))
+      if (id === 'browser') return h('div', null,
+        h('div', { className: 'mitsu-dock-card' },
+          h('div', { className: 'mitsu-dock-card-title' }, 'Brand OS preview'),
+          h('div', { className: 'mitsu-dock-card-meta' }, 'https://muen.studio')))
+      return null
+    }
+
+    const DockHandle = ({ id }) => {
+      const startDrag = (e) => {
+        e.preventDefault()
+        const startX = e.clientX
+        const startWidth = DOCK.widths[id] || PANEL_WIDTH
+        const onMove = (ev) => {
+          const delta = ev.clientX - startX
+          setWidth(id, startWidth - delta)
+        }
+        const onUp = () => {
+          window.removeEventListener('mousemove', onMove)
+          window.removeEventListener('mouseup', onUp)
+        }
+        window.addEventListener('mousemove', onMove)
+        window.addEventListener('mouseup', onUp)
+      }
+      return h('div', { className: 'mitsu-dock-handle', onMouseDown: startDrag })
+    }
+
     const MitsuDock = () => {
-      const [panels, setPanelsState] = useState(getPanels())
-      useEffect(() => subscribePanels(setPanelsState), [])
+      const [state, setState] = useState(getState())
+      useEffect(() => subscribe(setState), [])
       ensureStyle()
-      return h('div', { style: { display: 'flex', height: '100%', minWidth: 0 } },
-        panels.map(id => h('div', { key: id, className: 'mitsu-dock-panel' },
-          h('div', { className: 'mitsu-dock-title' }, PANEL_LABELS[id] || id),
-          h('div', { className: 'mitsu-dock-note' }, 'Mitsu ' + (PANEL_LABELS[id] || id) + ' surface.'))))
+      return h('div', { className: 'mitsu-dock' },
+        state.panels.map((id, index) =>
+          h('div', {
+            key: id,
+            className: 'mitsu-dock-panel',
+            style: { width: state.widths[id] || PANEL_WIDTH },
+          },
+            index > 0 && h(DockHandle, { id }),
+            h('div', { className: 'mitsu-dock-title' }, PANEL_LABELS[id] || id),
+            h(PanelContent, { id }))))
     }
 
     const RIGHT_RAIL = (props) => {
-      const [panels, setPanelsState] = useState(getPanels())
-      useEffect(() => subscribePanels(setPanelsState), [])
+      const [state, setState] = useState(getState())
+      useEffect(() => subscribe(setState), [])
       const { toggleSidebar, openDetails, closeDetails, setDetailsWidth } = props
       ensureStyle()
 
@@ -116,12 +184,12 @@ window.__ModuleLoader__.load({
           toggleSidebar()
           return
         }
-        const next = panels.includes(id)
-          ? panels.filter(x => x !== id)
-          : [...panels, id]
+        const next = state.panels.includes(id)
+          ? state.panels.filter(x => x !== id)
+          : [...state.panels, id]
         setPanels(next)
         if (next.length > 0) {
-          setDetailsWidth(next.length * 300)
+          setDetailsWidth(totalWidth())
           openDetails()
         } else {
           closeDetails()
@@ -131,7 +199,7 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'mitsu-rail-nav' },
         ITEMS.map(item => h('button', {
           key: item.id,
-          className: 'mitsu-rail-btn' + (item.id !== 'tree' && panels.includes(item.id) ? ' active' : ''),
+          className: 'mitsu-rail-btn' + (item.id !== 'tree' && state.panels.includes(item.id) ? ' active' : ''),
           title: item.label,
           'aria-label': item.label,
           onClick: () => handleClick(item.id),
