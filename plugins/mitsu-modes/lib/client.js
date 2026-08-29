@@ -31,7 +31,7 @@ window.__ModuleLoader__.load({
     const applyMode = (mode) => {
       window.__MITSU_MODE__ = mode
       if (window.__MITSU_RAIL__) {
-        if (mode === 'code') window.__MITSU_RAIL__.closeAll()
+        window.__MITSU_RAIL__.closeAll()
         if (mode === 'write') window.__MITSU_RAIL__.openSurface('docs')
         if (mode === 'create') window.__MITSU_RAIL__.openSurface('assets')
       }
