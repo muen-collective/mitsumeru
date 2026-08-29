@@ -20,7 +20,6 @@ function BrandDot({ size = 6 }) {
         borderRadius: 999,
         backgroundColor: MITSU.dot,
         verticalAlign: 'baseline',
-        transform: 'translateY(-1px)',
       }}
     />
   )
@@ -28,33 +27,10 @@ function BrandDot({ size = 6 }) {
 
 /**
  * Temporary Mitsu brand mark for localhost review.
- * The sidebar mark slot is hidden; the name slot renders the full wordmark+dot.
+ * The mark is hidden in both sidebar and hero; the name/headline own the brand text.
  */
-export function OfficialBrandMark({ size, className }: OfficialBrandMarkProps) {
-  // Sidebar uses size 24; hide the old mark there and let the name slot own
-  // the Mitsu wordmark+dot. The hero mark (size 34) renders full brand.
-  if (size <= 24) return null
-
-  return (
-    <span
-      role="img"
-      aria-label="Mitsumeru brand mark"
-      className={className}
-      style={{
-        color: MITSU.text,
-        fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
-        fontWeight: 700,
-        fontSize: 20,
-        letterSpacing: '0.02em',
-        whiteSpace: 'nowrap',
-        display: 'inline-flex',
-        alignItems: 'baseline',
-      }}
-    >
-      Mitsumeru
-      <BrandDot size={6} />
-    </span>
-  )
+export function OfficialBrandMark(_props: OfficialBrandMarkProps) {
+  return null
 }
 
 /**
@@ -74,7 +50,7 @@ export function OfficialBrandName() {
         alignItems: 'baseline',
       }}
     >
-      Mitsu
+      Mitsumeru
       <BrandDot size={6} />
     </span>
   )
