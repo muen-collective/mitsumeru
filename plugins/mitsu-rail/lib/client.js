@@ -131,7 +131,7 @@ window.__ModuleLoader__.load({
       return surface ? surface.panel() : null
     }
 
-    const DockHandle = ({ id }) => {
+    const DockHandle = ({ id, onWidthChange }) => {
       const startDrag = (e) => {
         e.preventDefault()
         const startX = e.clientX
@@ -139,6 +139,7 @@ window.__ModuleLoader__.load({
         const onMove = (ev) => {
           const delta = ev.clientX - startX
           setWidth(id, startWidth - delta)
+          if (onWidthChange) onWidthChange()
         }
         const onUp = () => {
           window.removeEventListener('mousemove', onMove)
@@ -150,10 +151,13 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'mitsu-dock-handle', onMouseDown: startDrag })
     }
 
-    const MitsuDock = () => {
+    const MitsuDock = (props) => {
       const [state, setState] = useState(getState())
       useEffect(() => subscribe(setState), [])
       ensureStyle()
+      const refreshLayout = () => {
+        if (props.setDetailsWidth) props.setDetailsWidth(totalWidth())
+      }
       return h('div', { className: 'mitsu-dock' },
         state.panels.map((id, index) =>
           h('div', {
@@ -161,7 +165,7 @@ window.__ModuleLoader__.load({
             className: 'mitsu-dock-panel',
             style: { width: state.widths[id] || PANEL_WIDTH },
           },
-            index > 0 && h(DockHandle, { id }),
+            index > 0 && h(DockHandle, { id, onWidthChange: refreshLayout }),
             h('div', { className: 'mitsu-dock-title' }, (surfaceById(id)?.label) || id),
             h(PanelContent, { id }))))
     }
@@ -257,6 +261,7 @@ window.__ModuleLoader__.load({
             name: 'rightDock',
             id: 'mitsu-dock',
             priority: -1,
+            inject: injected,
           }, MitsuDock))
       },
     }
