@@ -238,6 +238,31 @@ Tasks:
 - [ ] 12.7 Add per-brand node templates
 
 
+
+### Epic 13 — Scheduled Tasks / Cron (future)
+
+Goal: let Muen and clients schedule agent tasks like cron jobs, with a
+client-safe UI.
+
+- Scheduled tasks list
+- Session tasks (run agent workflow on schedule)
+- Create/edit/delete tasks
+- Task states: running, queued, completed, failed
+- Per-brand cron templates
+- Audit/log of runs
+- MCP/plugin scheduled actions
+
+Tasks:
+
+- [ ] 13.1 Define scheduled task contract
+- [ ] 13.2 Spike scheduled task plugin in Storybook
+- [ ] 13.3 Build scheduled task list UI
+- [ ] 13.4 Build create/edit task dialog
+- [ ] 13.5 Wire to DSH jobs/scheduler
+- [ ] 13.6 Add run history
+- [ ] 13.7 Add brand templates
+
+
 ## Definition of done
 
 - Each Mitsu surface is a plugin
