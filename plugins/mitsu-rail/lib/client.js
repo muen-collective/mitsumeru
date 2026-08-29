@@ -55,6 +55,14 @@ window.__ModuleLoader__.load({
       .mitsu-dock-card { border: 1px solid var(--dsw-alias-border-l2); border-radius: 10px; padding: 10px; margin-bottom: 8px; background: var(--dsw-alias-bg-layer-1); }
       .mitsu-dock-card-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
       .mitsu-dock-card-meta { font-size: 10px; color: var(--dsw-alias-label-secondary); }
+      .mitsu-asset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .mitsu-asset-tile { aspect-ratio: 3 / 4; border-radius: 8px; background: linear-gradient(135deg, color-mix(in srgb, var(--mitsu-primary, #765898) 35%, transparent), color-mix(in srgb, var(--dsw-alias-state-business-primary) 35%, transparent)); color: var(--dsw-alias-label-primary-inverted); display: flex; align-items: flex-end; padding: 8px; font-size: 10px; font-weight: 600; }
+      .mitsu-doc-item { border-bottom: 1px solid var(--dsw-alias-border-l1); padding: 8px 0; }
+      .mitsu-doc-item-title { font-size: 12px; font-weight: 600; }
+      .mitsu-doc-item-meta { font-size: 10px; color: var(--dsw-alias-label-secondary); }
+      .mitsu-browser-frame { border: 1px solid var(--dsw-alias-border-l2); border-radius: 10px; overflow: hidden; margin-top: 8px; }
+      .mitsu-browser-url { padding: 8px 10px; border-bottom: 1px solid var(--dsw-alias-border-l2); font-size: 11px; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-1); }
+      .mitsu-browser-iframe { width: 100%; height: 320px; border: none; background: #fff; }
     `
 
     let styleInjected = false
@@ -119,26 +127,18 @@ window.__ModuleLoader__.load({
 
     const PanelContent = ({ id }) => {
       if (id === 'assets') return h('div', null,
-        h('div', { className: 'mitsu-dock-card' },
-          h('div', { className: 'mitsu-dock-card-title' }, 'Editorial look 01'),
-          h('div', { className: 'mitsu-dock-card-meta' }, 'Text-to-image · 4K')),
-        h('div', { className: 'mitsu-dock-card' },
-          h('div', { className: 'mitsu-dock-card-title' }, 'Silk slip dress'),
-          h('div', { className: 'mitsu-dock-card-meta' }, 'Text-to-image · 6K')),
-        h('div', { className: 'mitsu-dock-card' },
-          h('div', { className: 'mitsu-dock-card-title' }, 'Sketch → flat lay'),
-          h('div', { className: 'mitsu-dock-card-meta' }, 'Sketch-to-image')))
+        h('div', { className: 'mitsu-asset-grid' },
+          ['Editorial look 01', 'Silk slip dress', 'Sketch → flat lay', 'Cropped knit set', 'Runway clip', 'Palette still life'].map((name, i) =>
+            h('div', { className: 'mitsu-asset-tile', key: name }, name))))
       if (id === 'docs') return h('div', null,
-        h('div', { className: 'mitsu-dock-card' },
-          h('div', { className: 'mitsu-dock-card-title' }, 'Spring Campaign — Mood Board'),
-          h('div', { className: 'mitsu-dock-card-meta' }, 'Campaigns · .md')),
-        h('div', { className: 'mitsu-dock-card' },
-          h('div', { className: 'mitsu-dock-card-title' }, 'Using Mitsu'),
-          h('div', { className: 'mitsu-dock-card-meta' }, '!Welcome · .md')))
+        ['Spring Campaign — Mood Board', 'Using Mitsu', 'FAQ.md', 'Sketch Notes'].map((title, i) =>
+          h('div', { className: 'mitsu-doc-item', key: title },
+            h('div', { className: 'mitsu-doc-item-title' }, title),
+            h('div', { className: 'mitsu-doc-item-meta' }, i === 0 ? 'Campaigns · .md' : i === 1 ? '!Welcome · .md' : 'Docs · .md'))))
       if (id === 'browser') return h('div', null,
-        h('div', { className: 'mitsu-dock-card' },
-          h('div', { className: 'mitsu-dock-card-title' }, 'Brand OS preview'),
-          h('div', { className: 'mitsu-dock-card-meta' }, 'https://muen.studio')))
+        h('div', { className: 'mitsu-browser-frame' },
+          h('div', { className: 'mitsu-browser-url' }, 'https://muen.studio'),
+          h('iframe', { className: 'mitsu-browser-iframe', src: 'https://example.com', title: 'Browser preview' })))
       return null
     }
 
