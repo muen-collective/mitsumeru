@@ -248,6 +248,19 @@ window.__ModuleLoader__.load({
           closeDetails: () => ctx.layout.closeDetails(),
           setDetailsWidth: (px) => ctx.layout.setDetailsWidth(px),
         })
+        window.__MITSU_RAIL__.openSurface = (id) => {
+          if (!DOCK.panels.includes(id)) {
+            DOCK.panels.push(id)
+            if (DOCK.widths[id] === undefined) DOCK.widths[id] = PANEL_WIDTH
+            emit()
+          }
+          ctx.layout.setDetailsWidth(totalWidth())
+          ctx.layout.openDetails()
+        }
+        window.__MITSU_RAIL__.closeAll = () => {
+          setPanels([])
+          ctx.layout.closeDetails()
+        }
         ctx.slots.inject('shell.overlay', () =>
           ctx.slots.register({
             name: 'shell.overlay',

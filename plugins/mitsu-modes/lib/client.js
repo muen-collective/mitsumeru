@@ -3,7 +3,7 @@ window.__ModuleLoader__.load({
   factory: (require) => {
     const React = require('react')
     const h = React.createElement
-    const { useState } = React
+    const { useState, useEffect } = React
 
     const MODES = [
       { id: 'code', label: 'Code' },
@@ -28,13 +28,26 @@ window.__ModuleLoader__.load({
       borderBottom: active ? '2px solid var(--mitsu-primary, #765898)' : '2px solid transparent',
     })
 
+    const applyMode = (mode) => {
+      window.__MITSU_MODE__ = mode
+      if (window.__MITSU_RAIL__ && window.__MITSU_RAIL__.openSurface) {
+        if (mode === 'code') window.__MITSU_RAIL__.openSurface('browser')
+        if (mode === 'write') window.__MITSU_RAIL__.openSurface('docs')
+        if (mode === 'create') window.__MITSU_RAIL__.openSurface('assets')
+      }
+    }
+
     const ModeTabs = () => {
       const [mode, setMode] = useState('code')
-      window.__MITSU_MODE__ = mode
+      useEffect(() => { applyMode('code') }, [])
+      const select = (next) => {
+        setMode(next)
+        applyMode(next)
+      }
       return h('div', { style: buttons },
         MODES.map(m => h('button', {
           key: m.id,
-          onClick: () => setMode(m.id),
+          onClick: () => select(m.id),
           style: tab(mode === m.id),
           'aria-pressed': mode === m.id,
           'aria-label': m.label + ' mode',
