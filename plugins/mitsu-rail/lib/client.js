@@ -36,6 +36,17 @@ window.__ModuleLoader__.load({
     }
     const totalWidth = () => DOCK.panels.reduce((sum, id) => sum + (DOCK.widths[id] || PANEL_WIDTH), 0)
 
+    // Shared surface registry. Each Mitsu surface plugin registers itself here.
+    window.__MITSU_RAIL__ = window.__MITSU_RAIL__ || { surfaces: [], listeners: [] }
+    const getSurfaces = () => [...window.__MITSU_RAIL__.surfaces]
+    const subscribeSurfaces = (fn) => {
+      window.__MITSU_RAIL__.listeners.push(fn)
+      return () => {
+        const i = window.__MITSU_RAIL__.listeners.indexOf(fn)
+        if (i >= 0) window.__MITSU_RAIL__.listeners.splice(i, 1)
+      }
+    }
+
     const STYLE = `
       .mitsu-rail-nav { position: fixed; top: 0; right: 0; bottom: 0; width: 52px; z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0; background: var(--dsw-alias-bg-layer-1); border-left: 1px solid var(--dsw-alias-border-l2); }
       .mitsu-rail-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
@@ -112,34 +123,12 @@ window.__ModuleLoader__.load({
       h('path', { d: 'M2 12h20' }),
     ])
 
-    const ITEMS = [
-      { id: 'tree', icon: PanelLeftIcon, label: 'Tree' },
-      { id: 'assets', icon: ImageIcon, label: 'Assets' },
-      { id: 'docs', icon: FileTextIcon, label: 'Docs' },
-      { id: 'browser', icon: GlobeIcon, label: 'Browser' },
-    ]
-
-    const PANEL_LABELS = {
-      assets: 'Assets',
-      docs: 'Docs',
-      browser: 'Browser',
-    }
-
+    const TREE_ITEM = { id: 'tree', icon: PanelLeftIcon, label: 'Tree' }
+    const surfaceById = (id) => getSurfaces().find(s => s.id === id)
+    const railItems = () => [TREE_ITEM, ...getSurfaces()]
     const PanelContent = ({ id }) => {
-      if (id === 'assets') return h('div', null,
-        h('div', { className: 'mitsu-asset-grid' },
-          ['Editorial look 01', 'Silk slip dress', 'Sketch → flat lay', 'Cropped knit set', 'Runway clip', 'Palette still life'].map((name, i) =>
-            h('div', { className: 'mitsu-asset-tile', key: name }, name))))
-      if (id === 'docs') return h('div', null,
-        ['Spring Campaign — Mood Board', 'Using Mitsu', 'FAQ.md', 'Sketch Notes'].map((title, i) =>
-          h('div', { className: 'mitsu-doc-item', key: title },
-            h('div', { className: 'mitsu-doc-item-title' }, title),
-            h('div', { className: 'mitsu-doc-item-meta' }, i === 0 ? 'Campaigns · .md' : i === 1 ? '!Welcome · .md' : 'Docs · .md'))))
-      if (id === 'browser') return h('div', null,
-        h('div', { className: 'mitsu-browser-frame' },
-          h('div', { className: 'mitsu-browser-url' }, 'https://muen.studio'),
-          h('iframe', { className: 'mitsu-browser-iframe', src: 'https://example.com', title: 'Browser preview' })))
-      return null
+      const surface = surfaceById(id)
+      return surface ? surface.panel() : null
     }
 
     const DockHandle = ({ id }) => {
@@ -173,7 +162,7 @@ window.__ModuleLoader__.load({
             style: { width: state.widths[id] || PANEL_WIDTH },
           },
             index > 0 && h(DockHandle, { id }),
-            h('div', { className: 'mitsu-dock-title' }, PANEL_LABELS[id] || id),
+            h('div', { className: 'mitsu-dock-title' }, (surfaceById(id)?.label) || id),
             h(PanelContent, { id }))))
     }
 
@@ -206,6 +195,8 @@ window.__ModuleLoader__.load({
     const RIGHT_RAIL = (props) => {
       const [state, setState] = useState(getState())
       useEffect(() => subscribe(setState), [])
+      const [surfaces, setSurfaces] = useState(getSurfaces())
+      useEffect(() => subscribeSurfaces(setSurfaces), [])
       const { toggleSidebar, openDetails, closeDetails, setDetailsWidth } = props
       ensureStyle()
 
@@ -226,8 +217,10 @@ window.__ModuleLoader__.load({
         }
       }
 
+      const items = [TREE_ITEM, ...surfaces]
+
       return h('div', { className: 'mitsu-rail-nav' },
-        ITEMS.map(item => h('button', {
+        items.map(item => h('button', {
           key: item.id,
           className: 'mitsu-rail-btn' + (item.id !== 'tree' && state.panels.includes(item.id) ? ' active' : ''),
           title: item.label,
