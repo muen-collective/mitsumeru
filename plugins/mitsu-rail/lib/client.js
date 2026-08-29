@@ -42,6 +42,7 @@ window.__ModuleLoader__.load({
       .mitsu-rail-btn:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
       .mitsu-rail-btn.active { border-color: var(--mitsu-primary, #765898); color: var(--mitsu-primary, #765898); background: color-mix(in srgb, var(--mitsu-primary, #765898) 8%, transparent); }
       .mitsu-rail-avatar { margin-top: auto; width: 30px; height: 30px; border-radius: 999px; background: color-mix(in srgb, var(--mitsu-primary, #765898) 25%, transparent); color: var(--dsw-alias-label-primary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; cursor: pointer; }
+      .mitsu-sidebar-header { min-width: max-content; will-change: opacity, transform; }
       .mitsu-dock { display: flex; height: 100%; min-width: 0; }
       .mitsu-dock-panel { height: 100%; flex: none; border-left: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); padding: 16px; overflow-y: auto; position: relative; }
       .mitsu-dock-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
@@ -175,6 +176,7 @@ window.__ModuleLoader__.load({
 
     const MitsuSidebarHeader = () =>
       h('div', {
+        className: 'mitsu-sidebar-header',
         style: {
           display: 'inline-flex',
           alignItems: 'baseline',
