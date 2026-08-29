@@ -1,7 +1,7 @@
 {
   "name": "@muen/mitsu-rail",
   "version": "0.1.0",
-  "description": "Mitsu right rail — panel controls for tree, assets, docs, browser, and avatar.",
+  "description": "Mitsu right rail \u2014 panel controls for tree, assets, docs, browser, and avatar.",
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
@@ -30,5 +30,11 @@
     "react": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0"
+  },
+  "scripts": {
+    "build": "/Volumes/External\\ SSD/mitsu-dsh/node_modules/.pnpm/esbuild@0.21.5/node_modules/esbuild/bin/esbuild src/client.jsx --bundle --outfile=lib/client.js --external:react --format=iife --platform=browser --jsx=automatic"
   }
 }
