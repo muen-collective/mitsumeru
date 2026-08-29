@@ -214,6 +214,30 @@
 
 ---
 
+
+### Epic 12 — Visual Node-Based Workflow (future)
+
+Goal: surface the agent loop as a visual node graph so Muen can design/debug
+Brand OS loops without reading raw harness internals.
+
+- Node palette: triggers, tools, models, prompts, transforms, publish actions
+- Canvas: drag nodes, connect flows, zoom/pan
+- Inspect: live loop state, running nodes, outputs
+- Per-client: load brand-specific node templates
+- Run: execute a graph as an agent loop
+- Export: publish a workflow as a config/preset
+
+Tasks:
+
+- [ ] 12.1 Spike node canvas plugin in Storybook
+- [ ] 12.2 Define node/edge schema
+- [ ] 12.3 Map DSH agent loop events to node states
+- [ ] 12.4 Build palette + canvas
+- [ ] 12.5 Add node inspector
+- [ ] 12.6 Add run/export
+- [ ] 12.7 Add per-brand node templates
+
+
 ## Definition of done
 
 - Each Mitsu surface is a plugin
