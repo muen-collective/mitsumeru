@@ -31,10 +31,7 @@
       "optional": true
     }
   },
-  "dependencies": {
-    "lucide-react": "^0.468.0"
-  },
   "scripts": {
-    "build": "/Volumes/External\\ SSD/mitsu-dsh/node_modules/.pnpm/esbuild@0.21.5/node_modules/esbuild/bin/esbuild src/client.jsx --bundle --outfile=lib/client.js --external:react --format=iife --platform=browser --jsx=automatic"
+    "build": "echo \"raw plugin \u2014 no build step\""
   }
 }
