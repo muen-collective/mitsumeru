@@ -18,15 +18,15 @@ window.__ModuleLoader__.load({
 
     const STYLE = `
       .mitsu-providers * { box-sizing: border-box; }
-      .mitsu-providers { position: fixed; inset: 0; z-index: 999; display: flex; flex-direction: column; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); }
+      .mitsu-providers { position: fixed; inset: 0; z-index: 999; display: flex; flex-direction: column; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family); --mitsu-primary: #765898; }
       .mitsu-providers-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); flex-shrink: 0; }
       .mitsu-providers-title { font-size: 16px; font-weight: 700; }
       .mitsu-providers-body { display: flex; flex: 1; min-height: 0; }
       .mitsu-providers-list { width: 280px; border-right: 1px solid var(--dsw-alias-border-l2); padding: 14px; overflow-y: auto; flex-shrink: 0; }
       .mitsu-providers-search { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-3); color: var(--dsw-alias-label-primary); margin-bottom: 12px; font-size: 13px; }
       .mitsu-provider-card { padding: 12px; border-radius: 10px; border: 1px solid var(--dsw-alias-border-l2); margin-bottom: 8px; cursor: pointer; background: var(--dsw-alias-bg-layer-2); transition: border-color .15s; }
-      .mitsu-provider-card:hover { border-color: var(--dsw-alias-state-business-primary); }
-      .mitsu-provider-card.sel { border-color: var(--dsw-alias-state-business-primary); background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 8%, transparent); }
+      .mitsu-provider-card:hover { border-color: var(--mitsu-primary); }
+      .mitsu-provider-card.sel { border-color: var(--mitsu-primary); background: color-mix(in srgb, var(--mitsu-primary) 8%, transparent); }
       .mitsu-provider-name { font-size: 14px; font-weight: 600; }
       .mitsu-provider-desc { font-size: 11px; color: var(--dsw-alias-label-secondary); margin-top: 4px; line-height: 1.4; }
       .mitsu-provider-caps { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
@@ -39,7 +39,7 @@ window.__ModuleLoader__.load({
       .mitsu-input { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-3); color: var(--dsw-alias-label-primary); font-size: 13px; }
       .mitsu-row { display: flex; gap: 8px; align-items: center; }
       .mitsu-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font-size: 13px; cursor: pointer; }
-      .mitsu-btn.primary { background: var(--dsw-alias-state-business-primary); border-color: transparent; color: var(--dsw-alias-label-primary-inverted); }
+      .mitsu-btn.primary { background: var(--mitsu-primary); border-color: transparent; color: var(--dsw-alias-label-primary-inverted); }
       .mitsu-status { font-size: 12px; color: var(--dsw-alias-state-success-primary); }
       .mitsu-status.error { color: var(--dsw-alias-state-error-primary); }
       .mitsu-section-title { font-size: 14px; font-weight: 700; margin: 24px 0 10px; }
@@ -103,7 +103,8 @@ window.__ModuleLoader__.load({
         setBusy(true)
         setTestStatus(null)
         try {
-          const result = await api.llm.discoverModels('llm-pi-ai', {
+          const settingsNs = selected.id === 'deepseek' ? 'llm-deepseek' : 'llm-pi-ai'
+          const result = await api.llm.discoverModels(settingsNs, {
             provider: selected.id,
             ...(baseURL ? { baseURL } : {}),
             ...(key ? { apiKey: key } : {}),
@@ -138,7 +139,7 @@ window.__ModuleLoader__.load({
 
       return h('div', { className: 'mitsu-providers' },
         h('div', { className: 'mitsu-providers-head' },
-          h('button', { className: 'mitsu-back', onClick: () => { /* future: close settings */ } }, '← Settings'),
+          h('button', { className: 'mitsu-back', onClick: props.close }, '← Settings'),
           h('span', { className: 'mitsu-providers-title' }, 'Mitsu Providers')),
         h('div', { className: 'mitsu-providers-body' },
           h('div', { className: 'mitsu-providers-list' },
