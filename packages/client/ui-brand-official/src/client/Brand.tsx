@@ -16,7 +16,7 @@ function BrandDot() {
         fontSize: '1.8em',
         lineHeight: 'normal',
         verticalAlign: 'baseline',
-        marginLeft: '0.04em',
+        marginLeft: '0.02em',
         color: MITSU.dot,
       }}
     >
@@ -43,7 +43,7 @@ export function OfficialBrandName() {
         color: MITSU.text,
         fontFamily: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
         fontWeight: 700,
-        fontSize: 18,
+        fontSize: 20,
         letterSpacing: '0.02em',
         whiteSpace: 'nowrap',
       }}
