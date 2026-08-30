@@ -263,6 +263,52 @@ Tasks:
 - [ ] 13.7 Add brand templates
 
 
+
+### Epic 14 — Mitsu Workflow App Architecture (MVP)
+
+Muen builds custom workflows as black-box **Workflow Apps**. Clients never see
+the graph; they see tasks + approval gates.
+
+**Muen Workflow Studio (Muen-side):**
+
+- visual node canvas (Comfy-like, Mitsu-branded)
+- node palette: input, workflow app, approval gate, loop, output/publish
+- connect nodes, zoom/pan
+- save/load pipeline
+- Workflow App contract: typed input → typed output
+
+**Client Task Runner (client-side):**
+
+- simple task cards
+- upload step
+- status/progress
+- approval gate screen
+- publish confirmation
+- no graph
+
+**MVP pipeline:**
+
+```text
+Upload Image
+→ Prompt
+→ Diffusion Workflow App
+→ Approval Gate
+→ Upscale Workflow App (optional)
+→ Approval Gate (optional)
+→ Storefront Publish
+```
+
+Tasks:
+
+- [ ] 14.1 Define Workflow App black-box contract
+- [ ] 14.2 Build Muen Workflow Studio node canvas
+- [ ] 14.3 Add Workflow App node
+- [ ] 14.4 Add Approval Gate node
+- [ ] 14.5 Build Client Task Runner
+- [ ] 14.6 Build diffusion create-to-storefront MVP pipeline
+- [ ] 14.7 Extend to coding loop later
+
+
 ## Definition of done
 
 - Each Mitsu surface is a plugin
