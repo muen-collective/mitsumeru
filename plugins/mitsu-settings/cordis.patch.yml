@@ -1,0 +1,3 @@
+- insert:
+    - id: mitsu-settings
+      name: '@muen/mitsu-settings'
