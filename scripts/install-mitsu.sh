@@ -31,19 +31,32 @@ echo "  dsh home: $DSH_HOME"
 # --- 1. prerequisites ---------------------------------------------------------
 command -v git >/dev/null 2>&1 || { echo "✗ git not found — install Xcode CLT or git"; exit 1; }
 
-NODE_BIN="$(command -v node || true)"
-if [ -z "$NODE_BIN" ]; then
-  echo "✗ node not found on PATH — install Node.js ≥22.19 (https://nodejs.org)"; exit 1
+# Resolve Node: prefer a user-managed runtime (nvm), then PATH. Never lean on
+# another app's bundled node (dsh-desktop, Hermes, etc.) — it can vanish when
+# that app is uninstalled. The chosen binary is pinned into the `mitsu` command.
+NODE_BIN=""
+for candidate in "$HOME"/.nvm/versions/node/*/bin/node; do
+  [ -x "$candidate" ] || continue
+  major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+  # prefer v24+ (>=24) which the fork accepts outright; keep first v22.19+ as fallback
+  if [ "${major:-0}" -ge 24 ]; then NODE_BIN="$candidate"; break; fi
+  [ -z "$NODE_BIN" ] && NODE_BIN="$candidate"
+done
+if [ -z "$NODE_BIN" ] && command -v node >/dev/null 2>&1; then
+  NODE_BIN="$(command -v node)"
 fi
-NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
-NODE_MINOR="$(node -p 'process.versions.node.split(".")[1]')"
+if [ -z "$NODE_BIN" ] || [ ! -x "$NODE_BIN" ]; then
+  echo "✗ no usable Node.js found — install Node.js ≥22.19 (https://nodejs.org) or via nvm"; exit 1
+fi
+NODE_MAJOR="$("$NODE_BIN" -p 'process.versions.node.split(".")[0]')"
+NODE_MINOR="$("$NODE_BIN" -p 'process.versions.node.split(".")[1]')"
 if [ "$NODE_MAJOR" -lt 22 ] || { [ "$NODE_MAJOR" -eq 22 ] && [ "$NODE_MINOR" -lt 19 ]; }; then
-  echo "✗ node $(node --version) too old — need ≥22.19 or ≥24"; exit 1
+  echo "✗ node $("$NODE_BIN" --version) too old — need ≥22.19 or ≥24"; exit 1
 fi
-echo "  node:     $(node --version) ✓"
+echo "  node:     $("$NODE_BIN" --version) at $NODE_BIN ✓"
 
-if command -v corepack >/dev/null 2>&1; then
-  PNPM=(corepack pnpm)
+if [ -x "$(dirname "$NODE_BIN")/corepack" ]; then
+  PNPM=("$(dirname "$NODE_BIN")/corepack" pnpm)
 elif command -v pnpm >/dev/null 2>&1; then
   PNPM=(pnpm)
 else
@@ -126,7 +139,7 @@ echo "== linking workspace packages into fork root node_modules =="
 mkdir -p "$MITSU_DIR/node_modules/@deepseek-ai" "$MITSU_DIR/node_modules/@muen"
 find "$MITSU_DIR/packages" "$MITSU_DIR/vendor" "$MITSU_DIR/apps" "$MITSU_DIR/native/landlock-run" "$MITSU_DIR/website" "$MITSU_DIR/python" \
   -maxdepth 3 -name package.json -not -path "*/node_modules/*" 2>/dev/null | while read -r f; do
-  name=$(node -e "try{console.log(require('./${f#./}').name)}catch(e){}" 2>/dev/null)
+  name=$("$NODE_BIN" -e "try{console.log(require('./${f#./}').name)}catch(e){}" 2>/dev/null)
   case "$name" in
     @deepseek-ai/*)
       short="${name#@deepseek-ai/}"
@@ -153,12 +166,13 @@ mkdir -p "$BIN_DIR"
 cat > "$BIN_DIR/mitsu" <<EOF
 #!/usr/bin/env bash
 # mitsu — start mitsu-dsh (web profile of the muen fork).
+NODE="$NODE_BIN"
 PORT="\${MITSU_PORT:-$MITSU_PORT}"
 LOG=/tmp/mitsu-server.log
 if curl -s --max-time 2 "http://127.0.0.1:\$PORT" >/dev/null 2>&1; then
   echo "mitsu-dsh already running at http://127.0.0.1:\$PORT"
 else
-  nohup node --expose-internals "$MITSU_DIR/apps/cli/lib/bin.js" --profile mitsu --port "\$PORT" --no-open >"\$LOG" 2>&1 &
+  nohup "\$NODE" --expose-internals "$MITSU_DIR/apps/cli/lib/bin.js" --profile mitsu --port "\$PORT" --no-open >"\$LOG" 2>&1 &
   for _ in \$(seq 1 60); do
     curl -s --max-time 2 "http://127.0.0.1:\$PORT" >/dev/null 2>&1 && break
     sleep 1
