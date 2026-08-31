@@ -115,7 +115,8 @@ else
     "@muen/mitsu-providers": "link:$MITSU_DIR/plugins/mitsu-providers",
     "@muen/mitsu-rail": "link:$MITSU_DIR/plugins/mitsu-rail",
     "@muen/mitsu-settings": "link:$MITSU_DIR/plugins/mitsu-settings",
-    "@muen/mitsu-starter-pack": "link:$MITSU_DIR/plugins/mitsu-starter-pack"
+    "@muen/mitsu-starter-pack": "link:$MITSU_DIR/plugins/mitsu-starter-pack",
+    "@muen/mitsu-updater": "link:$MITSU_DIR/plugins/mitsu-updater"
   },
   "dsh": {
     "profile": {
@@ -130,7 +131,8 @@ else
         "@muen/mitsu-providers",
         "@muen/mitsu-rail",
         "@muen/mitsu-settings",
-        "@muen/mitsu-starter-pack"
+        "@muen/mitsu-starter-pack",
+        "@muen/mitsu-updater"
       ],
       "patchReload": "live"
     }
