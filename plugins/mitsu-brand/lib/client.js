@@ -44,21 +44,7 @@ window.__ModuleLoader__.load({
 
     const SidebarMark = () => null
 
-    const HeroMark = () =>
-      h('span', {
-        role: 'img',
-        'aria-label': 'Mitsumeru brand mark',
-        style: {
-          color: BRAND.text,
-          fontFamily: BRAND.font,
-          fontWeight: 700,
-          fontSize: 20,
-          letterSpacing: '0.02em',
-          whiteSpace: 'nowrap',
-          display: 'inline-flex',
-          alignItems: 'baseline',
-        },
-      }, 'Mitsumeru', h(Dot, { size: 6 }))
+    const HeroMark = () => null
 
     return {
       inject: ['slots'],
