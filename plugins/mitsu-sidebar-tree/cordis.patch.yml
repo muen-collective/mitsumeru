@@ -1,0 +1,3 @@
+- insert:
+    - id: mitsu-sidebar-tree
+      name: '@muen/mitsu-sidebar-tree'

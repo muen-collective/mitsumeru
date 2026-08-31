@@ -201,6 +201,19 @@ window.__ModuleLoader__.load({
       const [reading, setReading] = useState(false)
       const [query, setQuery] = useState('')
 
+      useEffect(() => {
+        // The sidebar docs tree calls window.__MITSU_DOC_OPEN__(path) to open a
+        // doc from outside this panel. Bridge it to loadPath (after a tick so a
+        // just-opened surface has mounted).
+        window.__MITSU_DOC_OPEN__ = (path) => {
+          if (typeof path === 'string' && path) {
+            // eslint-disable-next-line no-undef
+            setTimeout(() => loadPathRef.current && loadPathRef.current(path), 0)
+          }
+        }
+        return () => { if (window.__MITSU_DOC_OPEN__) delete window.__MITSU_DOC_OPEN__ }
+      }, [])
+
       const loadPath = (path) => {
         setSelected(path); setContent(null); setReading(true); setError(null)
         fetch('/mitsu/docs/read?path=' + encodeURIComponent(path)).then((r) => r.json()).then((res) => {
@@ -209,6 +222,8 @@ window.__ModuleLoader__.load({
         }).catch((e) => setError(String((e && e.message) || e)))
           .finally(() => setReading(false))
       }
+      const loadPathRef = React.useRef(loadPath)
+      loadPathRef.current = loadPath
 
       useEffect(() => {
         let alive = true

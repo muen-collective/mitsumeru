@@ -117,6 +117,7 @@ else
     "@muen/mitsu-modes": "link:$MITSU_DIR/plugins/mitsu-modes",
     "@muen/mitsu-rail": "link:$MITSU_DIR/plugins/mitsu-rail",
     "@muen/mitsu-runninghub": "link:$MITSU_DIR/plugins/mitsu-runninghub",
+    "@muen/mitsu-sidebar-tree": "link:$MITSU_DIR/plugins/mitsu-sidebar-tree",
     "@muen/mitsu-settings": "link:$MITSU_DIR/plugins/mitsu-settings",
     "@muen/mitsu-starter-pack": "link:$MITSU_DIR/plugins/mitsu-starter-pack",
     "@muen/mitsu-updater": "link:$MITSU_DIR/plugins/mitsu-updater"
@@ -135,6 +136,7 @@ else
         "@muen/mitsu-modes",
         "@muen/mitsu-rail",
         "@muen/mitsu-runninghub",
+        "@muen/mitsu-sidebar-tree",
         "@muen/mitsu-settings",
         "@muen/mitsu-starter-pack",
         "@muen/mitsu-updater"
