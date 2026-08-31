@@ -9,7 +9,7 @@ window.__ModuleLoader__.load({
     const { useState, useMemo } = React
 
     const PROVIDERS = [
-      { id: 'mimo', name: 'Xiaomi MiMo', desc: 'V2.5 series — cheap + agentic. Multimodal input, reasoning, image diffusion.', format: 'openai', base: 'https://api.xiaomimimo.com/v1', caps: ['Chat', 'Reasoning', 'Image'], models: ['MiMo-V2.5', 'MiMo-V2.5-Pro', 'MiMo-V2.5-Pro-UltraSpeed'] },
+      { id: 'xiaomi', name: 'Xiaomi MiMo', desc: 'V2.5 series — cheap + agentic. Multimodal input, reasoning, image diffusion.', format: 'openai', base: 'https://api.xiaomimimo.com/v1', caps: ['Chat', 'Reasoning', 'Image'], models: ['mimo-v2.5', 'mimo-v2.5-pro', 'mimo-v2.5-pro-ultraspeed'] },
       { id: 'deepseek', name: 'DeepSeek', desc: 'Chat + built-in thinking mode. No vision API.', format: 'deepseek', base: 'https://api.deepseek.com', caps: ['Chat', 'Reasoning'], models: ['DeepSeek V4 Flash', 'DeepSeek V4 Pro'] },
       { id: 'qwen', name: 'Qwen (QwenCloud)', desc: 'Chat, reasoning, image, video, 3D and TTS.', format: 'openai', base: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1', caps: ['Chat', 'Reasoning', 'Image', 'Video', '3D'], models: ['Qwen3.8 Max', 'Qwen3.7 Plus', 'Qwen Image 3.0 Pro', 'Wan 2.7 Image Pro'] },
       { id: 'openai', name: 'OpenAI', desc: 'GPT-5.6 Sol/Terra/Luna, GPT Image 2, Sora 2.', format: 'openai', base: 'https://api.openai.com/v1', caps: ['Chat', 'Reasoning', 'Image', 'Video'], models: ['GPT-5.6 Luna', 'GPT-5.6 Sol', 'GPT Image 2', 'Sora 2'] },
