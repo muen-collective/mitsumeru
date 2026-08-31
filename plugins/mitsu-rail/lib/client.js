@@ -50,10 +50,12 @@ window.__ModuleLoader__.load({
     const STYLE = `
       .mitsu-rail-nav { position: fixed; top: 0; right: 0; bottom: 0; width: 52px; z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0; background: var(--dsw-alias-bg-layer-1); border-left: 1px solid var(--dsw-alias-border-l2); }
       [data-side="details"]::after { display: none !important; }
-      /* The rail floats over the frame's right edge; reserve its 52px on the
-         details column (the 3rd grid child of the frame, before the overlay
-         layer) so the agent-loop dock / session-log button is never clipped. */
-      div:has(> [data-shell-overlay]) > div:nth-child(3) { margin-right: 52px; }
+      /* The rail is a fixed overlay on the frame's right 52px. Reserve that space
+         on the frame so NO column content (conversation header utilities, the
+         details dock, the session-log button) ever extends under it. The overlay
+         layer holding the rail is absolutely positioned to the frame's border box,
+         so padding does not move the rail itself. */
+      div:has(> [data-shell-overlay]) { padding-right: 52px; }
       .mitsu-rail-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
       .mitsu-rail-btn:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
       .mitsu-rail-btn.active { border-color: var(--mitsu-primary, #765898); color: var(--mitsu-primary, #765898); background: color-mix(in srgb, var(--mitsu-primary, #765898) 8%, transparent); }
