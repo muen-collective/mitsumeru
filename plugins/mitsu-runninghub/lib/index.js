@@ -22,7 +22,7 @@
 const name = 'mitsu-runninghub'
 const inject = ['webServer']
 
-const BASE = process.env.RH_API_BASE_URL || 'https://www.runninghub.cn/openapi/v2'
+const BASE = process.env.RH_API_BASE_URL || 'https://www.runninghub.ai/openapi/v2'
 const POLL_INTERVAL_MS = 5000
 const POLL_TIMEOUT_MS = 30 * 60 * 1000
 
@@ -178,14 +178,15 @@ function apply(ctx) {
         return { ok: false, error: 'task succeeded with no output urls', taskId, status: 'SUCCESS' }
       }
 
+      const liveAssets = ctx.get('mitsu.assets') || assets
       const files = []
       const stub = slugify(input.name || endpoint.split('/').pop())
       const stamp = Date.now().toString(36)
       for (let i = 0; i < urls.length; i++) {
         const url = urls[i]
         const name = `${stub}-${stamp}-${i + 1}${extFromUrl(url)}`
-        if (assets) {
-          const written = await assets.ingest({ url, name })
+        if (liveAssets) {
+          const written = await liveAssets.ingest({ url, name })
           files.push(written.ok ? { name: written.path, url: written.url, local: true } : { name, url, local: false, error: written.error })
         } else {
           files.push({ name, url, local: false })

@@ -103,8 +103,6 @@ function apply(ctx) {
     status() {
       return { ok: true, keyConfigured: apiKeyOf().length > 0, assetRoot: assets ? assets.assetRoot : undefined }
     },
-
-    /** Submit + poll + write into Assets. Returns the local files. */
     async generate(input) {
       const key = apiKeyOf()
       if (!key) {
@@ -172,15 +170,18 @@ function apply(ctx) {
         return { ok: false, error: 'job completed with no image urls', jobId, status: 'completed' }
       }
 
-      // Write each image into the local Assets folder.
+      // Write each image into the local Assets folder. Read the service lazily:
+      // the plugin doesn't declare it as a hard dependency, so capture-on-apply
+      // can race the Assets mount. A live read always sees it.
+      const liveAssets = ctx.get('mitsu.assets') || assets
       const files = []
       const stub = slugify(prompt)
       const stamp = Date.now().toString(36)
       for (let i = 0; i < urls.length; i++) {
         const url = urls[i]
         const name = `${stub}-${stamp}-${i + 1}${extFromUrl(url)}`
-        if (assets) {
-          const written = await assets.ingest({ url, name })
+        if (liveAssets) {
+          const written = await liveAssets.ingest({ url, name })
           if (written.ok) {
             files.push({ name: written.path, url: written.url, local: true })
           } else {

@@ -66,15 +66,17 @@ function apply(ctx) {
 
   /** Write base64 bytes through the RAW subprocess (not the sandboxed fs), which
    *  is not gated by the session sandbox — the durable local copy must always
-   *  land. Base64 over argv is lossless for image bytes. */
+   *  land. Base64 is sent over stdin (NOT argv): an argv argument is bounded by
+   *  the OS arg-list limit (E2BIG on image-sized payloads), while a stdin pipe
+   *  has no such cap. */
   function writeBytes(name, b64) {
     return new Promise((resolve) => {
       if (!subprocess) { resolve({ ok: false, error: 'no subprocess service' }); return }
       try {
         const spec = {
-          argv: ['sh', '-c', 'mkdir -p "$1" && printf "%s" "$2" | base64 -d > "$3"', 'sh', assetRoot, b64, `${assetRoot}/${name}`],
+          argv: ['sh', '-c', 'mkdir -p "$1" && cat | base64 -d > "$2"', 'sh', assetRoot, `${assetRoot}/${name}`],
           cwd: '/',
-          stdio: { stdin: { data: '' }, stdout: { maxBytes: 1 << 16 }, stderr: { maxBytes: 1 << 16 } },
+          stdio: { stdin: { data: b64 }, stdout: { maxBytes: 1 << 16 }, stderr: { maxBytes: 1 << 16 } },
           graceMs: 30000,
         }
         const handle = subprocess.spawn(spec)
