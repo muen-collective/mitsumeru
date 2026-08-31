@@ -93,8 +93,9 @@ window.__ModuleLoader__.load({
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.desc.toLowerCase().includes(query.toLowerCase()))
 
-      const api = props.api
-
+      // Live probe goes through the HOST route (CORS-free, key never leaves the
+      // server's request). The host fetches <baseURL>/models with the key and
+      // returns the advertised model ids.
       const probe = async () => {
         if (!key.trim()) {
           setTestStatus({ ok: false, text: 'Enter an API key first' })
@@ -103,14 +104,19 @@ window.__ModuleLoader__.load({
         setBusy(true)
         setTestStatus(null)
         try {
-          const settingsNs = selected.id === 'deepseek' ? 'llm-deepseek' : 'llm-pi-ai'
-          const result = await api.llm.discoverModels(settingsNs, {
-            provider: selected.id,
-            ...(baseURL ? { baseURL } : {}),
-            ...(key ? { apiKey: key } : {}),
+          const res = await fetch('/mitsu/providers/probe', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ provider: selected.id, baseURL, format: selected.format, apiKey: key }),
           })
-          const list = Array.isArray(result) ? result : (result && result.models) || []
+          const json = await res.json()
           setBusy(false)
+          if (!json.ok) {
+            setTestStatus({ ok: false, text: json.error || 'Probe failed' })
+            return null
+          }
+          const list = Array.isArray(json.list) ? json.list : []
+          setTestStatus({ ok: true, text: `Key works — ${list.length} model${list.length === 1 ? '' : 's'} found` })
           return list
         } catch (error) {
           setBusy(false)
@@ -121,9 +127,7 @@ window.__ModuleLoader__.load({
 
       const testKey = async () => {
         const list = await probe()
-        if (list !== null) {
-          setTestStatus({ ok: true, text: 'Key works — models available' })
-        }
+        // probe already set the status; list present means success.
       }
 
       const pullModels = async () => {
@@ -186,15 +190,8 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      inject: ['slots', 'remote', 'remote.credentials', 'remote.llm', 'remote.settings'],
+      inject: ['slots'],
       apply(ctx) {
-        const injected = () => ({
-          api: {
-            credentials: ctx.remote.credentials,
-            llm: ctx.remote.llm,
-            settings: ctx.remote.settings,
-          },
-        })
         ctx.slots.inject('settings.section', () =>
           ctx.slots.register(
             {
@@ -202,7 +199,6 @@ window.__ModuleLoader__.load({
               id: 'models',
               order: 10,
               label: () => 'Mitsu Providers',
-              inject: injected,
             },
             MitsuProvidersPanel,
           ))
