@@ -144,6 +144,12 @@ EOF
   # project dir, and pin the sandbox workspace root to the project dir.
   cat > "$PROFILE_DIR/cordis.patch.yml" <<EOF
 # mitsu profile — user patch layer
+# Insert the credential-authorization seam: pi-ai's OAuth login flows (e.g. the
+# ChatGPT / OpenAI Codex "token plan" sign-in) register through
+# ctx.inject(['authorization'], ...), which needs this service present.
+- insert:
+    - id: authorization
+      name: '@deepseek-ai/dsh-authorization'
 - id: attachment-local
   config:
     dshHome: "$MITSU_PROJECT"
