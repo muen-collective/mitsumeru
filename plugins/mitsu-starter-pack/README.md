@@ -34,6 +34,19 @@ The versioned-workflow process is designed later, but the intended shape:
 The `mitsu.pack` service name and the `settings.section` mount are already in place so the
 runner slots in without a profile change.
 
+## Design reference (ratified)
+
+The RunningHub integration model is captured in
+`/Volumes/External SSD/mitsu/docs/initiatives/runninghub-integration.md`. **No Mitsu
+wallet** — each user runs Creative workflows on their own RunningHub account, billed to
+their own coins/wallet; Mitsu is the library + launch surface, and the one-time human step
+is *copy a workflow ID → open it in your RunningHub workspace.* The git-JSON recipe stays
+**concurrency-agnostic** (tier/min-concurrency inferred at run time from the user's own
+account).
+
+**Scope held for the design session:** the actual recipe schema, the runner, and any
+RunningHub adapter are NOT built here — this stays a placeholder seam until that session.
+
 ## Install (survives restarts)
 
 ```bash
