@@ -28,6 +28,7 @@ MITSU_PORT="${MITSU_PORT:-57691}"
 MITSU_HOME="${MITSU_HOME:-$HOME/.mitsu-dsh}"
 MITSU_PROJECT="${MITSU_PROJECT:-$HOME/Mitsu}"
 DSH_HOME="$MITSU_HOME"
+export MITSU_DIR
 export MITSU_PROJECT
 
 mkdir -p "$MITSU_HOME" "$MITSU_PROJECT"
@@ -196,7 +197,9 @@ cat > "$BIN_DIR/mitsu" <<EOF
 # mitsu — start mitsu-dsh (web profile of the muen fork).
 NODE="$NODE_BIN"
 export DSH_HOME="\${MITSU_HOME:-$MITSU_HOME}"
+export MITSU_DIR="\${MITSU_DIR:-$MITSU_DIR}"
 export MITSU_PROJECT="\${MITSU_PROJECT:-$MITSU_PROJECT}"
+export MITSU_WORKSPACE="\${MITSU_WORKSPACE:-$MITSU_WORKSPACE}"
 PORT="\${MITSU_PORT:-$MITSU_PORT}"
 LOG=/tmp/mitsu-server.log
 if curl -s --max-time 2 "http://127.0.0.1:\$PORT" >/dev/null 2>&1; then

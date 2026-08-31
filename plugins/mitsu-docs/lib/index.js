@@ -40,11 +40,13 @@ function apply(ctx) {
   const sandboxPolicy = ctx.get('sandboxPolicy')
 
   // Collect every candidate workspace root: live session cwds first (the
-  // Desktop app runs several workspaces), then the deployment fallback.
+  // Desktop app runs several workspaces), then the deployment fallback, then
+  // guaranteed markdown trees (the fork repo + the mitsu product workspace) so
+  // the docs surface is never empty on a fresh dogfood machine.
   const candidateRoots = () => {
     const roots = []
     const seen = new Set()
-    const push = (r) => { if (typeof r === 'string' && r && !seen.has(r)) { seen.add(r); roots.push(r) } }
+    const push = (r) => { if (typeof r === 'string' && r && r.length > 0 && !seen.has(r)) { seen.add(r); roots.push(r) } }
     try {
       if (sessions !== undefined) {
         for (const s of sessions.list()) {
@@ -56,6 +58,12 @@ function apply(ctx) {
     try {
       if (sandboxPolicy !== undefined && sandboxPolicy.workspaceRoot) push(sandboxPolicy.workspaceRoot)
     } catch (e) { /* ignore */ }
+    // Guaranteed markdown trees — the mitsu-dsh fork (docs/ + AGENTS.md +
+    // package READMEs) and the mitsu product workspace (docs/, AGENTS.md).
+    const fork = process.env.MITSU_DIR
+    if (fork) push(fork)
+    const mitsuWorkspace = process.env.MITSU_WORKSPACE
+    if (mitsuWorkspace) push(mitsuWorkspace)
     return roots
   }
 
@@ -88,6 +96,10 @@ function apply(ctx) {
             }
           }
           await walk(rootTarget, '', 0)
+          // Skip a root that lists zero markdown files — fall through to the
+          // next candidate (e.g. an empty project dir) so the docs surface
+          // never shows an empty tree when a real docs root exists below.
+          if (files.length === 0) { lastErr = `no .md files in ${root}`; continue }
           files.sort((a, b) => a.path.localeCompare(b.path))
           return { ok: true, root, files }
         } catch (err) {
