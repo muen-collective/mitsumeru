@@ -217,6 +217,31 @@ if command -v open >/dev/null 2>&1; then open -na "Google Chrome" --args --app="
 EOF
 chmod +x "$BIN_DIR/mitsu"
 echo "  command:   $BIN_DIR/mitsu   (add $BIN_DIR to PATH)"
+
+# --- 7. generate a Mitsu.app icon (drag to Applications / Dock) ------------------
+# A macOS applet so a non-technical user can just double-click / drag an icon.
+# It runs the freshly-generated `mitsu` launcher (which knows this machine's
+# MITSU_DIR / MITSU_HOME). Built with osacompile on the user's own machine so the
+# paths are correct; lives in ~/Applications (user-scoped, no sudo).
+APP_NAME="Mitsu"
+APP_DIR="${MITSU_APP_DIR:-$HOME/Applications}"
+if command -v osacompile >/dev/null 2>&1; then
+  mkdir -p "$APP_DIR"
+  # Use a login shell so ~/.local/bin (and node) resolve; absolute paths only.
+  SCRIPT="do shell script \"export HOME='$HOME'; export PATH='$BIN_DIR':\$PATH; '$BIN_DIR/mitsu'\""
+  rm -f "$APP_DIR/$APP_NAME.app"
+  if osacompile -o "$APP_DIR/$APP_NAME.app" -e "$SCRIPT" >/dev/null 2>&1; then
+    echo "  app icon:  $APP_DIR/$APP_NAME.app   (double-click, or drag to Applications / Dock)"
+    # Optional: a friendly note in the applet's About screen.
+    if command -v osascript >/dev/null 2>&1; then
+      osascript -e "tell application \"Finder\" to set name of file \"$APP_NAME.app\" of folder \"$APP_DIR\" to \"$APP_NAME\"" >/dev/null 2>&1 || true
+    fi
+  else
+    echo "  app icon:  (osacompile failed — still use: $BIN_DIR/mitsu)"
+  fi
+else
+  echo "  app icon:  (osacompile not available — still use: $BIN_DIR/mitsu)"
+fi
 echo "  start now: $BIN_DIR/mitsu"
 echo
 if [ "${1:-}" = "--start" ]; then
