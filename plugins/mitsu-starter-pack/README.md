@@ -1,29 +1,38 @@
 # @muen/mitsu-starter-pack — fork plugin
 
-The **RunningHub adapter for the Fashion Starter Pack**: a curated set of RunningHub workflow
-steps (`restore → person-swap → preserve-garment → variations`) with role-keyed inputs,
-submitted and polled through RunningHub's open API, surfaced as an additive Settings section.
+The **"Creative workflows"** settings section. **Placeholder** — the creative-workflow
+runner is designed next, and will tie into the **git JSON workflow versioning** model
+(one versioned workflow definition per file; the harness reads, versions, and runs it).
 
-## What it is
+## What it is now
 
 | Half | File | Role |
 |---|---|---|
-| Host | `lib/index.js` | `mitsu.pack` service + the **PACK manifest** (the edit-me list of workflow steps and their RunningHub app IDs) + loopback routes `/mitsu/pack/list`, `/mitsu/pack/run`, `/mitsu/pack/status`. The RunningHub client is the same proven contract as `product/strategy/rh-run.mjs` (submit v2/legacy + poll + URL verification). |
-| Client | `lib/client.js` | `__ModuleLoader__` bundle registering `settings.section` **`mitsu-pack`** (order 14, "Starter Pack"): per-step input URL fields, Run button, polling status, output image(s). |
+| Host | `lib/index.js` | Provides the `mitsu.pack` service **name** (seam only; no active networking). `ready: false` until the versioned-workflow runner lands. |
+| Client | `lib/client.js` | `__ModuleLoader__` bundle registering `settings.section` **`mitsu-pack`** (order 14, "Creative workflows"): a placeholder card that states the surface is coming and leaves the seam in place. |
 | Manifest | `package.json` + `cordis.patch.yml` | `dsh.client` declaration + profile bundle patch. |
 
-## Configure
+## Why it's a placeholder
 
-1. **Set the key** in the harness environment (never in the repo, never returned to the client):
+The **fashion starter pack** (RunningHub restore → person-swap → preserve-garment →
+variations) is **not** the need. The direction is: publish creative workflows on RunningHub
+and run them versioned.
 
-   ```bash
-   export RH_API_KEY=your_runninghub_api_key
-   ```
+- The **RunningHub adapter** (submit v2/legacy + poll + URL verification) is deferred until
+  the versioned-workflow runner is designed.
+- **No key, no external API** is read in this host half yet.
 
-2. **Paste the RunningHub app IDs** into the `PACK` manifest at the top of `lib/index.js` —
-   each step has an `appId` (and optional `api: 'v2' | 'legacy'`, `revision` pin). Until an
-   appId is set, the step shows "appId not set" and the run returns a clear error instead of
-   failing silently.
+## The seam (for the next milestone)
+
+The versioned-workflow process is designed later, but the intended shape:
+
+1. Each workflow is a **versioned JSON definition** in the repo (git = source of truth).
+2. The harness reads a workflow, resolves its **runner** (e.g. RunningHub AI app / ComfyUI),
+   and exposes run + status.
+3. The "Creative workflows" section lists the versioned workflows and runs them.
+
+The `mitsu.pack` service name and the `settings.section` mount are already in place so the
+runner slots in without a profile change.
 
 ## Install (survives restarts)
 
@@ -31,25 +40,4 @@ submitted and polled through RunningHub's open API, surfaced as an additive Sett
 dsh plugin --profile mitsu add /Volumes/External\ SSD/mitsu-dsh/plugins/mitsu-starter-pack
 ```
 
-Then restart the harness. Settings → **Starter Pack**: pick a step, paste the input URLs
-(`source_garment`, `identity_reference`, …), **Run** → the host verifies the URLs (HEAD-check —
-expired signed URLs are the #1 batch killer), submits, and the client polls to completion and
-shows the output image.
-
-## Relationship to the rest of Mitsu
-
-- The adapter is the executable form of the versioned-workflow model (`docs/product/06`) and the
-  RunningHub lane of the HMU pipeline spec (`docs/plans/23`): inputs are role-keyed, revisions
-  pinned, runs polled to a terminal state.
-- It sits beside `mitsu-providers` (BYOK keys) — the pack is the *workflows* surface, providers
-  is the *key/catalog* surface.
-- The manifest + client are the "run buttons" Block R4 of the gap analysis
-  (`docs/plans/gap-analysis-dsh-settings.md`).
-
-## Follow-ups
-
-1. **Known-good pins + wallet**: persist per-step revision pins and report RH task cost
-   (`costTimeS`) to the wallet meter.
-2. **Run manifests**: write `/mitsu/pack/run` through the `runninghub-manifest.ts` wrapper so
-   every run lands in `product/strategy/data/runs/` (batch-diff debugging).
-3. **Per-step params**: expose `seed`/`denoise` fields in the section instead of fixed defaults.
+Then restart the harness. Settings → **Creative workflows** shows the placeholder.
