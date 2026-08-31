@@ -113,8 +113,10 @@ else
     "@muen/mitsu-browser": "link:$MITSU_DIR/plugins/mitsu-browser",
     "@muen/mitsu-docs": "link:$MITSU_DIR/plugins/mitsu-docs",
     "@muen/mitsu-krea": "link:$MITSU_DIR/plugins/mitsu-krea",
+    "@muen/mitsu-task-switcher": "link:$MITSU_DIR/plugins/mitsu-task-switcher",
     "@muen/mitsu-modes": "link:$MITSU_DIR/plugins/mitsu-modes",
     "@muen/mitsu-rail": "link:$MITSU_DIR/plugins/mitsu-rail",
+    "@muen/mitsu-runninghub": "link:$MITSU_DIR/plugins/mitsu-runninghub",
     "@muen/mitsu-settings": "link:$MITSU_DIR/plugins/mitsu-settings",
     "@muen/mitsu-starter-pack": "link:$MITSU_DIR/plugins/mitsu-starter-pack",
     "@muen/mitsu-updater": "link:$MITSU_DIR/plugins/mitsu-updater"
@@ -129,8 +131,10 @@ else
         "@muen/mitsu-browser",
         "@muen/mitsu-docs",
         "@muen/mitsu-krea",
+        "@muen/mitsu-task-switcher",
         "@muen/mitsu-modes",
         "@muen/mitsu-rail",
+        "@muen/mitsu-runninghub",
         "@muen/mitsu-settings",
         "@muen/mitsu-starter-pack",
         "@muen/mitsu-updater"

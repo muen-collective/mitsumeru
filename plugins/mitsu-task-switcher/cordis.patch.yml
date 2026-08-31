@@ -1,0 +1,3 @@
+- insert:
+    - id: mitsu-task-switcher
+      name: '@muen/mitsu-task-switcher'
