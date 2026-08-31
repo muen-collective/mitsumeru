@@ -68,7 +68,7 @@ window.__ModuleLoader__.load({
       apply() {
         if (!window.__MITSU_RAIL__) return
         window.__MITSU_RAIL__.surfaces = window.__MITSU_RAIL__.surfaces.filter(s => s.id !== 'browser')
-        window.__MITSU_RAIL__.surfaces.push({ id: 'browser', label: 'Browser', icon: Icon, panel: Panel })
+        window.__MITSU_RAIL__.surfaces.push({ id: 'browser', label: 'Browser', icon: Icon, panel: Panel, hidden: true })
         for (const fn of window.__MITSU_RAIL__.listeners) fn([...window.__MITSU_RAIL__.surfaces])
       },
     }

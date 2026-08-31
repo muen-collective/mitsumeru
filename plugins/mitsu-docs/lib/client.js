@@ -24,6 +24,11 @@ window.__ModuleLoader__.load({
       .mitsu-docs-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: ew-resize; z-index: 2; }
       .mitsu-docs-resize:hover { background: color-mix(in srgb, var(--mitsu-primary, #765898) 25%, transparent); }
       .mitsu-docs-col { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+      /* Confluence-style split: docs tree (left) + reader (right), both always mounted. */
+      .mitsu-docs-split { flex: 1; display: flex; min-height: 0; }
+      .mitsu-docs-tree { flex: none; width: 260px; min-width: 180px; display: flex; flex-direction: column; border-right: 1px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-2); }
+      .mitsu-docs-main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--dsw-alias-bg-layer-1); }
+      .mitsu-docs-emptyread { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-tertiary); font-size: 12px; }
       .mitsu-docs-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--dsw-alias-border-l2); flex-shrink: 0; background: var(--dsw-alias-bg-layer-2); }
       .mitsu-docs-title { font-size: 13px; font-weight: 600; }
       .mitsu-docs-count { font-size: 11px; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-1); border-radius: 999px; padding: 1px 8px; font-variant-numeric: tabular-nums; }
@@ -177,7 +182,7 @@ window.__ModuleLoader__.load({
       const srcDoc = content != null ? buildSrcDoc(content, path) : ''
       return h('div', { className: 'mitsu-docs-reader' },
         h('div', { className: 'mitsu-docs-readbar' },
-          h('button', { className: 'mitsu-docs-icon', title: 'Back', onClick: onBack }, '←'),
+          typeof onBack === 'function' ? h('button', { className: 'mitsu-docs-icon', title: 'Back', onClick: onBack }, '←') : null,
           h('span', { className: 'mitsu-docs-readname', title: path }, name),
           h('span', { style: { flex: 1 } })),
         reading && content == null
@@ -218,20 +223,15 @@ window.__ModuleLoader__.load({
       const q = query.trim().toLowerCase()
       const filtered = files ? files.filter((f) => q.length === 0 || f.path.toLowerCase().includes(q) || f.name.toLowerCase().includes(q)) : null
 
-      let body
+      let treeBody
       if (error && !files) {
-        body = h('div', { className: 'mitsu-docs-empty' }, 'Error: ' + error)
-      } else if (selected != null) {
-        body = h(Reader, {
-          path: selected, content, reading, error,
-          onBack: () => { setSelected(null); setContent(null); setError(null) },
-        })
+        treeBody = h('div', { className: 'mitsu-docs-empty' }, 'Error: ' + error)
       } else if (files == null) {
-        body = h('div', { className: 'mitsu-docs-empty' }, 'Loading…')
+        treeBody = h('div', { className: 'mitsu-docs-empty' }, 'Loading…')
       } else if (files.length === 0) {
-        body = h('div', { className: 'mitsu-docs-empty' }, 'No .md files in workspace')
+        treeBody = h('div', { className: 'mitsu-docs-empty' }, 'No .md files in workspace')
       } else {
-        body = h('div', null,
+        treeBody = h('div', null,
           h('div', { className: 'mitsu-docs-search' },
             h('input', { type: 'search', value: query, placeholder: 'Filter docs…', 'aria-label': 'Filter docs', onChange: (e) => setQuery(e.currentTarget.value) })),
           filtered.length === 0
@@ -248,13 +248,26 @@ window.__ModuleLoader__.load({
                 })))
       }
 
+      // Confluence-style: tree is always on the left; the reader opens beside it.
+      let mainBody
+      if (selected != null) {
+        mainBody = h(Reader, {
+          path: selected, content, reading, error,
+          onBack: null,
+        })
+      } else {
+        mainBody = h('div', { className: 'mitsu-docs-emptyread' }, 'Select a doc to read')
+      }
+
       return h('div', { className: 'mitsu-docs-col' },
         h('div', { className: 'mitsu-docs-head' },
-          h('span', { className: 'mitsu-docs-title' }, 'Docs'),
+          h('span', { className: 'mitsu-docs-title' }, 'Write'),
           h('span', { className: 'mitsu-docs-count' }, files ? (filtered ? filtered.length + '/' + files.length : files.length) + ' md' : '…'),
           h('span', { style: { flex: 1 } }),
           onClose ? h('button', { className: 'mitsu-docs-icon', title: 'Close', onClick: onClose }, '✕') : null),
-        body)
+        h('div', { className: 'mitsu-docs-split' },
+          h('div', { className: 'mitsu-docs-tree' }, treeBody),
+          h('div', { className: 'mitsu-docs-main' }, mainBody)))
     }
 
     // ── Standalone mount (no rail): right-edge tab + overlay panel ──
@@ -295,8 +308,8 @@ window.__ModuleLoader__.load({
         const rail = window.__MITSU_RAIL__
         if (rail) {
           const surfaces = rail.surfaces || []
-          const next = surfaces.filter((s) => s.id !== 'docs')
-          next.push({ id: 'docs', label: 'Docs', icon: DocIcon, panel: () => h('div', { style: { height: '100%', minHeight: 0 } }, h(DocViewer, {})) })
+          const next = surfaces.filter((s) => s.id !== 'write' && s.id !== 'docs')
+          next.push({ id: 'write', label: 'Write', icon: DocIcon, panel: () => h('div', { style: { height: '100%', minHeight: 0 } }, h(DocViewer, {})) })
           rail.surfaces = next
           for (const fn of rail.listeners || []) fn([...next])
           return

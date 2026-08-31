@@ -38,6 +38,16 @@ window.__ModuleLoader__.load({
 
     // Shared surface registry. Each Mitsu surface plugin registers itself here.
     window.__MITSU_RAIL__ = window.__MITSU_RAIL__ || { surfaces: [], listeners: [] }
+    // Surfaces register with markers. `hidden: true` surfaces are not shown as a
+    // rail icon unless the founder opts them in (e.g. `window.__MITSU_SURFACES__`
+    // = ['krea','runninghub','assets','browser'], or a workspace surface flag).
+    // The flags are evaluated at render so the epic can re-enable them without
+    // recreating the plugin. Default visible set: the critical surface only.
+    const surfaceVisible = (s) => {
+      if (!s || s.hidden !== true) return true
+      const optIns = window.__MITSU_SURFACES__
+      return Array.isArray(optIns) && optIns.includes(s.id)
+    }
     const getSurfaces = () => [...window.__MITSU_RAIL__.surfaces]
     const subscribeSurfaces = (fn) => {
       window.__MITSU_RAIL__.listeners.push(fn)
@@ -132,9 +142,9 @@ window.__ModuleLoader__.load({
 
     const TREE_ITEM = { id: 'tree', icon: PanelLeftIcon, label: 'Tree' }
     const surfaceById = (id) => getSurfaces().find(s => s.id === id)
-    const RAIL_ORDER = { browser: 1, docs: 2, assets: 3 }
+    const RAIL_ORDER = { browser: 1, docs: 2, write: 2, assets: 3 }
     const railItems = () => {
-      const surfaces = getSurfaces().slice().sort((a, b) => {
+      const surfaces = getSurfaces().filter(surfaceVisible).slice().sort((a, b) => {
         const ao = RAIL_ORDER[a.id] ?? 99
         const bo = RAIL_ORDER[b.id] ?? 99
         return ao - bo
@@ -240,7 +250,7 @@ window.__ModuleLoader__.load({
         }
       }
 
-      const items = [TREE_ITEM, ...surfaces]
+      const items = [TREE_ITEM, ...surfaces.filter(surfaceVisible)]
 
       return h('div', { className: 'mitsu-rail-nav' },
         items.map(item => h('button', {

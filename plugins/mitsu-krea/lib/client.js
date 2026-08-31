@@ -123,7 +123,7 @@ window.__ModuleLoader__.load({
         ensureStyles()
         if (!window.__MITSU_RAIL__) return
         window.__MITSU_RAIL__.surfaces = window.__MITSU_RAIL__.surfaces.filter((s) => s.id !== 'krea')
-        window.__MITSU_RAIL__.surfaces.push({ id: 'krea', label: 'Krea', icon: Icon, panel: Panel })
+        window.__MITSU_RAIL__.surfaces.push({ id: 'krea', label: 'Krea', icon: Icon, panel: Panel, hidden: true })
         for (const fn of window.__MITSU_RAIL__.listeners) fn([...window.__MITSU_RAIL__.surfaces])
       },
     }
