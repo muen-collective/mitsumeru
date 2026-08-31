@@ -7,26 +7,38 @@
 #   1. Checks prerequisites: git, node ≥22.19, pnpm (via corepack, pinned by the fork).
 #   2. Clones (or pulls) the muen-collective/mitsumeru fork into $MITSU_DIR.
 #   3. pnpm install + pnpm run build (the fork's CLI + web frontend are build artifacts).
-#   4. Creates the standalone `mitsu` profile at ~/.dsh/profiles/mitsu (all 9 @muen bundles).
+#   4. Creates the standalone `mitsu` profile at $MITSU_HOME/profiles/mitsu (all 9 @muen
+#      bundles), with app files in the hidden $MITSU_HOME (~/.mitsu-dsh) and project files
+#      (workspace + attachments) in the visible $MITSU_PROJECT (~/Mitsu).
 #   5. Links the fork's own workspace packages into its root node_modules (the vendored
 #      loader resolves bare @deepseek-ai/* and @muen/* from there).
-#   6. Prints the exact command to start it (and launches it if you pass --start).
+#   6. Pre-seeds the welcome-notice acknowledgement so first launch never blocks on
+#      "The acknowledgement could not be saved".
+#   7. Installs a `mitsu` command (prints it; launches if you pass --start).
 #
 # Env overrides: MITSU_DIR (default ~/mitsu-dsh), MITSU_BRANCH (default feat/mitsu-foundation),
-# MITSU_PORT (default 57691), MITSU_GIT (default the muen remote).
+# MITSU_PORT (default 57691), MITSU_GIT (default the muen remote),
+# MITSU_HOME (default ~/.mitsu-dsh — hidden app files), MITSU_PROJECT (default ~/Mitsu — visible project files).
 set -euo pipefail
 
 MITSU_GIT="${MITSU_GIT:-https://github.com/muen-collective/mitsumeru.git}"
 MITSU_BRANCH="${MITSU_BRANCH:-feat/mitsu-foundation}"
 MITSU_DIR="${MITSU_DIR:-$HOME/mitsu-dsh}"
 MITSU_PORT="${MITSU_PORT:-57691}"
-DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
+MITSU_HOME="${MITSU_HOME:-$HOME/.mitsu-dsh}"
+MITSU_PROJECT="${MITSU_PROJECT:-$HOME/Mitsu}"
+DSH_HOME="$MITSU_HOME"
+export MITSU_PROJECT
+
+mkdir -p "$MITSU_HOME" "$MITSU_PROJECT"
+PROFILE_DIR="$MITSU_HOME/profiles/mitsu"
 
 echo "== mitsu-dsh installer =="
-echo "  git:      $MITSU_GIT ($MITSU_BRANCH)"
-echo "  target:   $MITSU_DIR"
-echo "  port:     $MITSU_PORT"
-echo "  dsh home: $DSH_HOME"
+echo "  git:        $MITSU_GIT ($MITSU_BRANCH)"
+echo "  fork:       $MITSU_DIR"
+echo "  port:       $MITSU_PORT"
+echo "  app files:  $MITSU_HOME   (hidden)"
+echo "  project:    $MITSU_PROJECT (visible — workspace + attachments)"
 
 # --- 1. prerequisites ---------------------------------------------------------
 command -v git >/dev/null 2>&1 || { echo "✗ git not found — install Xcode CLT or git"; exit 1; }
@@ -125,8 +137,24 @@ else
   }
 }
 EOF
-  printf '# mitsu profile — user patch layer\n[]\n' > "$PROFILE_DIR/cordis.patch.yml"
+  # Patch: redirect the attachment store OUT of the hidden home into the visible
+  # project dir, and pin the sandbox workspace root to the project dir.
+  cat > "$PROFILE_DIR/cordis.patch.yml" <<EOF
+# mitsu profile — user patch layer
+- id: attachment-local
+  config:
+    dshHome: "$MITSU_PROJECT"
+- id: sandbox-policy
+  config:
+    workspaceRoot: !!js process.env.MITSU_PROJECT
+EOF
   printf '# dsh profile root — composed from bundles + cordis.patch.yml\n[]\n' > "$PROFILE_DIR/cordis.yml"
+fi
+
+# Pre-seed the welcome-notice acknowledgement so a fresh home never shows
+# "The acknowledgement could not be saved" on first launch.
+if [ ! -f "$MITSU_HOME/settings.yaml" ]; then
+  printf 'ui-onboarding:\n  welcomeNoticeVersion: 2026-08-13.1\n' > "$MITSU_HOME/settings.yaml"
 fi
 
 # Materialize the profile's node_modules (the link: deps become @muen symlinks the
@@ -167,6 +195,8 @@ cat > "$BIN_DIR/mitsu" <<EOF
 #!/usr/bin/env bash
 # mitsu — start mitsu-dsh (web profile of the muen fork).
 NODE="$NODE_BIN"
+export DSH_HOME="\${MITSU_HOME:-$MITSU_HOME}"
+export MITSU_PROJECT="\${MITSU_PROJECT:-$MITSU_PROJECT}"
 PORT="\${MITSU_PORT:-$MITSU_PORT}"
 LOG=/tmp/mitsu-server.log
 if curl -s --max-time 2 "http://127.0.0.1:\$PORT" >/dev/null 2>&1; then
