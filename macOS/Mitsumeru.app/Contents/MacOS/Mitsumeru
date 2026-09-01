@@ -1,2 +1,146 @@
 #!/bin/bash
-exec bash "/Volumes/External SSD/mitsu/scripts/start-mitsu.command"
+# Mitsumeru.app launcher — self-contained boot of the mitsu-dsh fork.
+#
+# Resolves the fork (MITSU_DIR override, then standard clone locations), picks a
+# Node runtime, ensures the `mitsu` profile exists under DSH_HOME, boots the
+# built CLI with the mitsu profile, and opens the app window. This mirrors
+# scripts/install-mitsu.sh so the bundle works from a plain clone/pull with no
+# separate install step.
+
+# --- resolve the fork ------------------------------------------------------
+FORK=""
+if [ -n "${MITSU_DIR:-}" ] && [ -f "$MITSU_DIR/apps/cli/lib/bin.js" ]; then
+  FORK="$MITSU_DIR"
+else
+  for d in "$HOME/mitsu-dsh" "/Users/thuypham/mitsu-dsh" "/Volumes/External SSD/mitsu-dsh"; do
+    [ -f "$d/apps/cli/lib/bin.js" ] && { FORK="$d"; break; }
+  done
+fi
+if [ -z "$FORK" ] || [ ! -f "$FORK/apps/cli/lib/bin.js" ]; then
+  osascript -e 'display alert "Mitsumeru" message "mitsu-dsh fork not found — set MITSU_DIR or clone the muen-collective/mitsumeru repo."' 2>/dev/null
+  exit 1
+fi
+
+# --- resolve node ----------------------------------------------------------
+NODE="${MITSU_NODE:-}"
+if [ -z "$NODE" ]; then
+  for c in "$HOME/.nvm/versions/node/v24.16.0/bin/node" "$HOME/.nvm/versions/node/v22.19.0/bin/node"; do
+    [ -x "$c" ] && { NODE="$c"; break; }
+  done
+fi
+if [ -z "$NODE" ] && command -v node >/dev/null 2>&1; then
+  NODE="$(command -v node)"
+fi
+if [ -z "$NODE" ] || [ ! -x "$NODE" ]; then
+  osascript -e 'display alert "Mitsumeru" message "node not found — install Node.js 22.19+."' 2>/dev/null
+  exit 1
+fi
+
+# App files live in the hidden ~/.mitsu-dsh; project files (workspace +
+# attachments) stay visible OUTSIDE it.
+export DSH_HOME="${MITSU_HOME:-$HOME/.mitsu-dsh}"
+PROJECT_DIR="${MITSU_PROJECT:-$HOME/Mitsu}"
+export MITSU_PROJECT="$PROJECT_DIR"
+mkdir -p "$DSH_HOME" "$PROJECT_DIR"
+
+# --- ensure the `mitsu` profile -------------------------------------------
+PROFILE_DIR="$DSH_HOME/profiles/mitsu"
+mkdir -p "$PROFILE_DIR"
+if [ ! -f "$PROFILE_DIR/package.json" ]; then
+  cat > "$PROFILE_DIR/package.json" <<EOF
+{
+  "name": "dsh-profile-mitsu",
+  "private": true,
+  "dependencies": {
+    "@muen/mitsu-assets": "link:$FORK/plugins/mitsu-assets",
+    "@muen/mitsu-brand": "link:$FORK/plugins/mitsu-brand",
+    "@muen/mitsu-browser": "link:$FORK/plugins/mitsu-browser",
+    "@muen/mitsu-docs": "link:$FORK/plugins/mitsu-docs",
+    "@muen/mitsu-krea": "link:$FORK/plugins/mitsu-krea",
+    "@muen/mitsu-task-switcher": "link:$FORK/plugins/mitsu-task-switcher",
+    "@muen/mitsu-modes": "link:$FORK/plugins/mitsu-modes",
+    "@muen/mitsu-rail": "link:$FORK/plugins/mitsu-rail",
+    "@muen/mitsu-runninghub": "link:$FORK/plugins/mitsu-runninghub",
+    "@muen/mitsu-sidebar-tree": "link:$FORK/plugins/mitsu-sidebar-tree",
+    "@muen/mitsu-settings": "link:$FORK/plugins/mitsu-settings",
+    "@muen/mitsu-starter-pack": "link:$FORK/plugins/mitsu-starter-pack",
+    "@muen/mitsu-updater": "link:$FORK/plugins/mitsu-updater"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@muen/mitsu-assets",
+        "@muen/mitsu-brand",
+        "@muen/mitsu-browser",
+        "@muen/mitsu-docs",
+        "@muen/mitsu-krea",
+        "@muen/mitsu-task-switcher",
+        "@muen/mitsu-modes",
+        "@muen/mitsu-rail",
+        "@muen/mitsu-runninghub",
+        "@muen/mitsu-sidebar-tree",
+        "@muen/mitsu-settings",
+        "@muen/mitsu-starter-pack",
+        "@muen/mitsu-updater"
+      ],
+      "patchReload": "live"
+    }
+  }
+}
+EOF
+  cat > "$PROFILE_DIR/cordis.patch.yml" <<EOF
+# mitsu profile — user patch layer
+# Insert the credential-authorization seam (pi-ai OAuth login flows register
+# through ctx.inject(['authorization'], ...)).
+- insert:
+    - id: authorization
+      name: '@deepseek-ai/dsh-authorization'
+- id: attachment-local
+  config:
+    dshHome: "$PROJECT_DIR"
+- id: sandbox-policy
+  config:
+    workspaceRoot: !!js process.env.MITSU_PROJECT
+EOF
+  printf '# dsh profile root — composed from bundles + cordis.patch.yml\n[]\n' > "$PROFILE_DIR/cordis.yml"
+fi
+
+# Materialize the @muen symlinks into the profile dir (the loader resolves
+# @muen/* against the profile dir). Link only the plugins this profile declares.
+mkdir -p "$PROFILE_DIR/node_modules/@muen"
+for d in "$FORK"/plugins/mitsu-*; do
+  [ -d "$d" ] || continue
+  name="$(basename "$d")"
+  [ -e "$PROFILE_DIR/node_modules/@muen/$name" ] || ln -s "$d" "$PROFILE_DIR/node_modules/@muen/$name" 2>/dev/null
+done
+
+# Pre-seed the welcome-notice acknowledgement so a fresh home never blocks.
+if [ ! -f "$DSH_HOME/settings.yaml" ]; then
+  printf 'ui-onboarding:\n  welcomeNoticeVersion: 2026-08-13.1\n' > "$DSH_HOME/settings.yaml"
+fi
+
+# --- boot + open ------------------------------------------------------------
+PORT="${MITSU_PORT:-57691}"
+LOG=/tmp/mitsu-server.log
+URL="http://127.0.0.1:$PORT"
+if curl -s --max-time 2 "$URL" >/dev/null 2>&1; then
+  : # already running
+else
+  nohup "$NODE" --expose-internals "$FORK/apps/cli/lib/bin.js" --profile mitsu --port "$PORT" --no-open >"$LOG" 2>&1 &
+  BOOT_PID=$!
+  UP=0
+  for _ in $(seq 1 60); do
+    if curl -s --max-time 2 "$URL" >/dev/null 2>&1; then UP=1; break; fi
+    if ! kill -0 "$BOOT_PID" 2>/dev/null; then break; fi
+    sleep 1
+  done
+  if [ "$UP" != "1" ]; then
+    osascript -e 'display alert "Mitsumeru" message "Mitsu failed to come up on http://127.0.0.1:'"$PORT"' — see /tmp/mitsu-server.log."' 2>/dev/null
+    exit 1
+  fi
+fi
+APP_URL="$(grep -o "http://127.0.0.1:$PORT/?token=[A-Za-z0-9_-]*" "$LOG" 2>/dev/null | head -1)"
+[ -n "$APP_URL" ] || APP_URL="$URL"
+open -na "Google Chrome" --args --app="$APP_URL"
