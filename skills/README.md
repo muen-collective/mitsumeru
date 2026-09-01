@@ -19,6 +19,7 @@ by default). Each skill is a `SKILL.md` directory bundle (DSH / open-standard:
 | `frontend-read-audit` | Read/audit React/Tailwind/shadcn components (pre-handoff QA gate). |
 | `site-health-check` | Client site verification vs its Storybook contract (visual regression, WCAG AA, responsive layout, broken links). |
 | `story-pointing` | Fibonacci story points + 3-point hour estimates for epics. |
+| `migrate-old-portfolio` | Scrape a legacy portfolio + sitemap and migrate content/images into a new React/Vite UI content-first, then rewrite the copy as a separate pass. |
 
 ## Provenance
 
