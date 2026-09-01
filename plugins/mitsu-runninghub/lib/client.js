@@ -17,7 +17,7 @@ window.__ModuleLoader__.load({
       .mitsu-rh input { height: 32px; }
       .mitsu-rh textarea { min-height: 56px; font-family: var(--ds-font-family-code, monospace); }
       .mitsu-rh-row { display: flex; gap: 8px; }
-      .mitsu-rh-btn { flex: 1; padding: 9px 12px; border-radius: 8px; border: none; background: var(--mitsu-primary, #765898); color: var(--dsw-alias-label-primary-inverted, #fff); font-size: 13px; font-weight: 600; cursor: pointer; }
+      .mitsu-rh-btn { flex: 1; padding: 9px 12px; border-radius: 8px; border: none; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-label-primary-inverted, #fff); font-size: 13px; font-weight: 600; cursor: pointer; }
       .mitsu-rh-btn.ghost { background: none; border: 1px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); }
       .mitsu-rh-btn:disabled { opacity: .55; cursor: default; }
       .mitsu-rh-msg { font-size: 12px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }

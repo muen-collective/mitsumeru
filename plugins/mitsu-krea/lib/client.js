@@ -18,7 +18,7 @@ window.__ModuleLoader__.load({
       .mitsu-krea textarea { min-height: 72px; }
       .mitsu-krea-row { display: flex; gap: 8px; }
       .mitsu-krea-row > div { flex: 1; }
-      .mitsu-krea-btn { width: 100%; padding: 9px 12px; border-radius: 8px; border: none; background: var(--mitsu-primary, #765898); color: var(--dsw-alias-label-primary-inverted, #fff); font-size: 13px; font-weight: 600; cursor: pointer; }
+      .mitsu-krea-btn { width: 100%; padding: 9px 12px; border-radius: 8px; border: none; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-label-primary-inverted, #fff); font-size: 13px; font-weight: 600; cursor: pointer; }
       .mitsu-krea-btn:disabled { opacity: .55; cursor: default; }
       .mitsu-krea-msg { font-size: 12px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }
       .mitsu-krea-msg.error { background: color-mix(in srgb, var(--dsw-alias-state-danger-primary) 12%, transparent); color: var(--dsw-alias-state-danger-primary); }

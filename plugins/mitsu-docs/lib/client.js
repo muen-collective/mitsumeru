@@ -19,10 +19,10 @@ window.__ModuleLoader__.load({
       if (stylesInjected) return
       stylesInjected = true
       const css = `
-      .mitsu-docs-tab { position: fixed; right: 0; top: 40%; z-index: 901; pointer-events: auto; background: var(--mitsu-primary, #765898); color: #fff; border: none; border-radius: 8px 0 0 8px; padding: 12px 9px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; writing-mode: vertical-rl; font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); }
+      .mitsu-docs-tab { position: fixed; right: 0; top: 40%; z-index: 901; pointer-events: auto; background: var(--dsw-alias-state-business-primary); color: #fff; border: none; border-radius: 8px 0 0 8px; padding: 12px 9px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; writing-mode: vertical-rl; font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); }
       .mitsu-docs-panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 900; display: flex; flex-direction: column; background: var(--dsw-alias-bg-layer-1); border-left: 1px solid var(--dsw-alias-border-l2); color: var(--dsw-alias-label-primary); font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); font-size: 13px; pointer-events: auto; }
       .mitsu-docs-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 6px; cursor: ew-resize; z-index: 2; }
-      .mitsu-docs-resize:hover { background: color-mix(in srgb, var(--mitsu-primary, #765898) 25%, transparent); }
+      .mitsu-docs-resize:hover { background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 25%, transparent); }
       .mitsu-docs-col { display: flex; flex-direction: column; height: 100%; min-height: 0; }
       /* Confluence-style split: docs tree (left) + reader (right), both always mounted. */
       .mitsu-docs-split { flex: 1; display: flex; min-height: 0; }
@@ -34,14 +34,14 @@ window.__ModuleLoader__.load({
       .mitsu-docs-count { font-size: 11px; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-1); border-radius: 999px; padding: 1px 8px; font-variant-numeric: tabular-nums; }
       .mitsu-docs-search { flex-shrink: 0; padding: 8px 12px 2px; }
       .mitsu-docs-search input { width: 100%; padding: 5px 10px; background: var(--dsw-alias-bg-layer-1); border: 1px solid var(--dsw-alias-border-l2); border-radius: 6px; color: var(--dsw-alias-label-primary); font-size: 12px; outline: none; font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); }
-      .mitsu-docs-search input:focus { border-color: var(--mitsu-primary, #765898); }
+      .mitsu-docs-search input:focus { border-color: var(--dsw-alias-state-business-primary); }
       .mitsu-docs-search input::placeholder { color: var(--dsw-alias-label-secondary); }
       .mitsu-docs-icon { background: none; border: none; color: var(--dsw-alias-label-secondary); cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 14px; }
       .mitsu-docs-icon:hover { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-layer-1); }
       .mitsu-docs-list { flex: 1; overflow-y: auto; padding: 6px 0; }
       .mitsu-docs-row { display: flex; flex-direction: column; gap: 1px; padding: 7px 12px; cursor: pointer; border-left: 2px solid transparent; }
       .mitsu-docs-row:hover { background: var(--dsw-alias-bg-layer-2); }
-      .mitsu-docs-row.sel { background: color-mix(in srgb, var(--mitsu-primary, #765898) 8%, transparent); border-left-color: var(--mitsu-primary, #765898); }
+      .mitsu-docs-row.sel { background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 8%, transparent); border-left-color: var(--dsw-alias-state-business-primary); }
       .mitsu-docs-row-name { font-size: 12.5px; color: var(--dsw-alias-label-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .mitsu-docs-row-path { font-size: 10.5px; color: var(--dsw-alias-label-secondary); font-family: "JetBrains Mono", ui-monospace, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .mitsu-docs-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-secondary); font-size: 12px; padding: 24px 12px; text-align: center; }
@@ -160,7 +160,7 @@ window.__ModuleLoader__.load({
     h1,h2,h3,h4,h5,h6 { line-height: 1.3; margin: 1.4em 0 0.5em; }
     h1 { font-size: 1.5rem; } h2 { font-size: 1.3rem; } h3 { font-size: 1.15rem; } h4 { font-size: 1.05rem; }
     p { margin: 0.6em 0; }
-    a { color: var(--mitsu-primary, #9A6BFF); }
+    a { color: var(--dsw-alias-state-business-primary); }
     code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.85em; background: var(--dsw-alias-bg-layer-2, #22242a); border-radius: 4px; padding: 0.15em 0.35em; }
     pre { background: var(--dsw-alias-bg-layer-2, #22242a); border: 1px solid var(--dsw-alias-border-l1, #30323a); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
     pre code { background: none; padding: 0; }

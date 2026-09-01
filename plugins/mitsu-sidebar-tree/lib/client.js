@@ -20,15 +20,15 @@ window.__ModuleLoader__.load({
       .mst-shell { display: flex; flex-direction: column; height: 100%; min-height: 0; font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); }
       .mst-toggle { display: flex; gap: 4px; padding: 8px 10px; flex-shrink: 0; }
       .mst-tab { flex: 1; padding: 5px 0; text-align: center; border-radius: 7px; border: 1px solid transparent; background: transparent; color: var(--dsw-alias-label-secondary); font-size: 12px; cursor: pointer; font-family: inherit; }
-      .mst-tab.active { background: color-mix(in srgb, var(--mitsu-primary, #765898) 12%, transparent); color: var(--mitsu-primary, #765898); border-color: color-mix(in srgb, var(--mitsu-primary, #765898) 30%, transparent); }
+      .mst-tab.active { background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 12%, transparent); color: var(--dsw-alias-state-business-primary); border-color: color-mix(in srgb, var(--dsw-alias-state-business-primary) 30%, transparent); }
       .mst-body { flex: 1; overflow-y: auto; min-height: 0; }
       /* Session tree */
       .mst-ws { font-size: 10.5px; font-weight: 600; color: var(--dsw-alias-label-tertiary); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px 3px; }
       .mst-sess { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 6px 12px; border: none; background: transparent; color: var(--dsw-alias-label-primary); font-size: 12.5px; cursor: pointer; font-family: inherit; }
       .mst-sess:hover { background: var(--dsw-alias-interactive-bg-hover); }
-      .mst-sess.current { background: color-mix(in srgb, var(--mitsu-primary, #765898) 10%, transparent); color: var(--mitsu-primary, #765898); }
+      .mst-sess.current { background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 10%, transparent); color: var(--dsw-alias-state-business-primary); }
       .mst-sess .dot { width: 7px; height: 7px; border-radius: 999px; flex: none; background: var(--dsw-alias-label-tertiary); }
-      .mst-sess .dot.ws { background: var(--mitsu-primary, #765898); }
+      .mst-sess .dot.ws { background: var(--dsw-alias-state-business-primary); }
       .mst-sess span.t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .mst-new { display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 12px; border: none; background: transparent; color: var(--dsw-alias-label-primary); font-size: 12.5px; cursor: pointer; font-family: inherit; }
       .mst-new:hover { background: var(--dsw-alias-interactive-bg-hover); }
@@ -40,7 +40,7 @@ window.__ModuleLoader__.load({
       .mst-dir .ico { width: 12px; flex: none; }
       .mst-file { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 5px 12px; border: none; background: transparent; color: var(--dsw-alias-label-primary); font-size: 12.5px; cursor: pointer; font-family: inherit; }
       .mst-file:hover { background: var(--dsw-alias-bg-layer-2); }
-      .mst-file.active { background: color-mix(in srgb, var(--mitsu-primary, #765898) 10%, transparent); color: var(--mitsu-primary, #765898); }
+      .mst-file.active { background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 10%, transparent); color: var(--dsw-alias-state-business-primary); }
       .mst-file .ico { width: 12px; flex: none; }
       .mst-empty { padding: 12px; color: var(--dsw-alias-label-tertiary); font-size: 12px; }
       .mst-search { padding: 6px 10px 2px; }

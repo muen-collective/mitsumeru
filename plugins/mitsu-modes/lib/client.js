@@ -25,7 +25,7 @@ window.__ModuleLoader__.load({
       fontSize: 13,
       fontWeight: active ? 600 : 400,
       color: active ? 'var(--dsw-alias-label-primary)' : 'var(--dsw-alias-label-secondary)',
-      borderBottom: active ? '2px solid var(--mitsu-primary, #765898)' : '2px solid transparent',
+      borderBottom: active ? '2px solid var(--dsw-alias-state-business-primary)' : '2px solid transparent',
     })
 
     const applyMode = (mode) => {

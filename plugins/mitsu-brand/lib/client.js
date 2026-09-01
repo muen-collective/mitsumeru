@@ -7,9 +7,12 @@ window.__ModuleLoader__.load({
     const React = require('react')
     const h = React.createElement
 
+    // Theme-aware brand: label-primary is near-black in light mode and
+    // near-white in dark mode, so the wordmark stays legible in both. The dot
+    // matches the DSH business blue used across the Mitsu surfaces.
     const BRAND = {
-      text: '#0a0a0a',
-      dot: '#765898',
+      text: 'var(--dsw-alias-label-primary)',
+      dot: 'var(--dsw-alias-state-business-primary)',
       font: 'Satoshi, ui-sans-serif, system-ui, sans-serif',
     }
 
