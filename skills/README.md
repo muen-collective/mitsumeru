@@ -10,7 +10,8 @@ by default). Each skill is a `SKILL.md` directory bundle (DSH / open-standard:
 
 | Skill | Purpose |
 |---|---|
-| `clone-site` | Clone a website/page to a self-hosted static HTML + assets dir with numeric fidelity gates (settle → capture → build-by-capture → measure → pixel-diff → receipts). Triggers include the de-Framer workflow (`'de-framer this template'`). |
+| `clone-site` | Clone a website/page to a self-hosted static HTML + assets dir with numeric fidelity gates (settle → capture → build-by-capture → measure → pixel-diff → receipts). Produces the reference for de-Framer; never shipped. |
+| `de-framer` | Hand-rebuild a Framer template (or its static clone) as a Vite + React + TS + Tailwind front-end carrying ZERO Framer-generated code (not just zero `framer` strings). Composes clone-site + design-system + animate-entrance. |
 | `animate-entrance` | Framer-style entrance animations (staggered fade+move, hover grow, scroll reveal) in vanilla CSS+JS. |
 | `design-system` | Brand-grade visual craft — design-system-first thinking and anti-AI-slop rules. |
 | `fashion-image-prompting` | Fashion/product photography prompting (terminology library + 8 generation rules). |
