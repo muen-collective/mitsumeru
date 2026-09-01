@@ -14,6 +14,12 @@ Hold this bar on any visual work — HTML mockups, prototypes, real UI.
 - Never draw a separate HTML, SVG, or freeform "style guide" artifact. Kun renders `DESIGN.md` through its fixed built-in specimen board.
 - `.kun-design/HANDOFF.md` is generated project handoff, not a theme. `.kun-design/DESIGN.md` and `.kun-design/design-system.json` are compatibility/migration inputs only.
 - Derive every visual decision from tokens (color, spacing scale, radius, type scale), not ad-hoc values. Keep them consistent across the whole artifact.
+- **It is code, and it is meant to change.** Components are real code (tokens + components), not a
+  Figma library. You *can* change the system — add a new component/token. The failure mode: UX
+  designers **detach** a component from the Figma library → devs **hand-roll** the CSS → an **npm
+  update** changes the underlying component → the site breaks. **Lego rule:** a component is a Lego
+  block — if you're finishing a wall and need a **3×2-lug** block that doesn't exist, **build a new
+  block**, never chop a 4×2 block. Change the system; don't mutilate a part of it.
 
 ## 2. Avoid generic AI tells
 These read as "AI made this" — do not ship them:
