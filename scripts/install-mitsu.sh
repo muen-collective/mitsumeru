@@ -177,6 +177,22 @@ fi
 echo "== installing profile dependencies ($PROFILE_DIR) =="
 ( cd "$PROFILE_DIR" && "${PNPM[@]}" install --no-frozen-lockfile )
 
+# --- 4b. provision the mitsu skills into the app home -----------------------------
+# Copy every packaged skill into $MITSU_HOME/skills (the user-dsh skill root the
+# harness scans, rank 400). Re-run on every install so added/updated skills land.
+echo "== provisioning skills ($MITSU_HOME/skills) =="
+SKILLS_DIR="$MITSU_DIR/skills"
+mkdir -p "$MITSU_HOME/skills"
+if [ -d "$SKILLS_DIR" ]; then
+  for d in "$SKILLS_DIR"/*/; do
+    [ -d "$d" ] || continue
+    name="$(basename "$d")"
+    rm -rf "$MITSU_HOME/skills/$name"
+    cp -R "$d" "$MITSU_HOME/skills/$name"
+  done
+  echo "  skills: $(ls -1 "$MITSU_HOME/skills" | tr '\n' ' ')"
+fi
+
 # --- 5. link workspace packages into the fork root (vendored loader) --------------
 echo "== linking workspace packages into fork root node_modules =="
 mkdir -p "$MITSU_DIR/node_modules/@deepseek-ai" "$MITSU_DIR/node_modules/@muen"
