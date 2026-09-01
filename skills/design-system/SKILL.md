@@ -29,6 +29,10 @@ Hold this bar on any visual work — HTML mockups, prototypes, real UI.
   variant + size + component + color role) — not a hex, not a bare class. It resolves to the
   exact styles; the design language is composable + role-based, and the raw values (color, size,
   spacing) are abstracted behind tokens. So a spec is precise and not geometric.
+- **The name is universal; the values are per-project.** `filled-med-button-primary` means the
+  same thing in every project. But each project sets its **own token VALUES** (color, size,
+  radius) in its `DESIGN.md` + `tokens.ts`. So the same semantic prompt resolves to a
+  totally different-looking button per client — the contract is stable, the theme is per-project.
 
 ## 2. Avoid generic AI tells
 These read as "AI made this" — do not ship them:
