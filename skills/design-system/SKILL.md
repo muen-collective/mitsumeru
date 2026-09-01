@@ -24,6 +24,11 @@ Hold this bar on any visual work — HTML mockups, prototypes, real UI.
   (one story per component + variants) — that's where you see, organize, and design the system.
   It is not a Figma library. And **build the catalog as you need**: add a component/story when a
   build needs it; don't pre-build the whole catalog up front.
+- **Semantic tokens, not raw values.** A modern system (shadcn / Tailwind) layers **semantic
+  tokens** on top of raw values. Prompt/spec the token name — `filled-med-button-primary` (fill
+  variant + size + component + color role) — not a hex, not a bare class. It resolves to the
+  exact styles; the design language is composable + role-based, and the raw values (color, size,
+  spacing) are abstracted behind tokens. So a spec is precise and not geometric.
 
 ## 2. Avoid generic AI tells
 These read as "AI made this" — do not ship them:
