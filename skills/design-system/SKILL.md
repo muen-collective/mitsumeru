@@ -20,6 +20,10 @@ Hold this bar on any visual work — HTML mockups, prototypes, real UI.
   update** changes the underlying component → the site breaks. **Lego rule:** a component is a Lego
   block — if you're finishing a wall and need a **3×2-lug** block that doesn't exist, **build a new
   block**, never chop a 4×2 block. Change the system; don't mutilate a part of it.
+- **The living canvas is Storybook.** The component library is a **Storybook** of working demos
+  (one story per component + variants) — that's where you see, organize, and design the system.
+  It is not a Figma library. And **build the catalog as you need**: add a component/story when a
+  build needs it; don't pre-build the whole catalog up front.
 
 ## 2. Avoid generic AI tells
 These read as "AI made this" — do not ship them:
