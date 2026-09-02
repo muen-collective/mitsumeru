@@ -9,12 +9,6 @@
 <link rel="apple-touch-icon" href="icon-512.png" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" />
 <style>
-@font-face {
-  font-family: 'PressStart';
-  src: url('press-start.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 :root {
   color-scheme: dark;
   --bg: #18181b;
@@ -112,86 +106,25 @@ header a.gh:hover { color: #fff; }
   cursor: default;
 }
 .wordmarkText {
-  font-family: 'PressStart', monospace;
-  font-size: 120px;
-  letter-spacing: 0;
+  font-family: var(--font);
+  font-size: clamp(48px, 8vw, 80px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
   color: #fff;
   position: relative;
   display: inline-block;
 }
-/* Glitch pseudo-elements — exact CodePen implementation */
-.wordmarkText::before,
-.wordmarkText::after {
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  animation-direction: alternate-reverse;
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  clip: rect(0, 900px, 0, 0);
-  content: attr(data-text);
+.wordmarkDot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: #ff0000;
+  border-radius: 2px;
+  margin-left: 4px;
+  vertical-align: baseline;
+  position: relative;
+  top: -4px;
 }
-.wordmarkText::after {
-  animation-name: glitch-animation;
-  animation-duration: 4s;
-  left: 4px;
-  text-shadow: -1px 0 #ffa800;
-  background: transparent;
-}
-.wordmarkText::before {
-  animation-name: glitch-animation-2;
-  animation-duration: 6s;
-  left: -4px;
-  text-shadow: 1px 0 #00d8ff;
-  background: transparent;
-}
-@keyframes glitch-animation {
-  0%   { clip: rect(42px, 9999px, 44px, 0); }
-  5%   { clip: rect(12px, 9999px, 59px, 0); }
-  10%  { clip: rect(48px, 9999px, 29px, 0); }
-  15%  { clip: rect(42px, 9999px, 73px, 0); }
-  20%  { clip: rect(63px, 9999px, 27px, 0); }
-  25%  { clip: rect(34px, 9999px, 55px, 0); }
-  30%  { clip: rect(86px, 9999px, 73px, 0); }
-  35%  { clip: rect(20px, 9999px, 20px, 0); }
-  40%  { clip: rect(26px, 9999px, 60px, 0); }
-  45%  { clip: rect(25px, 9999px, 66px, 0); }
-  50%  { clip: rect(57px, 9999px, 98px, 0); }
-  55%  { clip: rect(5px, 9999px, 46px, 0); }
-  60%  { clip: rect(82px, 9999px, 31px, 0); }
-  65%  { clip: rect(54px, 9999px, 27px, 0); }
-  70%  { clip: rect(28px, 9999px, 99px, 0); }
-  75%  { clip: rect(45px, 9999px, 69px, 0); }
-  80%  { clip: rect(23px, 9999px, 85px, 0); }
-  85%  { clip: rect(54px, 9999px, 84px, 0); }
-  90%  { clip: rect(45px, 9999px, 47px, 0); }
-  95%  { clip: rect(37px, 9999px, 20px, 0); }
-  100% { clip: rect(4px, 9999px, 91px, 0); }
-}
-@keyframes glitch-animation-2 {
-  0%   { clip: rect(65px, 9999px, 100px, 0); }
-  5%   { clip: rect(52px, 9999px, 74px, 0); }
-  10%  { clip: rect(79px, 9999px, 85px, 0); }
-  15%  { clip: rect(75px, 9999px, 5px, 0); }
-  20%  { clip: rect(67px, 9999px, 61px, 0); }
-  25%  { clip: rect(14px, 9999px, 79px, 0); }
-  30%  { clip: rect(1px, 9999px, 66px, 0); }
-  35%  { clip: rect(86px, 9999px, 30px, 0); }
-  40%  { clip: rect(23px, 9999px, 98px, 0); }
-  45%  { clip: rect(85px, 9999px, 72px, 0); }
-  50%  { clip: rect(71px, 9999px, 75px, 0); }
-  55%  { clip: rect(2px, 9999px, 48px, 0); }
-  60%  { clip: rect(30px, 9999px, 16px, 0); }
-  65%  { clip: rect(59px, 9999px, 50px, 0); }
-  70%  { clip: rect(41px, 9999px, 62px, 0); }
-  75%  { clip: rect(2px, 9999px, 82px, 0); }
-  80%  { clip: rect(47px, 9999px, 73px, 0); }
-  85%  { clip: rect(3px, 9999px, 27px, 0); }
-  90%  { clip: rect(26px, 9999px, 55px, 0); }
-  95%  { clip: rect(42px, 9999px, 97px, 0); }
-  100% { clip: rect(38px, 9999px, 49px, 0); }
-}
-.wordmarkDot { display: none; }
 /* Download button — pill + Apple logo */
 .dl-btn {
   display: inline-flex;
@@ -251,7 +184,7 @@ header a.gh:hover { color: #fff; }
 <section class="hero">
   <video class="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
   <div class="heroContent">
-    <div class="wordmark"><span class="wordmarkText" data-text="Mitsumeru&#338;"><span style="color:#fff">Mitsumeru</span><span style="color:#ff0000">&#338;</span></span></div>
+    <div class="wordmark"><span class="wordmarkText">Mitsumeru</span><span class="wordmarkDot"></span></div>
     <a class="dl-btn" id="dlBtn" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="24" height="24" aria-hidden="true"><path d="M447.1 332.7C446.9 296 463.5 268.3 497.1 247.9C478.3 221 449.9 206.2 412.4 203.3C376.9 200.5 338.1 224 323.9 224C308.9 224 274.5 204.3 247.5 204.3C191.7 205.2 132.4 248.8 132.4 337.5C132.4 363.7 137.2 390.8 146.8 418.7C159.6 455.4 205.8 545.4 254 543.9C279.2 543.3 297 526 329.8 526C361.6 526 378.1 543.9 406.2 543.9C454.8 543.2 496.6 461.4 508.8 424.6C443.6 393.9 447.1 334.6 447.1 332.7zM390.5 168.5C417.8 136.1 415.3 106.6 414.5 96C390.4 97.4 362.5 112.4 346.6 130.9C329.1 150.7 318.8 175.2 321 202.8C347.1 204.8 370.9 191.4 390.5 168.5z" fill="currentColor"/></svg>
       Download for macOS
