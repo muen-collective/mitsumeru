@@ -120,7 +120,8 @@ else
     "@muen/mitsu-sidebar-tree": "link:$MITSU_DIR/plugins/mitsu-sidebar-tree",
     "@muen/mitsu-settings": "link:$MITSU_DIR/plugins/mitsu-settings",
     "@muen/mitsu-starter-pack": "link:$MITSU_DIR/plugins/mitsu-starter-pack",
-    "@muen/mitsu-updater": "link:$MITSU_DIR/plugins/mitsu-updater"
+    "@muen/mitsu-updater": "link:$MITSU_DIR/plugins/mitsu-updater",
+    "@muen/mitsu-open-in-sidebar": "link:$MITSU_DIR/plugins/mitsu-open-in-sidebar"
   },
   "dsh": {
     "profile": {
@@ -139,7 +140,8 @@ else
         "@muen/mitsu-sidebar-tree",
         "@muen/mitsu-settings",
         "@muen/mitsu-starter-pack",
-        "@muen/mitsu-updater"
+        "@muen/mitsu-updater",
+        "@muen/mitsu-open-in-sidebar"
       ],
       "patchReload": "live"
     }

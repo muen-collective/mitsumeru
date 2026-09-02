@@ -1,0 +1,3 @@
+- insert:
+    - id: mitsu-open-in-sidebar
+      name: '@muen/mitsu-open-in-sidebar'

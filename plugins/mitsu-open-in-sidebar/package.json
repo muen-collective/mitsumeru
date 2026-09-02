@@ -1,0 +1,24 @@
+{
+  "name": "@muen/mitsu-open-in-sidebar",
+  "version": "0.1.0",
+  "description": "Open chat file mentions (.md and other paths) in the dsh-better-sidebar instead of the OS default app. Integrates with dsh-better-sidebar's openFile service via the ctx.chatFileMentions seam.",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/client.js",
+  "exports": {
+    ".": "./lib/client.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": { "inject": ["betterSidebar"], "platform": "web" },
+    "bundle": { "patch": "./cordis.patch.yml" }
+  },
+  "files": ["lib", "cordis.patch.yml"],
+  "peerDependencies": {
+    "dsh-better-sidebar": ">=0.17.1"
+  },
+  "peerDependenciesMeta": {
+    "dsh-better-sidebar": { "optional": true }
+  }
+}
