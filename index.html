@@ -149,56 +149,8 @@ header a.gh:hover { color: #fff; }
   50% { transform: translateX(-50%) translateY(6px); }
 }
 
-/* Features */
-.features {
-  border-top: 1px solid var(--border);
-  padding: 80px 0;
-}
-.features h2 {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.features .sub { color: var(--muted-fg); margin: 8px 0 48px; max-width: 560px; font-size: 16px; }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 14px;
-}
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-}
-.card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
-.card p { margin: 0; color: var(--muted-fg); font-size: 14.5px; }
-.card .accent { color: var(--primary); }
-
-/* Requirements + footer */
-.requirements {
-  border-top: 1px solid var(--border);
-  padding: 40px 0;
-  color: var(--muted-fg);
-  font-size: 14px;
-}
-.requirements code { font-family: var(--mono); color: var(--fg); }
-footer {
-  border-top: 1px solid var(--border);
-  padding: 26px 0 48px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--muted-fg);
-  font-size: 13.5px;
-}
-footer a { color: var(--muted-fg); text-decoration: none; }
-footer a:hover { color: var(--fg); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .scrollHint { animation: none; }
   .dl-btn { transition: none; }
 }
 </style>
@@ -222,42 +174,8 @@ footer a:hover { color: var(--fg); }
       Download for macOS
     </a>
   </div>
-  <div class="scrollHint">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-  </div>
 </section>
 
-<section class="features wrap">
-  <h2>Built to stay on your machine</h2>
-  <p class="sub">Mitsumeru packages the Mitsu harness as a native desktop app. Your data has its own home — separate from everything else.</p>
-  <div class="grid">
-    <div class="card">
-      <h3>Local-first</h3>
-      <p>Workspaces, sessions, and credentials live under your user data directory. The harness runs on a private <code>127.0.0.1</code> port.</p>
-    </div>
-    <div class="card">
-      <h3>Every surface is a plugin</h3>
-      <p>Settings, rail, docs, starter pack, and brand are <span class="accent">@muen/mitsu-*</span> plugins, seeded into your profile on first launch.</p>
-    </div>
-    <div class="card">
-      <h3>One identity</h3>
-      <p>A separate app home (<code>com.muen.mitsumeru.app</code>) means Mitsumeru never shares data with — or masquerades as — another product.</p>
-    </div>
-    <div class="card">
-      <h3>Open source</h3>
-      <p>MIT-licensed, forked from DSH Desktop, built on the DeepSeek Harness runtime. Contribute on GitHub.</p>
-    </div>
-  </div>
-</section>
-
-<section class="requirements wrap">
-  <strong>Requirements</strong> — macOS 13+ (Apple Silicon or Intel) · ~1 GB free disk
-</section>
-
-<footer class="wrap">
-  <span>© 2026 Muen Collective</span>
-  <span><a href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source</a> · <a href="https://github.com/muen-collective/mitsumeru-desktop/releases" target="_blank" rel="noopener">Releases</a> · MIT</span>
-</footer>
 
 <script>
 (async () => {
