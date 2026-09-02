@@ -49,6 +49,11 @@ window.__ModuleLoader__.load({
 
     const HeroMark = () => null
 
+    // The blank-session hero headline. Replaces the stock harness tagline
+    // ("Into the Unknown") with the Mitsu tagline; the host still owns the
+    // surrounding hero chrome, so only the text rides this slot.
+    const HeroHeadline = () => 'The liberation begins here.'
+
     return {
       inject: ['slots'],
       apply(ctx) {
@@ -58,6 +63,7 @@ window.__ModuleLoader__.load({
               yield ctx.slots.register({ name: 'sidebar.brand.mark' }, SidebarMark)
               yield ctx.slots.register({ name: 'sidebar.brand.name' }, BrandName)
               yield ctx.slots.register({ name: 'conversation.hero.brand.mark' }, HeroMark)
+              yield ctx.slots.register({ name: 'conversation.hero.headline' }, HeroHeadline)
             })))
       },
     }
