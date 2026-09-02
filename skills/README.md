@@ -20,6 +20,7 @@ by default). Each skill is a `SKILL.md` directory bundle (DSH / open-standard:
 | `site-health-check` | Client site verification vs its Storybook contract (visual regression, WCAG AA, responsive layout, broken links). |
 | `story-pointing` | Fibonacci story points + 3-point hour estimates for epics. |
 | `migrate-old-website` | Migrate a legacy website (Wix/Shopify/Squarespace/Framer/static) into your own React/Vite app content-first, then rewrite the copy as a separate pass. |
+| `install-mitsu-bundle` | Install the curated Mitsu plugin bundle into a DSH profile via the market (`dsh plugin add`) — on-demand, not a fixed bundled set, so plugins stay removable. |
 
 ## Provenance
 
