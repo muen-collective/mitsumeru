@@ -8,6 +8,7 @@
 <link rel="icon" type="image/png" href="icon-512.png" />
 <link rel="apple-touch-icon" href="icon-512.png" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" />
 <style>
 :root {
   color-scheme: dark;
@@ -90,38 +91,101 @@ header a.gh:hover { color: #fff; }
   text-align: center;
   padding: 0 24px;
 }
-/* Wordmark — Satoshi bold + red dot, 400% scale */
+/* Wordmark — 8-bit glitch effect with Press Start 2P */
 .wordmark {
-  display: flex;
-  align-items: baseline;
-  gap: 0;
+  position: relative;
+  display: inline-block;
   line-height: 1;
-}
-.wordmarkText {
-  font-family: var(--font);
-  font-size: 192px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #fff;
-  text-shadow: 0 2px 24px rgba(0,0,0,0.5);
-  transition: text-shadow 0.3s ease;
   cursor: default;
 }
-/* Channel split on hover — RGB offset glitch */
-.wordmark:hover .wordmarkText {
-  text-shadow:
-    -6px 0 rgba(255, 0, 0, 0.7),
-    6px 0 rgba(0, 100, 255, 0.7),
-    0 0 40px rgba(103, 158, 254, 0.4);
+.wordmarkText {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: #fff;
+  position: relative;
+  display: inline-block;
+}
+/* Glitch pseudo-elements */
+.wordmarkText::before,
+.wordmarkText::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.wordmarkText::before {
+  color: #ffa800;
+  text-shadow: -1px 0 #ffa800;
+  animation: glitch-1 4s infinite linear alternate-reverse;
+  z-index: -1;
+}
+.wordmarkText::after {
+  color: #00d8ff;
+  text-shadow: 1px 0 #00d8ff;
+  animation: glitch-2 6s infinite linear alternate-reverse;
+  z-index: -2;
+}
+@keyframes glitch-1 {
+  0%   { clip-path: inset(42px 0 58px 0); }
+  5%   { clip-path: inset(12px 0 65px 0); }
+  10%  { clip-path: inset(48px 0 30px 0); }
+  15%  { clip-path: inset(42px 0 25px 0); }
+  20%  { clip-path: inset(63px 0 10px 0); }
+  25%  { clip-path: inset(34px 0 23px 0); }
+  30%  { clip-path: inset(86px 0 7px 0); }
+  35%  { clip-path: inset(20px 0 60px 0); }
+  40%  { clip-path: inset(26px 0 18px 0); }
+  45%  { clip-path: inset(25px 0 22px 0); }
+  50%  { clip-path: inset(57px 0 2px 0); }
+  55%  { clip-path: inset(5px 0 54px 0); }
+  60%  { clip-path: inset(82px 0 8px 0); }
+  65%  { clip-path: inset(54px 0 23px 0); }
+  70%  { clip-path: inset(28px 0 1px 0); }
+  75%  { clip-path: inset(45px 0 19px 0); }
+  80%  { clip-path: inset(23px 0 35px 0); }
+  85%  { clip-path: inset(54px 0 16px 0); }
+  90%  { clip-path: inset(45px 0 33px 0); }
+  95%  { clip-path: inset(37px 0 43px 0); }
+  100% { clip-path: inset(4px 0 8px 0); }
+}
+@keyframes glitch-2 {
+  0%   { clip-path: inset(65px 0 10px 0); }
+  5%   { clip-path: inset(52px 0 18px 0); }
+  10%  { clip-path: inset(79px 0 5px 0); }
+  15%  { clip-path: inset(75px 0 15px 0); }
+  20%  { clip-path: inset(67px 0 19px 0); }
+  25%  { clip-path: inset(14px 0 7px 0); }
+  30%  { clip-path: inset(1px 0 20px 0); }
+  35%  { clip-path: inset(86px 0 0px 0); }
+  40%  { clip-path: inset(23px 0 0px 0); }
+  45%  { clip-path: inset(85px 0 8px 0); }
+  50%  { clip-path: inset(71px 0 5px 0); }
+  55%  { clip-path: inset(2px 0 42px 0); }
+  60%  { clip-path: inset(30px 0 54px 0); }
+  65%  { clip-path: inset(59px 0 30px 0); }
+  70%  { clip-path: inset(41px 0 18px 0); }
+  75%  { clip-path: inset(2px 0 8px 0); }
+  80%  { clip-path: inset(47px 0 17px 0); }
+  85%  { clip-path: inset(3px 0 63px 0); }
+  90%  { clip-path: inset(26px 0 25px 0); }
+  95%  { clip-path: inset(42px 0 3px 0); }
+  100% { clip-path: inset(38px 0 42px 0); }
 }
 .wordmarkDot {
   display: inline-block;
-  width: 80px;
-  height: 80px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #e0485c;
   margin-left: 4px;
-  margin-bottom: 6px;
+  vertical-align: baseline;
+  position: relative;
+  top: -4px;
 }
 .heroTagline {
   font-size: 18px;
@@ -218,7 +282,7 @@ header a.gh:hover { color: #fff; }
 <section class="hero">
   <video class="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
   <div class="heroContent">
-    <div class="wordmark"><span class="wordmarkText">Mitsumeru</span><span class="wordmarkDot"></span></div>
+    <div class="wordmark"><span class="wordmarkText" data-text="Mitsumeru">Mitsumeru</span><span class="wordmarkDot"></span></div>
     <p class="heroTagline">The liberation begins here</p>
     <a class="dl-btn" id="dlBtn" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
       <div class="pixel-grid" id="pixelGrid"></div>
