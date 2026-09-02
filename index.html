@@ -152,7 +152,7 @@ header a.gh:hover { color: #fff; }
   display: grid;
   grid-template-columns: repeat(var(--cols, 28), 1fr);
   grid-template-rows: repeat(var(--rows, 6), 1fr);
-  gap: 1px;
+  gap: 0;
   border-radius: 999px;
   overflow: hidden;
   pointer-events: none;
@@ -161,11 +161,12 @@ header a.gh:hover { color: #fff; }
 .pixel-grid .px {
   background: var(--primary);
   opacity: 0;
-  transition: opacity 0.25s ease;
-  border-radius: 1px;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .dl-btn:hover .px {
   opacity: 1;
+  transform: scale(1);
   transition-delay: var(--d, 0s);
 }
 .dl-btn:hover { border-color: var(--primary); }
@@ -224,20 +225,36 @@ header a.gh:hover { color: #fff; }
 (() => {
   const grid = document.getElementById('pixelGrid')
   if (!grid) return
-  const COLS = 28
-  const ROWS = 6
+  const COLS = 30
+  const ROWS = 7
   grid.style.setProperty('--cols', COLS)
   grid.style.setProperty('--rows', ROWS)
+  const cells = []
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const px = document.createElement('span')
       px.className = 'px'
-      // Diagonal wave from top-left: delay = (row + col) * base
-      const delay = (r + c) * 0.012
+      // Distance from top-left corner for diagonal wave
+      const delay = (r + c) * 0.01
       px.style.setProperty('--d', delay + 's')
       grid.appendChild(px)
+      cells.push({ el: px, r, c })
     }
   }
+
+  // On mouseenter, recalculate delays based on actual mouse position
+  const btn = grid.parentElement
+  btn.addEventListener('mouseenter', (e) => {
+    const rect = btn.getBoundingClientRect()
+    const mx = (e.clientX - rect.left) / rect.width
+    const my = (e.clientY - rect.top) / rect.height
+    for (const cell of cells) {
+      const cx = (cell.c + 0.5) / COLS
+      const cy = (cell.r + 0.5) / ROWS
+      const dist = Math.sqrt((cx - mx) ** 2 + (cy - my) ** 2)
+      cell.el.style.setProperty('--d', (dist * 0.4) + 's')
+    }
+  })
 })()
 
 (async () => {
