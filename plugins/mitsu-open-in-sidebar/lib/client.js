@@ -41,7 +41,9 @@ window.__ModuleLoader__.load({
                 if (!looksLikeFile(value)) return undefined
                 const scope = scopeOf(owner)
                 return {
-                  open: () => ctx.betterSidebar.openFile(scope, value),
+                  open: () => (typeof ctx.betterSidebar?.openFile === 'function'
+                    ? ctx.betterSidebar.openFile(scope, value)
+                    : owner?.openFile?.(value)),
                   label: value,
                   title: value,
                 }
