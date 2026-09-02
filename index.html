@@ -4,338 +4,281 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mitsumeru — your local-first AI workspace</title>
-<meta name="description" content="Mitsumeru is a local-first AI workspace built on the Mitsu harness. Sessions, workspaces, and keys stay on your machine. Download for macOS and Windows." />
+<meta name="description" content="Mitsumeru is a local-first AI workspace built on the Mitsu harness. Sessions, workspaces, and keys stay on your machine. Download for macOS." />
 <link rel="icon" type="image/png" href="icon-512.png" />
 <link rel="apple-touch-icon" href="icon-512.png" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" />
 <style>
-  :root {
-    color-scheme: dark;
-    --bg: #18181b;
-    --card: #101013;
-    --muted: #2e2e33;
-    --fg: #f0f0f2;
-    --muted-fg: #9d9da3;
-    --border: #3d3d44;
-    --primary: #765898;
-    --primary-fg: #ffffff;
-    --secondary: #52d053;
-    --tertiary: #e0485c;
-    --radius: 14px;
-    --font: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: var(--font);
-    font-weight: 400;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+:root {
+  color-scheme: dark;
+  --bg: #18181b;
+  --card: #101013;
+  --muted: #2e2e33;
+  --fg: #f0f0f2;
+  --muted-fg: #9d9da3;
+  --border: #3d3d44;
+  --primary: #679efe;
+  --primary-fg: #ffffff;
+  --radius: 14px;
+  --font: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
-  /* Header */
-  header {
-    padding: 26px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .brand { display: flex; align-items: baseline; gap: 6px; }
-  .brand .name { font-weight: 700; font-size: 19px; letter-spacing: 0.02em; }
-  .brand .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--primary); }
-  header a.gh {
-    color: var(--muted-fg);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  header a.gh:hover { color: var(--fg); }
+/* Header */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 18px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(24, 24, 27, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(61, 61, 68, 0.5);
+}
+.brand { display: flex; align-items: baseline; gap: 6px; }
+.brand .name { font-weight: 700; font-size: 19px; letter-spacing: 0.02em; color: #fff; }
+.brand .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--primary); }
+header a.gh {
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+header a.gh:hover { color: #fff; }
 
-  /* Hero */
-  .hero {
-    padding: 84px 0 56px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: -40% -20% auto auto;
-    width: 720px;
-    height: 720px;
-    background: radial-gradient(closest-side, rgba(118, 88, 152, 0.14), transparent 70%);
-    pointer-events: none;
-  }
-  .icon {
-    width: 112px;
-    height: 112px;
-    margin: 0 auto 28px;
-    display: block;
-    filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45));
-  }
-  .hero h1 {
-    margin: 0;
-    font-size: clamp(40px, 6vw, 62px);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-  }
-  .hero .tagline {
-    margin: 18px auto 0;
-    max-width: 620px;
-    color: var(--muted-fg);
-    font-size: 18px;
-  }
-  .hero .tagline strong { color: var(--fg); font-weight: 500; }
+/* Hero — fullscreen video */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.heroContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  padding: 0 24px;
+}
+.heroTitle {
+  font-family: var(--font);
+  font-size: clamp(56px, 8vw, 96px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+}
+.heroTagline {
+  font-size: 18px;
+  color: rgba(255,255,255,0.75);
+  max-width: 520px;
+  line-height: 1.6;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+}
+.heroTagline strong { color: #fff; font-weight: 500; }
 
-  /* Download */
-  .download {
-    padding: 8px 0 64px;
-    text-align: center;
-  }
-  .version {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--muted-fg);
-    border: 1px solid var(--border);
-    background: var(--card);
-    border-radius: 999px;
-    padding: 6px 14px;
-    margin-bottom: 28px;
-  }
-  .version .tag { color: var(--secondary); }
-  .platforms {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 14px;
-    max-width: 860px;
-    margin: 0 auto;
-    text-align: left;
-  }
-  .platform {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 18px;
-    text-decoration: none;
-    color: var(--fg);
-    transition: border-color 0.15s ease, transform 0.15s ease;
-  }
-  .platform:hover { border-color: var(--primary); transform: translateY(-2px); }
-  .platform.primary {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: var(--primary-fg);
-  }
-  .platform.primary:hover { filter: brightness(1.08); transform: translateY(-2px); }
-  .platform .os { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .platform .os svg { flex: none; }
-  .platform .file { font-family: var(--mono); font-size: 11.5px; opacity: 0.75; word-break: break-all; }
-  .platform .note { font-size: 12px; opacity: 0.85; }
-  .hint {
-    margin: 26px auto 0;
-    max-width: 640px;
-    font-size: 13.5px;
-    color: var(--muted-fg);
-    line-height: 1.7;
-  }
-  .hint code { font-family: var(--mono); color: var(--tertiary); }
+/* Download button */
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 24px rgba(103, 158, 254, 0.35);
+}
+.dl-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.dl-btn svg { flex: none; }
 
-  /* Features */
-  .features {
-    border-top: 1px solid var(--border);
-    padding: 64px 0;
-  }
-  .features h2 {
-    margin: 0 0 8px;
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .features .sub { color: var(--muted-fg); margin: 0 0 40px; max-width: 560px; }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 14px;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px;
-  }
-  .card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
-  .card p { margin: 0; color: var(--muted-fg); font-size: 14.5px; }
-  .card .accent { color: var(--primary); }
+/* Scroll indicator */
+.scrollHint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  animation: float 2s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
 
-  /* Requirements + footer */
-  .requirements {
-    border-top: 1px solid var(--border);
-    padding: 40px 0;
-    color: var(--muted-fg);
-    font-size: 14px;
-  }
-  .requirements code { font-family: var(--mono); color: var(--fg); }
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 26px 0 48px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--muted-fg);
-    font-size: 13.5px;
-  }
-  footer a { color: var(--muted-fg); text-decoration: none; }
-  footer a:hover { color: var(--fg); }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    .platform, .platform.primary { transition: none; }
-  }
+/* Features */
+.features {
+  border-top: 1px solid var(--border);
+  padding: 80px 0;
+}
+.features h2 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.features .sub { color: var(--muted-fg); margin: 8px 0 48px; max-width: 560px; font-size: 16px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+.card p { margin: 0; color: var(--muted-fg); font-size: 14.5px; }
+.card .accent { color: var(--primary); }
+
+/* Requirements + footer */
+.requirements {
+  border-top: 1px solid var(--border);
+  padding: 40px 0;
+  color: var(--muted-fg);
+  font-size: 14px;
+}
+.requirements code { font-family: var(--mono); color: var(--fg); }
+footer {
+  border-top: 1px solid var(--border);
+  padding: 26px 0 48px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted-fg);
+  font-size: 13.5px;
+}
+footer a { color: var(--muted-fg); text-decoration: none; }
+footer a:hover { color: var(--fg); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .scrollHint { animation: none; }
+  .dl-btn { transition: none; }
+}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand"><span class="name">Mitsumeru</span><span class="dot"></span></div>
-      <a class="gh" href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source on GitHub</a>
-    </header>
 
-    <section class="hero">
-      <img class="icon" src="icon-512.png" alt="Mitsumeru icon" width="112" height="112" />
-      <h1>Mitsumeru</h1>
-      <p class="tagline">A <strong>local-first AI workspace</strong> built on the Mitsu harness. Sessions, workspaces, and keys stay on your machine — every surface is a plugin.</p>
-    </section>
-
-    <section class="download">
-      <span class="version">v<span class="tag" data-version>0.1.2</span> · unsigned preview</span>
-      <div class="platforms">
-        <a class="platform primary" data-dl="mac-arm64" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
-          <span class="os">
-            <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M11.7 8.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.9-1.4-.15-2.8.85-3.5.85-.7 0-1.9-.8-3.1-.8C2.2 3.3.7 4.6.7 7.2c0 .8 1.4 3.7 2 3.7.3.04.5-.15.9-.15.4 0 .8.15 1.2.15 1 0 1.4-1.3 2.3-1.3.9 0 1.2 1.3 2.1 1.3.6 0 1.1-.6 1.6-1.2.5-.7.9-1.4.9-1.4s-1.5-.6-2-2.2zm-1.9-5.6c.4-.5.7-1.2.6-1.9-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.8.6 0 1.3-.3 1.7-.8z"/></svg>
-            macOS — Apple Silicon
-          </span>
-          <span class="file">mitsumeru-mac-arm64.dmg</span>
-          <span class="note">Production build</span>
-        </a>
-        <a class="platform" data-dl="mac-x64" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.1/mitsumeru-dev-mac-x64.dmg">
-          <span class="os">
-            <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M11.7 8.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.9-1.4-.15-2.8.85-3.5.85-.7 0-1.9-.8-3.1-.8C2.2 3.3.7 4.6.7 7.2c0 .8 1.4 3.7 2 3.7.3.04.5-.15.9-.15.4 0 .8.15 1.2.15 1 0 1.4-1.3 2.3-1.3.9 0 1.2 1.3 2.1 1.3.6 0 1.1-.6 1.6-1.2.5-.7.9-1.4.9-1.4s-1.5-.6-2-2.2zm-1.9-5.6c.4-.5.7-1.2.6-1.9-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.8.6 0 1.3-.3 1.7-.8z"/></svg>
-            macOS — Intel
-          </span>
-          <span class="file">mitsumeru-dev-mac-x64.dmg</span>
-          <span class="note">Dev build (0.1.1)</span>
-        </a>
-        <a class="platform" data-dl="win-x64" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.1/mitsumeru-dev-windows-x64-setup.exe">
-          <span class="os">
-            <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M7.2 1.2v5.9H1V1.2h6.2zm0 8v5.6H1V9.2h6.2zM15 1.2v5.9H8.6V1.2H15zm0 8v5.6H8.6V9.2H15z"/></svg>
-            Windows x64
-          </span>
-          <span class="file">mitsumeru-dev-windows-x64-setup.exe</span>
-          <span class="note">Dev build (0.1.1)</span>
-        </a>
-      </div>
-      <p class="hint">
-        Preview builds are <strong>unsigned</strong>. On macOS, right-click the app and choose <strong>Open</strong> on first launch. On Windows, allow through SmartScreen.
-        The Intel and Windows builds are dev-channel builds until they are rebuilt from their native platforms.
-      </p>
-    </section>
-
-    <section class="features">
-      <h2>Built to stay on your machine</h2>
-      <p class="sub">Mitsumeru packages the Mitsu harness as a native desktop app. Your data has its own home — separate from everything else.</p>
-      <div class="grid">
-        <div class="card">
-          <h3>Local-first</h3>
-          <p>Workspaces, sessions, and credentials live under your user data directory. The harness runs on a private <code>127.0.0.1</code> port.</p>
-        </div>
-        <div class="card">
-          <h3>Every surface is a plugin</h3>
-          <p>Settings, rail, docs, starter pack, and brand are <span class="accent">@muen/mitsu-*</span> plugins, seeded into your profile on first launch.</p>
-        </div>
-        <div class="card">
-          <h3>One identity</h3>
-          <p>A separate app home (<code>com.muen.mitsumeru.app</code>) means Mitsumeru never shares data with — or masquerades as — another product.</p>
-        </div>
-        <div class="card">
-          <h3>Open source</h3>
-          <p>MIT-licensed, forked from DSH Desktop, built on the DeepSeek Harness runtime. Contribute on GitHub.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="requirements">
-      <strong>Requirements</strong> — macOS 13+ (Apple Silicon or Intel) · Windows 10/11 x64 · ~1 GB free disk
-    </section>
-
-    <footer>
-      <span>© 2026 Muen Collective</span>
-      <span><a href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source</a> · <a href="https://github.com/muen-collective/mitsumeru-desktop/releases" target="_blank" rel="noopener">Releases</a> · MIT</span>
-    </footer>
+<header>
+  <div class="wrap" style="width:100%;display:flex;align-items:center;justify-content:space-between;">
+    <div class="brand"><span class="name">Mitsumeru</span><span class="dot"></span></div>
+    <a class="gh" href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source on GitHub</a>
   </div>
+</header>
+
+<section class="hero">
+  <video class="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+  <div class="heroContent">
+    <h1 class="heroTitle">Mitsumeru</h1>
+    <p class="heroTagline">A <strong>local-first AI workspace</strong> built on the Mitsu harness. Sessions, workspaces, and keys stay on your machine.</p>
+    <a class="dl-btn" id="dlBtn" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M11.7 8.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.9-1.4-.2-2.8.9-3.6.9s-2-.8-3.2-.8c-1.7 0-3.2 1-4.1 2.5-1.7 3.1-.4 7.8 1.3 10.3.8 1.3 1.8 2.6 3.1 2.6 1.2 0 1.7-.8 3.2-.8s2 .8 3.2.8 2.1-1.3 2.9-2.5c.9-1.4 1.3-2.8 1.3-2.8-.1 0-2.5-1-2.5-4zm-3-7.4c.7-.8 1.1-2 .9-3.1-1 0-2.2.7-2.9 1.5-.7.7-1.2 1.9-1 3.1 1 .1 2.1-.6 2.8-1.4z" fill="currentColor"/></svg>
+      Download for macOS
+    </a>
+  </div>
+  <div class="scrollHint">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<section class="features wrap">
+  <h2>Built to stay on your machine</h2>
+  <p class="sub">Mitsumeru packages the Mitsu harness as a native desktop app. Your data has its own home — separate from everything else.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Local-first</h3>
+      <p>Workspaces, sessions, and credentials live under your user data directory. The harness runs on a private <code>127.0.0.1</code> port.</p>
+    </div>
+    <div class="card">
+      <h3>Every surface is a plugin</h3>
+      <p>Settings, rail, docs, starter pack, and brand are <span class="accent">@muen/mitsu-*</span> plugins, seeded into your profile on first launch.</p>
+    </div>
+    <div class="card">
+      <h3>One identity</h3>
+      <p>A separate app home (<code>com.muen.mitsumeru.app</code>) means Mitsumeru never shares data with — or masquerades as — another product.</p>
+    </div>
+    <div class="card">
+      <h3>Open source</h3>
+      <p>MIT-licensed, forked from DSH Desktop, built on the DeepSeek Harness runtime. Contribute on GitHub.</p>
+    </div>
+  </div>
+</section>
+
+<section class="requirements wrap">
+  <strong>Requirements</strong> — macOS 13+ (Apple Silicon or Intel) · ~1 GB free disk
+</section>
+
+<footer class="wrap">
+  <span>© 2026 Muen Collective</span>
+  <span><a href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source</a> · <a href="https://github.com/muen-collective/mitsumeru-desktop/releases" target="_blank" rel="noopener">Releases</a> · MIT</span>
+</footer>
+
 <script>
-  // Keep the version badge and download links current with the latest GitHub
-  // release. The static hrefs above remain the fallback when the API is
-  // unreachable, so the page never depends on this fetch.
-  (async () => {
-    try {
-      const response = await fetch(
-        'https://api.github.com/repos/muen-collective/mitsumeru-desktop/releases?per_page=1',
-        { headers: { accept: 'application/vnd.github+json' } }
-      )
-      if (!response.ok) return
-      const [release] = await response.json()
-      if (!release || !Array.isArray(release.assets)) return
-
-      const pick = (names) => {
-        for (const name of names) {
-          const asset = release.assets.find(
-            (candidate) => candidate.name === name && candidate.browser_download_url
-          )
-          if (asset) return asset
-        }
-        return undefined
-      }
-
-      const targets = [
-        { card: document.querySelector('a[data-dl="mac-arm64"]'), names: ['mitsumeru-mac-arm64.dmg', 'mitsumeru-dev-mac-arm64.dmg'] },
-        { card: document.querySelector('a[data-dl="mac-x64"]'), names: ['mitsumeru-mac-x64.dmg', 'mitsumeru-dev-mac-x64.dmg'] },
-        { card: document.querySelector('a[data-dl="win-x64"]'), names: ['mitsumeru-windows-x64-setup.exe', 'mitsumeru-dev-windows-x64-setup.exe'] }
-      ]
-      for (const { card, names } of targets) {
-        const asset = pick(names)
-        if (!card || !asset) continue
-        card.href = asset.browser_download_url
-        const file = card.querySelector('.file')
-        const note = card.querySelector('.note')
-        if (file) file.textContent = asset.name
-        if (note) note.textContent = asset.name.startsWith('mitsumeru-dev-') ? 'Dev build' : 'Production build'
-      }
-
-      const badge = document.querySelector('[data-version]')
-      if (badge) {
-        const tag = String(release.tag_name || '').replace(/^v/, '')
-        if (tag) badge.textContent = tag
-      }
-    } catch {
-      // Keep the static fallback links.
+(async () => {
+  try {
+    const response = await fetch(
+      'https://api.github.com/repos/muen-collective/mitsumeru-desktop/releases?per_page=1',
+      { headers: { accept: 'application/vnd.github+json' } }
+    )
+    if (!response.ok) return
+    const [release] = await response.json()
+    if (!release || !Array.isArray(release.assets)) return
+    const asset = release.assets.find(
+      (a) => a.name === 'mitsumeru-mac-arm64.dmg' && a.browser_download_url
+    )
+    if (asset) {
+      document.getElementById('dlBtn').href = asset.browser_download_url
     }
-  })()
+  } catch {
+    // Keep static fallback link
+  }
+})()
 </script>
 </body>
 </html>
