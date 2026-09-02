@@ -104,6 +104,15 @@ header a.gh:hover { color: #fff; }
   letter-spacing: 0.02em;
   color: #fff;
   text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+  transition: text-shadow 0.3s ease;
+  cursor: default;
+}
+/* Channel split on hover — RGB offset glitch */
+.wordmark:hover .wordmarkText {
+  text-shadow:
+    -3px 0 rgba(255, 0, 0, 0.7),
+    3px 0 rgba(0, 100, 255, 0.7),
+    0 0 20px rgba(103, 158, 254, 0.4);
 }
 .wordmarkDot {
   display: inline-block;
