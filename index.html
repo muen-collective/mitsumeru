@@ -11,13 +11,13 @@
 <style>
 :root {
   color-scheme: dark;
-  --bg: #18181b;
+  --bg: #0a0a0c;
   --card: #101013;
   --muted: #2e2e33;
   --fg: #f0f0f2;
   --muted-fg: #9d9da3;
   --border: #3d3d44;
-  --primary: #679efe;
+  --primary: #ff3333;
   --primary-fg: #ffffff;
   --radius: 14px;
   --font: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -47,27 +47,27 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: rgba(24, 24, 27, 0.8);
+  background: rgba(10, 10, 12, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(61, 61, 68, 0.5);
+  border-bottom: 1px solid rgba(61, 61, 68, 0.3);
 }
 .brand { display: flex; align-items: baseline; gap: 6px; }
 .brand .name { font-weight: 700; font-size: 19px; letter-spacing: 0.02em; color: #fff; }
 .brand .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--primary); }
 header a.gh {
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.5);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
 }
 header a.gh:hover { color: #fff; }
 
-/* Hero — fullscreen video */
+/* Hero — fullscreen video + text reveal */
 .hero {
   position: relative;
   height: 100vh;
-  min-height: 600px;
+  min-height: 700px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,6 +79,15 @@ header a.gh:hover { color: #fff; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0.5;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.4) 40%, rgba(10,10,12,0.2) 100%);
+  z-index: 1;
+  pointer-events: none;
 }
 .heroContent {
   position: relative;
@@ -86,46 +95,88 @@ header a.gh:hover { color: #fff; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 0;
   text-align: center;
   padding: 0 24px;
+  width: 100%;
+  max-width: 900px;
 }
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
-  z-index: 1;
-  pointer-events: none;
-}
-/* Wordmark — 8-bit glitch effect (CodePen RaEOaj) */
-.wordmark {
-  position: relative;
-  display: inline-block;
+
+/* Text reveal animation system */
+.reveal-line {
+  overflow: hidden;
   line-height: 1;
-  cursor: default;
 }
-.wordmarkText {
-  font-family: var(--font);
-  font-size: clamp(48px, 8vw, 80px);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.reveal-inner {
+  display: block;
+  transform: translateY(110%);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-inner.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Hero text hierarchy */
+.hero-title {
+  font-size: clamp(64px, 10vw, 120px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
   color: #fff;
-  position: relative;
-  display: inline-block;
+  margin-bottom: 8px;
 }
-.wordmarkDot {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background: #ff0000;
-  border-radius: 2px;
-  margin-left: 4px;
-  vertical-align: baseline;
-  position: relative;
-  top: -4px;
+.hero-subtitle {
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
 }
-/* Download button — pill + Apple logo */
+.hero-capabilities {
+  font-size: clamp(20px, 3.5vw, 36px);
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 32px;
+  min-height: 1.2em;
+}
+.hero-capabilities .word {
+  display: inline-block;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.hero-capabilities .word.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hero-capabilities .word.inactive {
+  opacity: 0;
+  transform: translateY(-8px);
+  position: absolute;
+}
+.hero-byline {
+  font-size: clamp(14px, 1.8vw, 17px);
+  font-weight: 400;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+}
+.hero-tagline {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: #fff;
+  margin-bottom: 36px;
+}
+.hero-tagline em {
+  font-style: italic;
+  color: var(--primary);
+}
+
+/* Download button */
 .dl-btn {
   display: inline-flex;
   align-items: center;
@@ -141,9 +192,9 @@ header a.gh:hover { color: #fff; }
   text-decoration: none;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.15s ease;
-  box-shadow: 0 4px 24px rgba(103, 158, 254, 0.35);
+  box-shadow: 0 4px 24px rgba(255, 51, 51, 0.3);
 }
-.dl-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.dl-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
 .dl-btn svg { flex: none; }
 
 /* Scroll indicator */
@@ -157,9 +208,9 @@ header a.gh:hover { color: #fff; }
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.3);
   font-size: 12px;
-  animation: float 2s ease-in-out infinite;
+  animation: float 2.5s ease-in-out infinite;
 }
 @keyframes float {
   0%, 100% { transform: translateX(-50%) translateY(0); }
@@ -168,7 +219,9 @@ header a.gh:hover { color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .reveal-inner { transition: none; transform: none; opacity: 1; }
   .dl-btn { transition: none; }
+  .scrollHint { animation: none; }
 }
 </style>
 </head>
@@ -184,35 +237,95 @@ header a.gh:hover { color: #fff; }
 <section class="hero">
   <video class="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
   <div class="heroContent">
-    <div class="wordmark"><span class="wordmarkText">Mitsumeru</span><span class="wordmarkDot"></span></div>
+
+    <div class="reveal-line">
+      <span class="reveal-inner hero-title" data-delay="0">Mitsumeru</span>
+    </div>
+
+    <div class="reveal-line">
+      <span class="reveal-inner hero-subtitle" data-delay="200">the harness</span>
+    </div>
+
+    <div class="hero-capabilities" aria-live="polite">
+      <span class="word active" data-delay="0">coding</span>
+      <span class="word inactive" data-delay="0">design</span>
+      <span class="word inactive" data-delay="0">writing</span>
+      <span class="word inactive" data-delay="0">image generation</span>
+      <span class="word inactive" data-delay="0">research</span>
+    </div>
+
+    <div class="reveal-line">
+      <span class="reveal-inner hero-byline" data-delay="600">brought to you by Muen Collective</span>
+    </div>
+
+    <div class="reveal-line">
+      <span class="reveal-inner hero-tagline" data-delay="800">the liberation <em>begins here.</em></span>
+    </div>
+
     <a class="dl-btn" id="dlBtn" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="24" height="24" aria-hidden="true"><path d="M447.1 332.7C446.9 296 463.5 268.3 497.1 247.9C478.3 221 449.9 206.2 412.4 203.3C376.9 200.5 338.1 224 323.9 224C308.9 224 274.5 204.3 247.5 204.3C191.7 205.2 132.4 248.8 132.4 337.5C132.4 363.7 137.2 390.8 146.8 418.7C159.6 455.4 205.8 545.4 254 543.9C279.2 543.3 297 526 329.8 526C361.6 526 378.1 543.9 406.2 543.9C454.8 543.2 496.6 461.4 508.8 424.6C443.6 393.9 447.1 334.6 447.1 332.7zM390.5 168.5C417.8 136.1 415.3 106.6 414.5 96C390.4 97.4 362.5 112.4 346.6 130.9C329.1 150.7 318.8 175.2 321 202.8C347.1 204.8 370.9 191.4 390.5 168.5z" fill="currentColor"/></svg>
       Download for macOS
     </a>
+
+  </div>
+
+  <div class="scrollHint">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
   </div>
 </section>
 
-
 <script>
-(async () => {
-  try {
-    const response = await fetch(
-      'https://api.github.com/repos/muen-collective/mitsumeru-desktop/releases?per_page=1',
-      { headers: { accept: 'application/vnd.github+json' } }
-    )
-    if (!response.ok) return
-    const [release] = await response.json()
-    if (!release || !Array.isArray(release.assets)) return
-    const asset = release.assets.find(
-      (a) => a.name === 'mitsumeru-mac-arm64.dmg' && a.browser_download_url
-    )
-    if (asset) {
-      document.getElementById('dlBtn').href = asset.browser_download_url
-    }
-  } catch {
-    // Keep static fallback link
+(function () {
+  // 1. Staggered text reveal on load (hand-me-up pattern)
+  var reveals = document.querySelectorAll('.reveal-inner');
+  reveals.forEach(function (el) {
+    var delay = parseInt(el.dataset.delay || '0', 10);
+    setTimeout(function () {
+      el.classList.add('visible');
+    }, 300 + delay);
+  });
+
+  // 2. Capability word cycling
+  var words = document.querySelectorAll('.hero-capabilities .word');
+  var current = 0;
+  var total = words.length;
+  var interval = 2200;
+
+  function cycleWord() {
+    words[current].classList.remove('active');
+    words[current].classList.add('inactive');
+    current = (current + 1) % total;
+    words[current].classList.remove('inactive');
+    words[current].classList.add('active');
   }
-})()
+
+  // Start cycling after initial reveal
+  setTimeout(function () {
+    setInterval(cycleWord, interval);
+  }, 2000);
+
+  // 3. Dynamic download link
+  (async function () {
+    try {
+      var response = await fetch(
+        'https://api.github.com/repos/muen-collective/mitsumeru-desktop/releases?per_page=1',
+        { headers: { accept: 'application/vnd.github+json' } }
+      );
+      if (!response.ok) return;
+      var releases = await response.json();
+      var release = releases[0];
+      if (!release || !Array.isArray(release.assets)) return;
+      var asset = release.assets.find(function (a) {
+        return a.name === 'mitsumeru-mac-arm64.dmg' && a.browser_download_url;
+      });
+      if (asset) {
+        document.getElementById('dlBtn').href = asset.browser_download_url;
+      }
+    } catch (e) {
+      // Keep static fallback link
+    }
+  })();
+})();
 </script>
 </body>
 </html>
