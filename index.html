@@ -245,12 +245,6 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   function createRow(line) {
     var div = document.createElement('div');
     div.className = 'terminal-row';
-    line.parts.forEach(function (p) {
-      var span = document.createElement('span');
-      if (p.c) span.className = p.c;
-      span.textContent = p.t;
-      div.appendChild(span);
-    });
     return div;
   }
 
