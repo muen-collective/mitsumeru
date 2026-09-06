@@ -224,11 +224,14 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   }
 
   soundBtn.addEventListener('click', function () {
-    ensureAudio();
+    // First click activates sound (browser autoplay policy)
+    if (!soundActivated) {
+      activateSound();
+      return;
+    }
     soundOn = !soundOn;
     iconOn.style.display = soundOn ? '' : 'none';
     iconOff.style.display = soundOn ? 'none' : '';
-    // Toggle video audio too
     var vid = document.getElementById('heroVideo');
     if (vid) vid.muted = !soundOn;
   });
