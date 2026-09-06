@@ -345,6 +345,22 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   // Show CTA immediately (always visible)
   setTimeout(function () { dlBtn.classList.add('visible'); }, 1200);
 
+  // Auto-enable sound on first user interaction (browser autoplay policy)
+  var soundActivated = false;
+  function activateSound() {
+    if (soundActivated) return;
+    soundActivated = true;
+    ensureAudio();
+    var vid = document.getElementById('heroVideo');
+    if (vid) vid.muted = false;
+    document.removeEventListener('click', activateSound);
+    document.removeEventListener('touchstart', activateSound);
+    document.removeEventListener('keydown', activateSound);
+  }
+  document.addEventListener('click', activateSound);
+  document.addEventListener('touchstart', activateSound);
+  document.addEventListener('keydown', activateSound);
+
   // Start agent loop after a brief pause
   setTimeout(runLoop, 800);
 
