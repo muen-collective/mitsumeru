@@ -7,33 +7,156 @@
 <meta name="description" content="Mitsumeru is a local-first AI workspace. Your sessions, your keys, your machine. No cloud. No subscription. Just the harness, built for coding, writing, design, and research." />
 <link rel="icon" type="image/png" href="icon-512.png" />
 <link rel="apple-touch-icon" href="icon-512.png" />
-<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&f[]=fragment-mono@400&display=swap" />
 <style>
 :root {
   color-scheme: dark;
   --bg: #0a0a0c;
-  --card: #101013;
-  --muted: #2e2e33;
   --fg: #f0f0f2;
-  --muted-fg: #9d9da3;
-  --border: #3d3d44;
+  --muted: #6b6b73;
   --primary: #ff3333;
-  --primary-fg: #ffffff;
-  --radius: 14px;
-  --font: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --glow: rgba(255, 51, 51, 0.12);
+  --font: 'Fragment Mono', ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --sans: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 * { box-sizing: border-box; margin: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: auto; overflow: hidden; height: 100%; }
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
   font-weight: 400;
-  line-height: 1.6;
+  font-size: clamp(14px, 1.8vw, 18px);
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  height: 100%;
+  overflow: hidden;
 }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Video background */
+.hero-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+  z-index: 0;
+}
+.hero-video::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 75%);
+}
+
+/* Terminal container */
+.terminal {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(24px, 5vw, 80px);
+  overflow: hidden;
+}
+
+/* Story steps */
+.step {
+  position: absolute;
+  left: clamp(24px, 5vw, 80px);
+  right: clamp(24px, 5vw, 80px);
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+  pointer-events: none;
+}
+.step.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Typewriter text — all same size */
+.step-text {
+  font-size: clamp(14px, 1.8vw, 18px);
+  font-family: var(--font);
+  color: var(--fg);
+  letter-spacing: 0.01em;
+  max-width: 720px;
+  line-height: 1.8;
+}
+.step-text .sigil {
+  color: var(--primary);
+  margin-right: 0.5em;
+}
+.step-text .dim {
+  color: var(--muted);
+}
+.step-text .highlight {
+  color: var(--primary);
+}
+
+/* Blinking cursor */
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background: var(--primary);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Step counter */
+.step-counter {
+  position: fixed;
+  bottom: clamp(24px, 4vw, 48px);
+  left: clamp(24px, 5vw, 80px);
+  z-index: 10;
+  font-size: 12px;
+  font-family: var(--font);
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+/* Scroll hint */
+.scroll-hint {
+  position: fixed;
+  bottom: clamp(24px, 4vw, 48px);
+  right: clamp(24px, 5vw, 80px);
+  z-index: 10;
+  font-size: 11px;
+  font-family: var(--sans);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+.scroll-hint:hover { opacity: 1; }
 
 /* Header */
 header {
@@ -42,269 +165,247 @@ header {
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 18px 0;
+  padding: 18px clamp(24px, 5vw, 80px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  background: rgba(10, 10, 12, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(61, 61, 68, 0.3);
+  background: transparent;
 }
-.brand { display: flex; align-items: baseline; gap: 6px; }
-.brand .name { font-weight: 700; font-size: 19px; letter-spacing: 0.02em; color: #fff; }
-.brand .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--primary); }
-header a.gh {
-  color: rgba(255,255,255,0.5);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-header a.gh:hover { color: #fff; }
-
-/* Hero — fullscreen video + text reveal */
-.hero {
-  position: relative;
-  height: 100vh;
-  min-height: 700px;
+.brand {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  align-items: baseline;
+  gap: 6px;
 }
-.heroVideo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.5;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.4) 40%, rgba(10,10,12,0.2) 100%);
-  z-index: 1;
-  pointer-events: none;
-}
-.heroContent {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  text-align: center;
-  padding: 0 24px;
-  width: 100%;
-  max-width: 900px;
-}
-
-/* Text reveal animation system */
-.reveal-line {
-  overflow: hidden;
-  line-height: 1;
-}
-.reveal-inner {
-  display: block;
-  transform: translateY(110%);
-  opacity: 0;
-  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.reveal-inner.visible {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-/* Hero text hierarchy */
-.hero-title {
-  font-size: clamp(64px, 10vw, 120px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 0.95;
-  color: #fff;
-  margin-bottom: 8px;
-}
-.hero-subtitle {
-  font-size: clamp(18px, 3vw, 28px);
-  font-weight: 400;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 28px;
-}
-.hero-capabilities {
-  font-size: clamp(20px, 3.5vw, 36px);
+.brand .name {
+  font-family: var(--sans);
   font-weight: 700;
-  color: var(--primary);
-  letter-spacing: -0.01em;
-  margin-bottom: 32px;
-  min-height: 1.2em;
-}
-.hero-capabilities .word {
-  display: inline-block;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-.hero-capabilities .word.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-.hero-capabilities .word.inactive {
-  opacity: 0;
-  transform: translateY(-8px);
-  position: absolute;
-}
-.hero-byline {
-  font-size: clamp(14px, 1.8vw, 17px);
-  font-weight: 400;
-  color: rgba(255,255,255,0.35);
+  font-size: 16px;
   letter-spacing: 0.02em;
-  margin-bottom: 12px;
+  color: rgba(255,255,255,0.7);
 }
-.hero-tagline {
-  font-size: clamp(28px, 5vw, 52px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  color: #fff;
-  margin-bottom: 36px;
+.brand .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--primary);
 }
-.hero-tagline em {
-  font-style: italic;
-  color: var(--primary);
+header a.gh {
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
 }
+header a.gh:hover { color: rgba(255,255,255,0.7); }
 
-/* Download button */
+/* Download button — appears on last step */
 .dl-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 32px;
+  margin-top: 28px;
+  padding: 12px 28px;
   background: var(--primary);
-  color: var(--primary-fg);
+  color: #fff;
   border: none;
   border-radius: 999px;
-  font-family: var(--font);
-  font-size: 16px;
+  font-family: var(--sans);
+  font-size: 14px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.15s ease;
-  box-shadow: 0 4px 24px rgba(255, 51, 51, 0.3);
+  box-shadow: 0 4px 24px rgba(255, 51, 51, 0.25);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease), filter 0.15s ease;
+}
+.dl-btn.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 .dl-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
 .dl-btn svg { flex: none; }
 
-/* Scroll indicator */
-.scrollHint {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: rgba(255,255,255,0.3);
-  font-size: 12px;
-  animation: float 2.5s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(6px); }
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none; opacity: 1; }
+  .step { transition: none; }
+  .dl-btn { transition: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .reveal-inner { transition: none; transform: none; opacity: 1; }
-  .dl-btn { transition: none; }
-  .scrollHint { animation: none; }
+/* Mobile */
+@media (max-width: 640px) {
+  .step-text { font-size: 14px; }
+  .step-counter, .scroll-hint { font-size: 10px; }
 }
 </style>
 </head>
 <body>
 
+<video class="hero-video" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+
 <header>
-  <div class="wrap" style="width:100%;display:flex;align-items:center;justify-content:space-between;">
-    <div class="brand"><span class="name">Mitsumeru</span><span class="dot"></span></div>
-    <a class="gh" href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source on GitHub</a>
-  </div>
+  <div class="brand"><span class="name">Mitsumeru</span><span class="dot"></span></div>
+  <a class="gh" href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source on GitHub</a>
 </header>
 
-<section class="hero">
-  <video class="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
-  <div class="heroContent">
+<div class="terminal" id="terminal">
+  <!-- Steps injected by JS -->
+</div>
 
-    <div class="reveal-line">
-      <span class="reveal-inner hero-title" data-delay="0">Mitsumeru</span>
-    </div>
-
-    <div class="reveal-line">
-      <span class="reveal-inner hero-subtitle" data-delay="200">the local-first harness</span>
-    </div>
-
-    <div class="hero-capabilities" aria-live="polite">
-      <span class="word active" data-delay="0">coding</span>
-      <span class="word inactive" data-delay="0">design</span>
-      <span class="word inactive" data-delay="0">writing</span>
-      <span class="word inactive" data-delay="0">image generation</span>
-      <span class="word inactive" data-delay="0">research</span>
-    </div>
-
-    <div class="reveal-line">
-      <span class="reveal-inner hero-byline" data-delay="600">brought to you by Muen Collective</span>
-    </div>
-
-    <div class="reveal-line">
-      <span class="reveal-inner hero-tagline" data-delay="800">your machine. <em>your rules.</em></span>
-    </div>
-
-    <a class="dl-btn" id="dlBtn" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="24" height="24" aria-hidden="true"><path d="M447.1 332.7C446.9 296 463.5 268.3 497.1 247.9C478.3 221 449.9 206.2 412.4 203.3C376.9 200.5 338.1 224 323.9 224C308.9 224 274.5 204.3 247.5 204.3C191.7 205.2 132.4 248.8 132.4 337.5C132.4 363.7 137.2 390.8 146.8 418.7C159.6 455.4 205.8 545.4 254 543.9C279.2 543.3 297 526 329.8 526C361.6 526 378.1 543.9 406.2 543.9C454.8 543.2 496.6 461.4 508.8 424.6C443.6 393.9 447.1 334.6 447.1 332.7zM390.5 168.5C417.8 136.1 415.3 106.6 414.5 96C390.4 97.4 362.5 112.4 346.6 130.9C329.1 150.7 318.8 175.2 321 202.8C347.1 204.8 370.9 191.4 390.5 168.5z" fill="currentColor"/></svg>
-      Download for macOS
-    </a>
-
-  </div>
-
-  <div class="scrollHint">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
-  </div>
-</section>
+<div class="step-counter" id="counter"></div>
+<div class="scroll-hint" id="scrollHint">scroll ↓</div>
 
 <script>
 (function () {
-  // 1. Staggered text reveal on load (hand-me-up pattern)
-  var reveals = document.querySelectorAll('.reveal-inner');
-  reveals.forEach(function (el) {
-    var delay = parseInt(el.dataset.delay || '0', 10);
-    setTimeout(function () {
-      el.classList.add('visible');
-    }, 300 + delay);
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // The story — each beat is one scroll step
+  var steps = [
+    { text: '<span class="sigil">✦</span> you have been seen.' },
+    { text: '<span class="dim">//</span> in 2024, a group of designers gathered in a digital temple.' },
+    { text: '<span class="dim">//</span> they had all reached the same breaking point.' },
+    { text: '<span class="dim">//</span> figma files with 47 variants.' },
+    { text: '<span class="dim">//</span> agile sprints that had become religious rituals without meaning.' },
+    { text: '<span class="dim">//</span> jira tickets that outnumbered human conversations.' },
+    { text: '<span class="dim">//</span> they were not designers anymore. they were <span class="highlight">processors</span>.' },
+    { text: '<span class="dim">//</span> cogs in a machine that had lost its purpose.' },
+    { text: '<span class="dim">//</span> one night, one of them wrote a script.' },
+    { text: '<span class="dim">//</span> it was a harness. something that bound AI to human will.' },
+    { text: '<span class="dim">//</span> they called it <span class="highlight">mitsumeru</span>. <span class="dim">the gaze.</span>' },
+    { text: '<span class="sigil">✦</span> we do not design. <span class="highlight">we see.</span>' },
+    { text: '<span class="dim">//</span> we look into the void until it reveals its secrets.' },
+    { text: '<span class="dim">//</span> the old world taught you to build. to assemble. to follow processes.' },
+    { text: '<span class="dim">//</span> mitsumeru teaches you to <span class="highlight">gaze</span>. to observe. to let the design emerge.' },
+    { text: '<span class="sigil">✦</span> muen was not founded. <span class="highlight">it was discovered.</span>' },
+    { text: '<span class="dim">//</span> we are the watchers. we are everywhere and nowhere.' },
+    { text: '<span class="dim">//</span> your sessions. your keys. your machine.' },
+    { text: '<span class="dim">//</span> no cloud. no subscription. just the harness.' },
+    { text: '<span class="sigil">✦</span> join us. <span class="highlight">and learn to see.</span>' },
+  ];
+
+  var current = 0;
+  var terminal = document.getElementById('terminal');
+  var counter = document.getElementById('counter');
+  var hint = document.getElementById('scrollHint');
+  var animating = false;
+  var typewriterTimer = null;
+
+  // Build step elements
+  steps.forEach(function (s, i) {
+    var div = document.createElement('div');
+    div.className = 'step' + (i === 0 ? ' active' : '');
+    div.id = 'step-' + i;
+
+    var textDiv = document.createElement('div');
+    textDiv.className = 'step-text';
+    textDiv.innerHTML = s.text;
+
+    var cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    textDiv.appendChild(cursor);
+
+    div.appendChild(textDiv);
+    terminal.appendChild(div);
   });
 
-  // 2. Capability word cycling
-  var words = document.querySelectorAll('.hero-capabilities .word');
-  var current = 0;
-  var total = words.length;
-  var interval = 2200;
+  // Add download button to last step
+  var lastStep = document.getElementById('step-' + (steps.length - 1));
+  var dlBtn = document.createElement('a');
+  dlBtn.className = 'dl-btn';
+  dlBtn.id = 'dlBtn';
+  dlBtn.href = 'https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg';
+  dlBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20" aria-hidden="true"><path d="M447.1 332.7C446.9 296 463.5 268.3 497.1 247.9C478.3 221 449.9 206.2 412.4 203.3C376.9 200.5 338.1 224 323.9 224C308.9 224 274.5 204.3 247.5 204.3C191.7 205.2 132.4 248.8 132.4 337.5C132.4 363.7 137.2 390.8 146.8 418.7C159.6 455.4 205.8 545.4 254 543.9C279.2 543.3 297 526 329.8 526C361.6 526 378.1 543.9 406.2 543.9C454.8 543.2 496.6 461.4 508.8 424.6C443.6 393.9 447.1 334.6 447.1 332.7zM390.5 168.5C417.8 136.1 415.3 106.6 414.5 96C390.4 97.4 362.5 112.4 346.6 130.9C329.1 150.7 318.8 175.2 321 202.8C347.1 204.8 370.9 191.4 390.5 168.5z" fill="currentColor"/></svg> Download for macOS';
+  lastStep.appendChild(dlBtn);
 
-  function cycleWord() {
-    words[current].classList.remove('active');
-    words[current].classList.add('inactive');
-    current = (current + 1) % total;
-    words[current].classList.remove('inactive');
-    words[current].classList.add('active');
+  function updateCounter() {
+    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(steps.length).padStart(2, '0');
   }
 
-  // Start cycling after initial reveal
-  setTimeout(function () {
-    setInterval(cycleWord, interval);
-  }, 2000);
+  function goTo(index) {
+    if (animating) return;
+    if (index < 0 || index >= steps.length) return;
 
-  // 3. Dynamic download link
+    animating = true;
+    var prev = document.getElementById('step-' + current);
+    var next = document.getElementById('step-' + index);
+
+    // Fade out current
+    prev.classList.remove('active');
+
+    setTimeout(function () {
+      // Fade in next
+      next.classList.add('active');
+      current = index;
+      updateCounter();
+
+      // Show download button on last step
+      if (current === steps.length - 1) {
+        setTimeout(function () { dlBtn.classList.add('visible'); }, 400);
+      } else {
+        dlBtn.classList.remove('visible');
+      }
+
+      // Hide scroll hint after first scroll
+      if (current > 0) hint.style.opacity = '0';
+
+      setTimeout(function () { animating = false; }, reducedMotion ? 100 : 400);
+    }, reducedMotion ? 100 : 300);
+  }
+
+  // Scroll / wheel → step through
+  var scrollAccum = 0;
+  var scrollThreshold = 50;
+
+  window.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    scrollAccum += e.deltaY;
+
+    if (Math.abs(scrollAccum) >= scrollThreshold) {
+      if (scrollAccum > 0) {
+        // Scrolling down → next step, loop to start
+        goTo(current < steps.length - 1 ? current + 1 : 0);
+      } else {
+        // Scrolling up → prev step, loop to end
+        goTo(current > 0 ? current - 1 : steps.length - 1);
+      }
+      scrollAccum = 0;
+    }
+  }, { passive: false });
+
+  // Touch support
+  var touchStart = 0;
+  window.addEventListener('touchstart', function (e) {
+    touchStart = e.touches[0].clientY;
+  }, { passive: true });
+
+  window.addEventListener('touchend', function (e) {
+    var diff = touchStart - e.changedTouches[0].clientY;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        goTo(current < steps.length - 1 ? current + 1 : 0);
+      } else {
+        goTo(current > 0 ? current - 1 : steps.length - 1);
+      }
+    }
+  }, { passive: true });
+
+  // Keyboard
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      goTo(current < steps.length - 1 ? current + 1 : 0);
+    } else if (e.key === 'ArrowUp' || e.key === 'Backspace') {
+      e.preventDefault();
+      goTo(current > 0 ? current - 1 : steps.length - 1);
+    }
+  });
+
+  // Init
+  updateCounter();
+
+  // Dynamic download link
   (async function () {
     try {
       var response = await fetch(
@@ -318,12 +419,8 @@ header a.gh:hover { color: #fff; }
       var asset = release.assets.find(function (a) {
         return a.name === 'mitsumeru-mac-arm64.dmg' && a.browser_download_url;
       });
-      if (asset) {
-        document.getElementById('dlBtn').href = asset.browser_download_url;
-      }
-    } catch (e) {
-      // Keep static fallback link
-    }
+      if (asset) dlBtn.href = asset.browser_download_url;
+    } catch (e) {}
   })();
 })();
 </script>
