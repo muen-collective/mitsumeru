@@ -120,7 +120,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
 </head>
 <body>
 
-<video class="hero-video" id="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+<video class="hero-video" id="heroVideo" src="hero-video.mp4" autoplay loop playsinline aria-hidden="true"></video>
 <canvas id="particleCanvas" aria-hidden="true"></canvas>
 
 <header>
@@ -181,7 +181,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   // ─── SOUND ENGINE ───
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
   var audioCtx = null;
-  var soundOn = false;
+  var soundOn = true;
   var soundBtn = document.getElementById('soundToggle');
   var iconOn = soundBtn.querySelector('.icon-sound-on');
   var iconOff = soundBtn.querySelector('.icon-sound-off');
