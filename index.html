@@ -53,16 +53,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 .terminal-row {
   white-space: nowrap;
   opacity: 1;
-  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+  transition: opacity 0.3s var(--ease), height 0.3s var(--ease), margin 0.3s var(--ease);
   height: 1.9em;
-  overflow: visible;
+  overflow: hidden;
 }
 .terminal-row.scroll-up {
   opacity: 0;
-  transform: translateY(-1.2em);
-  position: absolute;
-  top: 0;
-  left: 0;
+  height: 0;
+  margin: 0;
   pointer-events: none;
 }
 .terminal-row .sigil { color: var(--primary); }
@@ -80,7 +78,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 /* CTA — always visible, left aligned */
 .dl-btn {
   display: inline-flex; align-items: center; gap: 10px;
+  align-self: flex-start;
   flex-wrap: wrap;
+  width: auto;
   margin-top: 28px; padding: 12px 28px;
   background: var(--primary); color: #fff; border: none; border-radius: 999px;
   font-family: var(--sans); font-size: 14px; font-weight: 600;
