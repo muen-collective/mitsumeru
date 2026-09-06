@@ -129,7 +129,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
 </head>
 <body>
 
-<video class="hero-video" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+<video class="hero-video" id="heroVideo" src="hero-video.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
 <canvas id="particleCanvas" aria-hidden="true"></canvas>
 
 <header>
@@ -237,6 +237,9 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
     soundOn = !soundOn;
     iconOn.style.display = soundOn ? '' : 'none';
     iconOff.style.display = soundOn ? 'none' : '';
+    // Toggle video audio too
+    var vid = document.getElementById('heroVideo');
+    if (vid) vid.muted = !soundOn;
   });
 
   // Build a DOM row from a line definition
