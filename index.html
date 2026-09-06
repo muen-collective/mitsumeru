@@ -181,7 +181,8 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   // ─── SOUND ENGINE ───
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
   var audioCtx = null;
-  var soundOn = true;
+  var soundOn = true;        // controls video/music
+  var typeSoundOn = false;   // controls typewriter clicks (activates on first click)
   var soundBtn = document.getElementById('soundToggle');
   var iconOn = soundBtn.querySelector('.icon-sound-on');
   var iconOff = soundBtn.querySelector('.icon-sound-off');
@@ -192,7 +193,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   }
 
   function playKeyClick() {
-    if (!soundOn || !audioCtx) return;
+    if (!typeSoundOn || !audioCtx) return;
     var now = audioCtx.currentTime;
     var bufSize = audioCtx.sampleRate * 0.015;
     var buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
@@ -210,7 +211,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   }
 
   function playLineBreak() {
-    if (!soundOn || !audioCtx) return;
+    if (!typeSoundOn || !audioCtx) return;
     var now = audioCtx.currentTime;
     var osc = audioCtx.createOscillator();
     var gain = audioCtx.createGain();
@@ -224,11 +225,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   }
 
   soundBtn.addEventListener('click', function () {
-    // First click activates sound (browser autoplay policy)
-    if (!soundActivated) {
-      activateSound();
-      return;
-    }
+    ensureAudio();
     soundOn = !soundOn;
     iconOn.style.display = soundOn ? '' : 'none';
     iconOff.style.display = soundOn ? 'none' : '';
@@ -334,15 +331,13 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   // Show CTA immediately (always visible)
   setTimeout(function () { dlBtn.classList.add('visible'); }, 1200);
 
-  // Auto-enable sound on first user interaction (browser autoplay policy)
-  // Creates AudioContext + unmutes video + enables typewriter clicks
+  // Auto-enable typewriter clicks on first user interaction
   var soundActivated = false;
   function activateSound() {
     if (soundActivated) return;
     soundActivated = true;
+    typeSoundOn = true;
     ensureAudio();
-    var vid = document.getElementById('heroVideo');
-    if (vid) vid.muted = false;
     document.removeEventListener('click', activateSound);
     document.removeEventListener('touchstart', activateSound);
     document.removeEventListener('keydown', activateSound);
