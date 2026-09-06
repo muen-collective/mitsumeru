@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mitsumeru — local-first AI that runs on your machine</title>
-<meta name="description" content="Mitsumeru is a local-first AI workspace. Your sessions, your keys, your machine. No cloud. No subscription. Just the harness, built for coding, writing, design, and research." />
+<meta name="description" content="Mitsumeru is a local-first AI workspace. Your sessions, your keys, your machine. No cloud. no subscription. Just the harness." />
 <link rel="icon" type="image/png" href="icon-512.png" />
 <link rel="apple-touch-icon" href="icon-512.png" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&f[]=fragment-mono@400&display=swap" />
@@ -34,44 +34,62 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg);
 .hero-content {
   position: fixed; inset: 0; z-index: 2;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+  justify-content: center;
   padding: clamp(24px, 5vw, 80px);
   pointer-events: none;
 }
 .hero-content > * { pointer-events: auto; }
 
-/* Text — all one size, terminal feel */
-.hero-text {
+/* Terminal text area — left aligned, max 3 rows */
+.terminal-text {
   font-family: var(--font);
-  font-size: clamp(15px, 2vw, 20px);
+  font-size: clamp(14px, 1.8vw, 18px);
   color: var(--fg);
-  text-align: center;
-  max-width: 680px;
   line-height: 1.9;
   letter-spacing: 0.01em;
+  max-width: 700px;
+  min-height: calc(1.9em * 3);
+  position: relative;
 }
-.hero-text .sigil { color: var(--primary); }
-.hero-text .dim { color: var(--muted); }
-.hero-text .hl { color: var(--primary); }
+.terminal-row {
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+  height: 1.9em;
+}
+.terminal-row.scroll-up {
+  opacity: 0;
+  transform: translateY(-1.2em);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.terminal-row .sigil { color: var(--primary); }
+.terminal-row .dim { color: var(--muted); }
+.terminal-row .hl { color: var(--primary); }
 
 /* Blinking cursor */
 .cursor {
-  display: inline-block; width: 8px; height: 1.1em;
+  display: inline-block; width: 7px; height: 1em;
   background: var(--primary); vertical-align: text-bottom;
-  margin-left: 2px; animation: blink 1s step-end infinite;
+  margin-left: 1px; animation: blink 1s step-end infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-/* Download */
+/* CTA — always visible, left aligned */
 .dl-btn {
   display: inline-flex; align-items: center; gap: 10px;
-  margin-top: 32px; padding: 13px 30px;
+  margin-top: 28px; padding: 12px 28px;
   background: var(--primary); color: #fff; border: none; border-radius: 999px;
-  font-family: var(--sans); font-size: 15px; font-weight: 600;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
   text-decoration: none; cursor: pointer;
   box-shadow: 0 4px 24px rgba(255,51,51,0.25);
   transition: filter .15s ease, transform .15s ease;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .5s var(--ease), transform .5s var(--ease), filter .15s ease;
 }
+.dl-btn.visible { opacity: 1; transform: translateY(0); }
 .dl-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
 .dl-btn svg { flex: none; }
 
@@ -94,22 +112,17 @@ header a.gh {
 }
 header a.gh:hover { color: rgba(255,255,255,0.7); }
 
-/* Step counter */
-.step-counter {
-  position: fixed; bottom: clamp(20px, 3vw, 40px); left: clamp(24px, 5vw, 80px);
-  z-index: 10; font-size: 12px; font-family: var(--font);
-  color: var(--muted); letter-spacing: 0.08em;
+/* Sound toggle */
+.sound-toggle {
+  background: none; border: none; cursor: pointer; padding: 4px;
+  color: rgba(255,255,255,0.35); transition: color .2s;
 }
-.scroll-hint {
-  position: fixed; bottom: clamp(20px, 3vw, 40px); right: clamp(24px, 5vw, 80px);
-  z-index: 10; font-size: 11px; font-family: var(--sans);
-  color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase;
-  opacity: .6; transition: opacity .3s;
-}
-.scroll-hint:hover { opacity: 1; }
+.sound-toggle:hover { color: rgba(255,255,255,0.7); }
 
 @media (prefers-reduced-motion: reduce) {
   .cursor { animation: none; opacity: 1; }
+  .terminal-row { transition: none; }
+  .dl-btn { transition: none; }
 }
 </style>
 </head>
@@ -121,98 +134,209 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
 <header>
   <div class="brand"><span class="name">Mitsumeru</span><span class="dot"></span></div>
   <a class="gh" href="https://github.com/muen-collective/mitsumeru-desktop" target="_blank" rel="noopener">Source on GitHub</a>
+  <button class="sound-toggle" id="soundToggle" aria-label="Toggle sound" title="Toggle sound">
+    <svg class="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    <svg class="icon-sound-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+  </button>
 </header>
 
 <div class="hero-content">
-  <div class="hero-text" id="heroText"></div>
+  <div class="terminal-text" id="terminalText"></div>
   <a class="dl-btn" id="dlBtn" href="https://github.com/muen-collective/mitsumeru-desktop/releases/download/0.1.2/mitsumeru-mac-arm64.dmg">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 644" width="20" height="20" aria-hidden="true"><path d="M447.1 336.7C446.9 300 463.5 272.3 497.1 251.9C478.3 225 449.9 210.2 412.4 207.3C376.9 204.5 338.1 228 323.9 228C308.9 228 274.5 208.3 247.5 208.3C191.7 209.2 132.4 252.8 132.4 341.5C132.4 367.7 137.2 394.8 146.8 422.7C159.6 459.4 205.8 549.4 254 547.9C279.2 547.3 297 530 329.8 530C361.6 530 378.1 547.9 406.2 547.9C454.8 547.2 496.6 465.4 508.8 428.6C443.6 397.9 447.1 338.6 447.1 336.7zM390.5 172.5C417.8 140.1 415.3 110.6 414.5 100C390.4 101.4 362.5 116.4 346.6 134.9C329.1 154.7 318.8 179.2 321 206.8C347.1 208.8 370.9 195.4 390.5 172.5z" fill="currentColor"/></svg>
     Download for macOS
   </a>
 </div>
 
-<div class="step-counter" id="counter"></div>
-<div class="scroll-hint" id="scrollHint">scroll ↓</div>
-
 <script>
 (function () {
-  // ─── THE STORY ───
-  var steps = [
-    '<span class="sigil">✦</span> you have been seen.',
-    '<span class="dim">//</span> in 2024, a group of designers gathered in a digital temple.',
-    '<span class="dim">//</span> they had all reached the same breaking point.',
-    '<span class="dim">//</span> figma files with 47 variants.',
-    '<span class="dim">//</span> agile sprints that had become religious rituals without meaning.',
-    '<span class="dim">//</span> jira tickets that outnumbered human conversations.',
-    '<span class="dim">//</span> they were not designers anymore. they were <span class="hl">processors</span>.',
-    '<span class="dim">//</span> cogs in a machine that had lost its purpose.',
-    '<span class="dim">//</span> one night, one of them wrote a script.',
-    '<span class="dim">//</span> it was a harness. something that bound AI to human will.',
-    '<span class="dim">//</span> they called it <span class="hl">mitsumeru</span>. <span class="dim">the gaze.</span>',
-    '<span class="sigil">✦</span> we do not design. <span class="hl">we see.</span>',
-    '<span class="dim">//</span> we look into the void until it reveals its secrets.',
-    '<span class="dim">//</span> the old world taught you to build. to assemble. to follow processes.',
-    '<span class="dim">//</span> mitsumeru teaches you to <span class="hl">gaze</span>. to observe. to let the design emerge.',
-    '<span class="sigil">✦</span> muen was not founded. <span class="hl">it was discovered.</span>',
-    '<span class="dim">//</span> we are the watchers. we are everywhere and nowhere.',
-    '<span class="dim">//</span> your sessions. your keys. your machine.',
-    '<span class="dim">//</span> no cloud. no subscription. just the harness.',
-    '<span class="sigil">✦</span> join us. <span class="hl">and learn to see.</span>',
+  // ─── THE AGENT LOOP ───
+  // Each line types out word by word, then the next line starts.
+  // Max 3 rows visible. Oldest scrolls up and fades out.
+  // Final line: "join us. and learn to see." — CTA appears.
+
+  var lines = [
+    { parts: [{t:'✦ ', c:'sigil'}, {t:'you have been seen.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'in 2025, a group of designers gathered in a digital temple.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'they had all reached the same breaking point.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'figma files with 47 variants.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'agile sprints that had become religious rituals without meaning.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'jira tickets that outnumbered human conversations.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'they were not designers anymore. they were ', c:''}, {t:'processors', c:'hl'}, {t:'.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'cogs in a machine that had lost its purpose.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'one night, one of them wrote a script.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'it was a harness. something that bound AI to human will.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'they called it ', c:''}, {t:'mitsumeru', c:'hl'}, {t:'. the gaze.', c:'dim'}] },
+    { parts: [{t:'✦ ', c:'sigil'}, {t:'we do not design. ', c:''}, {t:'we see.', c:'hl'}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'we look into the void until it reveals its secrets.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'the old world taught you to build. to assemble. to follow processes.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'mitsumeru teaches you to ', c:''}, {t:'gaze', c:'hl'}, {t:'. to observe. to let the design emerge.', c:''}] },
+    { parts: [{t:'✦ ', c:'sigil'}, {t:'muen was not founded. ', c:''}, {t:'it was discovered.', c:'hl'}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'we are the watchers. we are everywhere and nowhere.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'your sessions. your keys. your machine.', c:''}] },
+    { parts: [{t:'// ', c:'dim'}, {t:'no cloud. no subscription. just the harness.', c:''}] },
+    { parts: [{t:'✦ ', c:'sigil'}, {t:'join us. ', c:''}, {t:'and learn to see.', c:'hl'}] },
   ];
 
-  var current = 0;
-  var animating = false;
-  var heroText = document.getElementById('heroText');
-  var counter = document.getElementById('counter');
-  var hint = document.getElementById('scrollHint');
+  var MAX_ROWS = 3;
+  var WORD_DELAY = 55;   // ms per word
+  var LINE_PAUSE = 800;  // pause after line completes
+  var termEl = document.getElementById('terminalText');
+  var dlBtn = document.getElementById('dlBtn');
+  var rows = [];
+  var lineIdx = 0;
 
-  function updateCounter() {
-    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(steps.length).padStart(2, '0');
+  // ─── SOUND ENGINE ───
+  var AudioCtx = window.AudioContext || window.webkitAudioContext;
+  var audioCtx = null;
+  var soundOn = false;
+  var soundBtn = document.getElementById('soundToggle');
+  var iconOn = soundBtn.querySelector('.icon-sound-on');
+  var iconOff = soundBtn.querySelector('.icon-sound-off');
+
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
-  function goTo(index) {
-    if (animating) return;
-    if (index < 0 || index >= steps.length) return;
-    animating = true;
-    heroText.style.opacity = '0';
-    heroText.style.transform = 'translateY(8px)';
-    setTimeout(function () {
-      heroText.innerHTML = steps[index] + '<span class="cursor"></span>';
-      heroText.style.opacity = '1';
-      heroText.style.transform = 'translateY(0)';
-      current = index;
-      updateCounter();
-      if (current > 0) hint.style.opacity = '0';
-      setTimeout(function () { animating = false; }, 250);
-    }, 200);
-  }
-
-  // Wheel
-  var acc = 0;
-  window.addEventListener('wheel', function (e) {
-    e.preventDefault();
-    acc += e.deltaY;
-    if (Math.abs(acc) >= 40) {
-      goTo(acc > 0 ? (current < steps.length - 1 ? current + 1 : 0) : (current > 0 ? current - 1 : steps.length - 1));
-      acc = 0;
+  function playKeyClick() {
+    if (!soundOn || !audioCtx) return;
+    var now = audioCtx.currentTime;
+    var bufSize = audioCtx.sampleRate * 0.015;
+    var buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    var data = buf.getChannelData(0);
+    for (var i = 0; i < bufSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufSize, 8) * 0.15;
     }
-  }, { passive: false });
+    var src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    var hp = audioCtx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 3000;
+    src.connect(hp).connect(audioCtx.destination);
+    src.start(now);
+  }
 
-  // Touch
-  var ty = 0;
-  window.addEventListener('touchstart', function (e) { ty = e.touches[0].clientY; }, { passive: true });
-  window.addEventListener('touchend', function (e) {
-    var d = ty - e.changedTouches[0].clientY;
-    if (Math.abs(d) > 40) goTo(d > 0 ? (current < steps.length - 1 ? current + 1 : 0) : (current > 0 ? current - 1 : steps.length - 1));
-  }, { passive: true });
+  function playLineBreak() {
+    if (!soundOn || !audioCtx) return;
+    var now = audioCtx.currentTime;
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 800;
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.08);
+  }
 
-  // Keyboard
-  window.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); goTo(current < steps.length - 1 ? current + 1 : 0); }
-    else if (e.key === 'ArrowUp' || e.key === 'Backspace') { e.preventDefault(); goTo(current > 0 ? current - 1 : steps.length - 1); }
+  soundBtn.addEventListener('click', function () {
+    ensureAudio();
+    soundOn = !soundOn;
+    iconOn.style.display = soundOn ? '' : 'none';
+    iconOff.style.display = soundOn ? 'none' : '';
   });
 
-  goTo(0);
+  // Build a DOM row from a line definition
+  function createRow(line) {
+    var div = document.createElement('div');
+    div.className = 'terminal-row';
+    line.parts.forEach(function (p) {
+      var span = document.createElement('span');
+      if (p.c) span.className = p.c;
+      span.textContent = p.t;
+      div.appendChild(span);
+    });
+    return div;
+  }
+
+  // Get all words from a line definition (flattened)
+  function getWords(line) {
+    var words = [];
+    line.parts.forEach(function (p) {
+      // Split on word boundaries but keep spaces
+      var chunks = p.t.split(/(\s+)/);
+      chunks.forEach(function (c) {
+        if (c.length > 0) words.push({ text: c, cls: p.c });
+      });
+    });
+    return words;
+  }
+
+  // Type one word into a row element
+  function typeWord(row, word) {
+    var span = document.createElement('span');
+    if (word.cls) span.className = word.cls;
+    span.textContent = word.text;
+    // Remove cursor from previous content
+    var existing = row.querySelector('.cursor');
+    if (existing) existing.remove();
+    row.appendChild(span);
+    // Add cursor after
+    var cur = document.createElement('span');
+    cur.className = 'cursor';
+    row.appendChild(cur);
+  }
+
+  // Scroll oldest row up and remove
+  function scrollOldest() {
+    if (rows.length <= MAX_ROWS) return;
+    var oldest = rows.shift();
+    oldest.classList.add('scroll-up');
+    setTimeout(function () { oldest.remove(); }, 400);
+  }
+
+  // Type out one full line, word by word
+  function typeLine(cb) {
+    if (lineIdx >= lines.length) { cb(); return; }
+
+    var line = lines[lineIdx];
+    var row = createRow(line);
+    termEl.appendChild(row);
+    rows.push(row);
+    lineIdx++;
+
+    // Scroll if over limit
+    scrollOldest();
+
+    var words = getWords(line);
+    var wi = 0;
+
+    function nextWord() {
+      if (wi >= words.length) {
+        var cur = row.querySelector('.cursor');
+        if (cur) cur.remove();
+        playLineBreak();
+        setTimeout(cb, LINE_PAUSE);
+        return;
+      }
+      typeWord(row, words[wi]);
+      playKeyClick();
+      wi++;
+      setTimeout(nextWord, WORD_DELAY);
+    }
+
+    nextWord();
+  }
+
+  // Run the full loop
+  function runLoop() {
+    typeLine(function onDone() {
+      if (lineIdx < lines.length) {
+        runLoop();
+      } else {
+        // All lines done — show CTA, keep last cursor blinking
+        setTimeout(function () { dlBtn.classList.add('visible'); }, 300);
+      }
+    });
+  }
+
+  // Show CTA immediately (always visible)
+  setTimeout(function () { dlBtn.classList.add('visible'); }, 1200);
+
+  // Start agent loop after a brief pause
+  setTimeout(runLoop, 800);
 
   // Dynamic download link
   (async function () {
@@ -221,7 +345,7 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
       if (!r.ok) return;
       var rels = await r.json();
       var a = rels[0] && rels[0].assets && rels[0].assets.find(function (a) { return a.name === 'mitsumeru-mac-arm64.dmg'; });
-      if (a) document.getElementById('dlBtn').href = a.browser_download_url;
+      if (a) dlBtn.href = a.browser_download_url;
     } catch (e) {}
   })();
 
@@ -234,8 +358,8 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   var REPEL_R = 80;
   var REPEL_FORCE = 2.5;
   var RETURN_SPEED = 0.08;
-  var w, h, cols, rows, total;
-  var ox, oy, tx, ty2;  // origin x/y, target x/y
+  var w, h, cols, rows2, total;
+  var ox, oy, tx, ty2;
   var mouseX = -9999, mouseY = -9999;
 
   function resize() {
@@ -246,20 +370,17 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
     canvas.style.width = w + 'px';
     canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
     cols = Math.ceil(w / SPACING) + 1;
-    rows = Math.ceil(h / SPACING) + 1;
-    total = cols * rows;
+    rows2 = Math.ceil(h / SPACING) + 1;
+    total = cols * rows2;
     ox = new Float32Array(total);
     oy = new Float32Array(total);
     tx = new Float32Array(total);
     ty2 = new Float32Array(total);
-
     var idx = 0;
-    for (var r = 0; r < rows; r++) {
+    for (var r = 0; r < rows2; r++) {
       for (var c = 0; c < cols; c++) {
-        var x = c * SPACING;
-        var y = r * SPACING;
+        var x = c * SPACING, y = r * SPACING;
         ox[idx] = x; oy[idx] = y;
         tx[idx] = x; ty2[idx] = y;
         idx++;
@@ -268,43 +389,28 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
   }
 
   resize();
-  window.addEventListener('resize', function () {
-    resize();
-  });
+  window.addEventListener('resize', resize);
 
-  document.addEventListener('mousemove', function (e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-  document.addEventListener('mouseleave', function () {
-    mouseX = -9999; mouseY = -9999;
-  });
+  document.addEventListener('mousemove', function (e) { mouseX = e.clientX; mouseY = e.clientY; });
+  document.addEventListener('mouseleave', function () { mouseX = -9999; mouseY = -9999; });
 
   var rr = REPEL_R * REPEL_R;
 
   function tick() {
-    // Physics: repel from mouse, spring back
     for (var i = 0; i < total; i++) {
-      var dx = ox[i] - mouseX;
-      var dy = oy[i] - mouseY;
-      var dist2 = dx * dx + dy * dy;
-
-      if (dist2 < rr && dist2 > 0) {
-        var dist = Math.sqrt(dist2);
-        var force = (1 - dist / REPEL_R) * REPEL_FORCE;
-        tx[i] = ox[i] + (dx / dist) * force * SPACING;
-        ty2[i] = oy[i] + (dy / dist) * force * SPACING;
+      var dx = ox[i] - mouseX, dy = oy[i] - mouseY;
+      var d2 = dx * dx + dy * dy;
+      if (d2 < rr && d2 > 0) {
+        var d = Math.sqrt(d2);
+        var f = (1 - d / REPEL_R) * REPEL_FORCE;
+        tx[i] = ox[i] + (dx / d) * f * SPACING;
+        ty2[i] = oy[i] + (dy / d) * f * SPACING;
       } else {
-        tx[i] = ox[i];
-        ty2[i] = oy[i];
+        tx[i] = ox[i]; ty2[i] = oy[i];
       }
-
-      // Spring back
       ox[i] += (tx[i] - ox[i]) * RETURN_SPEED;
       oy[i] += (ty2[i] - oy[i]) * RETURN_SPEED;
     }
-
-    // Render
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = 'rgba(240, 240, 242, 0.35)';
     ctx.beginPath();
@@ -313,15 +419,12 @@ header a.gh:hover { color: rgba(255,255,255,0.7); }
       ctx.arc(ox[i], oy[i], DOT_R, 0, 6.2832);
     }
     ctx.fill();
-
     requestAnimationFrame(tick);
   }
 
-  // Only run particles if no reduced motion preference
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     requestAnimationFrame(tick);
   } else {
-    // Static render
     ctx.fillStyle = 'rgba(240, 240, 242, 0.35)';
     ctx.beginPath();
     for (var i = 0; i < total; i++) {
