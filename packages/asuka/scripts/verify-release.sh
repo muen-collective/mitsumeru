@@ -19,7 +19,13 @@
 #     `rejected / source=Insufficient Context` for a dmg that is perfectly
 #     notarized — a false negative in the gate, not a bad artifact;
 #   * an artifact's own ticket says nothing about the app inside it, so the zip
-#     and the dmg are opened and their contents checked too.
+#     and the dmg are opened and their contents checked too;
+#   * a manifest can describe a build that no longer exists. The first published
+#     release (2026-09-10) shipped a `dev-mac.yml` from an earlier run whose
+#     sha512 did not match the zip it named: discovery, channel matching and
+#     version comparison all passed, because none of them reads the checksum —
+#     a real download would have failed. The manifest is checked here now, entry
+#     by entry, against the bytes on disk.
 set -uo pipefail
 cd "$(dirname "$0")/.." # packages/asuka
 
@@ -142,6 +148,69 @@ if [ -n "$DMG" ]; then
     status=1
   fi
   rmdir "$mnt" 2>/dev/null || true
+fi
+
+# ---- the update manifest ----------------------------------------------------
+#
+# The manifest is what an update actually downloads against: `path:` names the
+# archive and each entry's `sha512`/`size` is the checksum the client verifies.
+# The name matters too, and for a reason that is not obvious: the client asks for
+# `<channel>-mac.yml`, where the channel comes from the version — while the
+# github provider writes `latest-mac.yml` regardless. `notarize.sh` renames it;
+# this is where that rename is checked.
+MANIFEST=$(ls release/*-mac.yml 2>/dev/null | head -1 || true)
+if [ -z "$MANIFEST" ]; then
+  echo "[FAIL] manifest: no *-mac.yml in release/ — the feed has nothing to serve"
+  status=1
+else
+  channel=$(node -p "const v = require('./package.json').version; v.includes('-') ? v.split('-')[1].split('.')[0] : 'latest'")
+  if [ "$(basename "$MANIFEST")" = "$channel-mac.yml" ]; then
+    echo "[PASS] manifest: named $(basename "$MANIFEST") — the file a $channel client asks for"
+  else
+    echo "[FAIL] manifest: $(basename "$MANIFEST") — a $channel client asks for $channel-mac.yml"
+    status=1
+  fi
+
+  # Parsed with a small reader rather than a yaml dependency: the shape is fixed
+  # (`- url:` then `sha512:` then `size:` under `files:`), and a reader that
+  # silently matches nothing must not read as a pass — which is why the absence of
+  # an entry is a failure below, not a skip.
+  entries=$(node --input-type=module -e '
+import { readFileSync } from "node:fs";
+const rows = [];
+let current = null;
+for (const line of readFileSync(process.argv[1], "utf8").split("\n")) {
+  const url = /^\s*-\s*url:\s*(.+?)\s*$/.exec(line);
+  if (url) { current = { url: url[1] }; continue; }
+  if (current === null) continue;
+  const sha = /^\s+sha512:\s*(\S+)\s*$/.exec(line);
+  if (sha) { current.sha512 = sha[1]; continue; }
+  const size = /^\s+size:\s*(\d+)\s*$/.exec(line);
+  if (size) { rows.push(`${current.url}\t${current.sha512 ?? ""}\t${size[1]}`); current = null; }
+}
+console.log(rows.join("\n"));
+' "$MANIFEST")
+
+  for artifact in "$ZIP" "$DMG"; do
+    [ -n "$artifact" ] || continue
+    name=$(basename "$artifact")
+    row=$(printf '%s\n' "$entries" | awk -F'\t' -v n="$name" '$1 == n')
+    if [ -z "$row" ]; then
+      echo "[FAIL] manifest: has no entry for $name"
+      status=1
+      continue
+    fi
+    sha=$(printf '%s' "$row" | cut -f2)
+    size=$(printf '%s' "$row" | cut -f3)
+    actual_sha=$(openssl dgst -sha512 -binary "$artifact" | openssl base64 -A)
+    actual_size=$(stat -f %z "$artifact")
+    if [ "$sha" = "$actual_sha" ] && [ "$size" = "$actual_size" ]; then
+      echo "[PASS] manifest: $name — sha512 and size match the artifact"
+    else
+      echo "[FAIL] manifest: $name — manifest says ${size}B/${sha:0:12}…, disk has ${actual_size}B/${actual_sha:0:12}…"
+      status=1
+    fi
+  done
 fi
 
 exit "$status"

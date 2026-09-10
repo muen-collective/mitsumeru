@@ -78,8 +78,38 @@ echo "notarize: repackaging dmg + zip from the stapled app"
 # stapled to it", on the extracted copy). spctl still called that copy `accepted`
 # because it could reach Apple and ask. Deleting first makes the rewrite
 # unavoidable, which is the entire point of repackaging from the stapled app.
-rm -f release/*.dmg release/*.dmg.blockmap release/*.zip release/*.zip.blockmap
+rm -f release/*.dmg release/*.dmg.blockmap release/*.zip release/*.zip.blockmap release/*-mac.yml
 npx electron-builder --mac dmg zip --prepackaged "$APP" --publish never
+
+# --- 2b. the update manifest ------------------------------------------------
+#
+# The manifest is deleted above with the archives and re-sorted here, for two
+# measured reasons:
+#
+#   * it is written by the same tooling that decided an "up to date" archive
+#     could be skipped, so it can end up describing a build that no longer
+#     exists. The first published release proved it (2026-09-10): the manifest
+#     was from an earlier run, its sha512 did not match the zip, and the only
+#     reason nothing failed is that discovery and version comparison do not read
+#     the checksum. Any real download would have.
+#   * with the github provider, electron-builder names it `latest-mac.yml` even
+#     for a `-dev` version, while the client asks for `dev-mac.yml` (the generic
+#     provider it replaced derived the name from the version). Renaming here
+#     keeps ONE rule — the version names the channel — instead of pinning
+#     `channel:` in electron-builder.yml, which would be a second source of the
+#     same fact, free to drift from the version.
+MANIFEST=$(ls release/*-mac.yml 2>/dev/null | head -1 || true)
+[ -n "$MANIFEST" ] || { echo "[FAIL] the repackage wrote no update manifest"; exit 1; }
+CHANNEL=$(node -p "const v = require('./package.json').version; v.includes('-') ? v.split('-')[1].split('.')[0] : 'latest'")
+WANTED="release/$CHANNEL-mac.yml"
+if [ "$MANIFEST" != "$WANTED" ]; then
+  echo "notarize: manifest $(basename "$MANIFEST") → $(basename "$WANTED") (the name a $CHANNEL client asks for)"
+  mv "$MANIFEST" "$WANTED"
+fi
+if [ "$(ls release/*-mac.yml | wc -l | tr -d ' ')" != "1" ]; then
+  echo "[FAIL] more than one update manifest in release/ — the feed would serve an ambiguous set"
+  exit 1
+fi
 
 # --- 3. the dmg -------------------------------------------------------------
 
@@ -93,6 +123,41 @@ submit "$DMG"
 echo "notarize: stapling $DMG"
 xcrun stapler staple "$DMG"
 xcrun stapler validate "$DMG"
+
+# --- 3b. the manifest's dmg entry -------------------------------------------
+#
+# The dmg's bytes are not final when the repackage writes the manifest: signing
+# it and stapling a ticket onto it both change the file, so the entry the builder
+# wrote describes a dmg that no longer exists. The gate caught exactly this on
+# the first run of the corrected pipeline (sha512 and size both off). The zip
+# needs no equivalent treatment — nothing touches it after the repackage, which
+# is why its entry already matched.
+#
+# Patched rather than regenerated: the rest of the file is the builder's output
+# and is correct, and rewriting the whole manifest by hand would put our own
+# idea of the format between the client and its own tooling.
+MANIFEST="release/$CHANNEL-mac.yml"
+DMG_SHA=$(openssl dgst -sha512 -binary "$DMG" | openssl base64 -A)
+DMG_SIZE=$(stat -f %z "$DMG")
+node --input-type=module -e '
+import { readFileSync, writeFileSync } from "node:fs";
+const [file, url, sha, size] = process.argv.slice(1);
+const lines = readFileSync(file, "utf8").split("\n");
+let inEntry = false;
+let patched = 0;
+for (let i = 0; i < lines.length; i++) {
+  const entry = /^\s*-\s*url:\s*(.+?)\s*$/.exec(lines[i]);
+  if (entry) { inEntry = entry[1] === url; continue; }
+  if (!inEntry) continue;
+  if (/^\s+sha512:\s*\S+\s*$/.test(lines[i])) { lines[i] = `    sha512: ${sha}`; patched++; }
+  else if (/^\s+size:\s*\d+\s*$/.test(lines[i])) { lines[i] = `    size: ${size}`; patched++; }
+}
+// Two lines or nothing: a manifest whose shape changed must fail here, not ship
+// with one entry silently unpatched.
+if (patched !== 2) { console.error(`[FAIL] expected to patch 2 lines in ${file}, patched ${patched}`); process.exit(1); }
+writeFileSync(file, lines.join("\n"));
+console.log(`notarize: manifest ${url} → ${size}B, sha512 updated`);
+' "$MANIFEST" "$(basename "$DMG")" "$DMG_SHA" "$DMG_SIZE"
 
 echo "notarize: done — $DMG"
 echo "notarize: verify with pnpm verify:release"
