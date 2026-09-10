@@ -120,6 +120,16 @@ function createSplashWindow(): BrowserWindow {
     }
   })
 
+  // The harness's page declares `<title>DeepSeek Harness</title>`, and without
+  // this the window adopts it — so Mission Control, the Window menu and the Dock
+  // tooltip all advertise upstream in an app that is not upstream's. Measured
+  // 2026-09-10: `window-title DeepSeek Harness` was in the run log of every
+  // launch. `page-title-updated` is the documented way to decline the change.
+  win.on('page-title-updated', (event) => {
+    event.preventDefault()
+    win.setTitle(PRODUCT_NAME)
+  })
+
   // T5: navigation fence — renderer/user navigation may only stay on the
   // harness origin. (webContents.loadURL from main is not affected.)
   win.webContents.on('will-navigate', (event, url) => {

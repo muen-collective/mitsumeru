@@ -3,14 +3,116 @@
   <head>
     <meta charset="UTF-8" />
     <!--
-      Window title while the harness boots (the harness UI replaces it with its
-      own <title> once loaded). Kept equal to PRODUCT_NAME by
-      scripts/check-identity.sh: the name lives in src/shared/identity.ts, and a
-      rename that misses this file should fail the build, not ship.
+      The loading screen: the surface a person sees before the harness exists.
+
+      It is deliberately self-contained — the mark and the wordmark are local
+      files, the typeface is the same one the marketing site serves, and nothing
+      is fetched. A splash that waits on a network call is a splash that
+      sometimes never appears.
+
+      White-label (epic 87, P9d): once the brand store exists, this file reads
+      it and shows the client's mark instead of ours, before the harness has
+      finished booting. Until then it shows ours, and `verify:surfaces` asserts
+      the mark and the line are present rather than trusting the eye.
+
+      The copy is short on purpose: it is on screen for a second or two, and it
+      is the only place we speak before the product does.
     -->
     <title>Mitsumeru</title>
+    <style>
+      @font-face {
+        font-family: 'RedAlert';
+        src: url('./brand/red-alert.ttf') format('truetype');
+        font-display: block;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #191a1a;
+        color: #f2f2f2;
+        font-family: 'RedAlert', ui-monospace, SFMono-Regular, Menlo, monospace;
+        overflow: hidden;
+      }
+      .stage {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        /* The window is dark and empty for a moment; a whisper of motion keeps
+           it from reading as a hang. */
+        animation: settle 420ms ease-out both;
+      }
+      @keyframes settle {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .mark {
+        width: 132px;
+        height: 132px;
+        display: block;
+        /* The mark is a square rounded-rect; on this canvas it needs no frame. */
+      }
+      .line {
+        font-size: 19px;
+        letter-spacing: 0.32em;
+        text-transform: lowercase;
+        color: #8a8a8a;
+        white-space: nowrap;
+      }
+      .line .prompt {
+        color: #e00000;
+      }
+      .line .caret {
+        display: inline-block;
+        width: 0.42em;
+        height: 1em;
+        margin-left: 0.22em;
+        background: #e00000;
+        vertical-align: -0.14em;
+        animation: blink 1s steps(1, end) infinite;
+      }
+      @keyframes blink {
+        0%,
+        49% {
+          opacity: 1;
+        }
+        50%,
+        100% {
+          opacity: 0;
+        }
+      }
+      .tagline {
+        margin-top: -6px;
+        font-size: 22px;
+        letter-spacing: 0.04em;
+        color: #f2f2f2;
+      }
+      /* Respect the system setting: a blinking caret is exactly the kind of
+         thing that setting exists for. */
+      @media (prefers-reduced-motion: reduce) {
+        .stage {
+          animation: none;
+        }
+        .line .caret {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <p>Starting…</p>
+    <div class="stage">
+      <img class="mark" src="./brand/logo.png" alt="Mitsumeru" />
+      <p class="line"><span class="prompt">+</span> starting mitsumeru<span class="caret"></span></p>
+      <p class="tagline">The liberation begins here</p>
+    </div>
   </body>
 </html>

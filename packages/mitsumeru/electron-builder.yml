@@ -100,3 +100,29 @@ mac:
       arch: [arm64]
     - target: zip
       arch: [arm64]
+
+# The installer is a brand surface, not a file-transfer window: it is the first
+# thing a client sees with our name on it, and before 2026-09-10 it had none of
+# this — electron-builder defaults, no logo, no tagline.
+#
+# Contents (icons, background, arrangement) are declared, not assumed; the
+# window is sized to the background so the lockup sits where the pixels are.
+# `verify-release.sh`'s sibling check (`verify:surfaces`, epic 87 P9) mounts the
+# built dmg and asserts these resources are ours and that no upstream string
+# appears in the volume name or window.
+dmg:
+  title: ${productName} ${version}
+  background: build/dmg-background.png
+  icon: build/icon.icns
+  iconSize: 128
+  window:
+    width: 660
+    height: 420
+  contents:
+    - x: 168
+      y: 300
+      type: file
+    - x: 492
+      y: 300
+      type: link
+      path: /Applications
