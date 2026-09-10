@@ -16,6 +16,7 @@
     "package:dir": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --dir --publish never",
     "package:mac": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --mac --publish never",
     "notarize": "bash scripts/notarize.sh",
+    "store:credentials": "bash scripts/store-notary-credentials.sh",
     "verify:release": "bash scripts/verify-release.sh",
     "check:label": "bash scripts/check-version-label.sh",
     "smoke": "bash scripts/smoke.sh",

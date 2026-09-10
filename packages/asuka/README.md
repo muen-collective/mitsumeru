@@ -94,16 +94,17 @@ NOTARY_PROFILE=asuka-notary pnpm notarize   # notarytool submit + staple, then r
 The `asuka-notary` profile is stored once, in the login keychain — never in the repo:
 
 ```
-xcrun notarytool store-credentials asuka-notary \
-  --apple-id "you@example.com" --team-id 4Q6GC57QG4
+pnpm store:credentials               # asks for your Apple ID, then the password
 ```
 
-Apple ID and team ID go on the command line; the app-specific password is left off on
-purpose, so notarytool prompts for it hidden instead of recording it in shell history.
-(`store-credentials` validates before saving by default, so a wrong password fails here
-rather than 40 minutes into a submission.) Replace the quoted Apple ID with the real one —
-the angle-bracket form in the old hints is a *placeholder convention*, and pasted verbatim
-into zsh `<` / `>` are redirection operators, which is a parse error, not a credential error.
+That wrapper exists because the raw `notarytool store-credentials` one-liner is hostile to
+paste: its `<apple id>` placeholders are redirection operators in zsh, so a verbatim paste
+dies with a parse error before notarytool is ever reached — a shell error that reads like a
+credential error. The wrapper asks for the email address only, reads the team ID back out of
+the signed app, and lets notarytool prompt for the app-specific password with hidden input,
+so the secret never enters shell history, `ps`, or any argv. `store-credentials` validates
+before saving by default, so a wrong password fails there rather than 40 minutes into a
+submission.
 
 The signing identity is never written into the config: electron-builder takes it from the
 environment or the login keychain (`CSC_NAME`, `CSC_LINK`, `CSC_KEY_PASSWORD`) and fails
