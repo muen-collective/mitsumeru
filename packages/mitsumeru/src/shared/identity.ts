@@ -1,15 +1,15 @@
 /**
  * App identity — the one place the name lives.
  *
- * Epic 86 § Naming: the shell is codenamed `asuka` until the wrap proof is
+ * Epic 86 § Naming: the shell is codenamed `mitsumeru` until the wrap proof is
  * accepted, then renamed to `mitsumeru`. The rename must stay a one-file
  * change, so nothing else in the shell hardcodes the name — package name,
  * appId, productName and the update feed all read from here (+ package.json).
  */
 
-export const APP_NAME = 'asuka'
-export const PRODUCT_NAME = 'Asuka'
-export const APP_ID = 'com.muen.asuka'
+export const APP_NAME = 'mitsumeru'
+export const PRODUCT_NAME = 'Mitsumeru'
+export const APP_ID = 'com.muen.mitsumeru'
 
 /**
  * Where releases live (Epic 86 T12). Ours, and only ours — the wrap must never
@@ -34,7 +34,10 @@ export const APP_ID = 'com.muen.asuka'
  * import TypeScript); `scripts/check-identity.sh` keeps the copies equal.
  */
 export const UPDATE_OWNER = 'muen-collective'
-export const UPDATE_REPO = 'asuka'
+// Not `mitsumeru` (the web app) and not `mitsumeru-desktop` (the dsh-desktop
+// fork we studied): the shell lives in its own repository, and this string is
+// the feed path compiled into every build.
+export const UPDATE_REPO = 'mitsumeru-shell'
 
 /** Human-facing page for the feed — logs and About, never client config. */
 export const UPDATE_FEED_URL = `https://github.com/${UPDATE_OWNER}/${UPDATE_REPO}/releases`

@@ -11,7 +11,7 @@
 #   pnpm check:label              # internal build: the label must be present
 #   PROMOTE=1 pnpm check:label    # release: the label must be gone
 set -uo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
 VERSION=$(node -p "require('./package.json').version")
 status=0
@@ -40,7 +40,7 @@ fi
 # 2. the artifacts that would be handed out. Names come from electron-builder's
 # own pattern (productName-version-arch), so the check reads the real files.
 shopt -s nullglob
-artifacts=(release/Asuka-*.dmg release/Asuka-*.zip)
+artifacts=(release/Mitsumeru-*.dmg release/Mitsumeru-*.zip)
 if [ "${#artifacts[@]}" -eq 0 ]; then
   echo "[skip] no artifacts in release/ yet — run pnpm package:mac"
 else
@@ -55,7 +55,7 @@ fi
 # 3. what the app itself will report. Info.plist is what the About panel reads
 # when the app has not been launched yet; the launch path is asserted in T12's
 # smoke run (`version <v> dev-build`).
-PLIST=release/mac-arm64/Asuka.app/Contents/Info.plist
+PLIST=release/mac-arm64/Mitsumeru.app/Contents/Info.plist
 if [ -f "$PLIST" ]; then
   plist_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$PLIST" 2>/dev/null || echo '')
   if [ "$plist_version" = "$VERSION" ]; then
@@ -70,7 +70,7 @@ fi
 # 4. no production label anywhere it could reach a person. A released-looking
 # version string in a notes file or a download CTA is the failure this guards.
 if [ -d release-notes ]; then
-  stale=$(grep -rlE 'Asuka-[0-9]+\.[0-9]+\.[0-9]+-' release-notes 2>/dev/null | while read -r f; do
+  stale=$(grep -rlE 'Mitsumeru-[0-9]+\.[0-9]+\.[0-9]+-' release-notes 2>/dev/null | while read -r f; do
     grep -q -- '-dev' "$f" || echo "$f"
   done)
   if [ -n "$stale" ]; then

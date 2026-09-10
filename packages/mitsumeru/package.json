@@ -1,8 +1,8 @@
 {
-  "name": "asuka",
-  "productName": "Asuka",
+  "name": "mitsumeru",
+  "productName": "Mitsumeru",
   "version": "0.1.1-dev",
-  "description": "Asuka — our own Electron shell around a DSH release. Epic 86 Track B.",
+  "description": "Mitsumeru — our own Electron shell around a DSH release. Epic 86 Track B.",
   "private": true,
   "main": "out/main/index.js",
   "scripts": {

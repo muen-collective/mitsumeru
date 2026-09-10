@@ -1,12 +1,12 @@
-# Packaging config for asuka (Epic 86 T9).
+# Packaging config for mitsumeru (Epic 86 T9).
 #
 # Two constraints drive everything here:
 #   1. asar: false — the harness is executed by node as a child process, so its
 #      files cannot live inside an archive.
 #   2. npmRebuild: false — nothing in app/ is native; the harness travels as a
 #      resource tree built by scripts/prepare-harness.sh.
-appId: com.muen.asuka
-productName: Asuka
+appId: com.muen.mitsumeru
+productName: Mitsumeru
 copyright: Muen
 
 asar: false
@@ -41,7 +41,7 @@ extraResources:
 # Contents/Resources/app-update.yml — that file, not this one, is what the
 # packaged updater reads. owner/repo must equal UPDATE_OWNER/UPDATE_REPO in
 # src/shared/identity.ts, and scripts/check-identity.sh fails the build when the
-# two drift; the dev-time override is ASUKA_UPDATE_FEED.
+# two drift; the dev-time override is MITSUMERU_UPDATE_FEED.
 #
 # GitHub Releases, decided 2026-09-10. There is no `url` to point at, and one
 # rule comes with the provider — see identity.ts for the full reasoning: the
@@ -66,7 +66,7 @@ extraResources:
 publish:
   - provider: github
     owner: muen-collective
-    repo: asuka
+    repo: mitsumeru-shell
     releaseType: prerelease
 
 mac:

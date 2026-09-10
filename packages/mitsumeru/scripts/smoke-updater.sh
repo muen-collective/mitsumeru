@@ -19,10 +19,10 @@
 # What it cannot prove is GitHub's own side — matching the channel against the
 # tag's prerelease in `releases.atom`, which needs a really published release.
 set -uo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
-APP=release/mac-arm64/Asuka.app
-BIN="$APP/Contents/MacOS/Asuka"
+APP=release/mac-arm64/Mitsumeru.app
+BIN="$APP/Contents/MacOS/Mitsumeru"
 [ -x "$BIN" ] || { echo "[FAIL] $BIN missing — run pnpm package:mac first"; exit 1; }
 
 VERSION=$(node -p "require('./package.json').version")
@@ -34,7 +34,7 @@ case "$VERSION" in
   *-dev) CHANNEL_FILE=dev-mac.yml ;;
   *)     CHANNEL_FILE=latest-mac.yml ;;
 esac
-WORK=$(mktemp -d -t asuka-updater)
+WORK=$(mktemp -d -t mitsumeru-updater)
 PORT=$(( 45600 + RANDOM % 400 ))
 FEED="http://127.0.0.1:$PORT"
 status=0
@@ -67,9 +67,9 @@ JS
 
 run_case() { # run_case <name> <feed-url> <wait-for-pattern> <log>
   local name="$1" feed="$2" pattern="$3" log="$4"
-  ASUKA_UPDATE_FEED="$feed" \
-  ASUKA_DSH_HOME="$WORK/$name-state" \
-  ASUKA_LOG_DIR="$WORK/$name-logs" \
+  MITSUMERU_UPDATE_FEED="$feed" \
+  MITSUMERU_DSH_HOME="$WORK/$name-state" \
+  MITSUMERU_LOG_DIR="$WORK/$name-logs" \
   "$BIN" >"$log" 2>&1 &
   local pid=$!
   for _ in $(seq 1 75); do
@@ -96,10 +96,10 @@ run_case() { # run_case <name> <feed-url> <wait-for-pattern> <log>
 cat >"$WORK/$CHANNEL_FILE" <<YML
 version: $VERSION
 files:
-  - url: Asuka-$VERSION-arm64-mac.zip
+  - url: Mitsumeru-$VERSION-arm64-mac.zip
     sha512: $(node -e "console.log('0'.repeat(128))")
     size: 1
-path: Asuka-$VERSION-arm64-mac.zip
+path: Mitsumeru-$VERSION-arm64-mac.zip
 sha512: $(node -e "console.log('0'.repeat(128))")
 releaseDate: '2026-09-10T00:00:00.000Z'
 YML

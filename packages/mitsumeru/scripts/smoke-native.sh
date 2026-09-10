@@ -22,14 +22,14 @@
 # the behaviour agree — so tightening the entitlement later fails here and forces
 # the change to be deliberate — rather than endorsing either state.
 set -uo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
-APP=release/mac-arm64/Asuka.app
-BIN="$APP/Contents/MacOS/Asuka"
+APP=release/mac-arm64/Mitsumeru.app
+BIN="$APP/Contents/MacOS/Mitsumeru"
 H="$APP/Contents/Resources/harness/node_modules"
 [ -x "$BIN" ] || { echo "[FAIL] $BIN missing — run pnpm package:mac first"; exit 1; }
 
-WORK=$(mktemp -d -t asuka-native)
+WORK=$(mktemp -d -t mitsumeru-native)
 status=0
 ok()  { echo "[PASS] $1"; }
 bad() { echo "[FAIL] $1"; status=1; }
@@ -172,10 +172,10 @@ import { readFileSync } from "node:fs";
 const list = /HARNESS_TITLES = \[([^\]]+)\]/.exec(readFileSync("src/shared/identity.ts", "utf8"))?.[1] ?? "";
 console.log(list.split(",").map((s) => s.trim().replace(/^.|.$/g, "")).filter(Boolean).join("|"));
 ')
-ASUKA_SMOKE=1 \
-ASUKA_DSH_HOME="$WORK/state" \
-ASUKA_LOG_DIR="$WORK/logs" \
-ASUKA_UPDATE_DISABLE=1 \
+MITSUMERU_SMOKE=1 \
+MITSUMERU_DSH_HOME="$WORK/state" \
+MITSUMERU_LOG_DIR="$WORK/logs" \
+MITSUMERU_UPDATE_DISABLE=1 \
 "$BIN" >"$WORK/run.log" 2>&1 &
 PID=$!
 for _ in $(seq 1 90); do
@@ -187,7 +187,7 @@ kill -TERM "$PID" 2>/dev/null
 for _ in $(seq 1 15); do kill -0 "$PID" 2>/dev/null || break; sleep 1; done
 kill -9 "$PID" 2>/dev/null
 
-SERVED=$(sed -n 's/^\[asuka\] window-title //p' "$WORK/run.log" | tail -1)
+SERVED=$(sed -n 's/^\[mitsumeru\] window-title //p' "$WORK/run.log" | tail -1)
 if [ -n "$SERVED" ] && [[ "|$TITLES|" == *"|$SERVED|"* ]]; then
   ok "brand: the npm-installed harness serves \"$SERVED\" — the title the brand work must rewrite"
 else
@@ -196,7 +196,7 @@ fi
 
 # The splash is ours, so it carries the product name — and never the pilot's
 # codename, which is exactly how `wrap-pilot` reached a user-visible title once.
-SPLASH=$(sed -n 's/^\[asuka\] window-title //p' "$WORK/run.log" | head -1)
+SPLASH=$(sed -n 's/^\[mitsumeru\] window-title //p' "$WORK/run.log" | head -1)
 if [ "$SPLASH" = "$PRODUCT" ]; then
   ok "brand: splash title is the product name ($SPLASH)"
 else

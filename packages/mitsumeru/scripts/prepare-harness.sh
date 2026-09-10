@@ -13,14 +13,14 @@
 # result is checked back against the closure this workspace already resolved —
 # a fresh resolution that drifts is a failure, not a surprise in the field.
 set -euo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
 OUT=build/harness
 # The stage must live OUTSIDE the workspace: pnpm run from anywhere inside a
 # workspace member operates on the whole workspace, and a `--prod` install
 # there strips this package's own devDependencies. Off to the side it sees a
 # single plain project.
-STAGE=${TMPDIR:-/tmp}/asuka-harness-stage
+STAGE=${TMPDIR:-/tmp}/mitsumeru-harness-stage
 STORE=$(pnpm store path)
 VERSION=$(node -p "require('./package.json').dependencies['@deepseek-ai/dsh']")
 
@@ -28,7 +28,7 @@ rm -rf "$OUT" "$STAGE"
 mkdir -p "$STAGE"
 cat >"$STAGE/package.json" <<JSON
 {
-  "name": "asuka-harness-resource",
+  "name": "mitsumeru-harness-resource",
   "private": true,
   "description": "Throwaway manifest for the packaged harness tree. Not published.",
   "dependencies": { "@deepseek-ai/dsh": "$VERSION" }

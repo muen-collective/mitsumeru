@@ -22,9 +22,9 @@
 # one-liner: bracketed placeholders read as "substitute here" in prose but are redirection
 # operators in zsh, and a parse error there looks exactly like a credentials problem.
 set -euo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
-APP=release/mac-arm64/Asuka.app
+APP=release/mac-arm64/Mitsumeru.app
 VERSION=$(node -p "require('./package.json').version")
 
 if [ -n "${NOTARY_PROFILE:-}" ]; then

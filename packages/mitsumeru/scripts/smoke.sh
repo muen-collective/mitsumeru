@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# asuka smoke — runs the BUILT app (no build step) and asserts that the harness
+# mitsumeru smoke — runs the BUILT app (no build step) and asserts that the harness
 # child booted, the UI loaded into the window, and the child exited on quit.
 # Prints [PASS]/[FAIL] per check and exits non-zero on any failure.
 #
@@ -12,11 +12,11 @@ if [ ! -f out/main/index.js ]; then
   exit 1
 fi
 
-LOG=$(mktemp -t asuka-smoke)
-STATE=$(mktemp -d -t asuka-smoke-state)
-export ASUKA_SMOKE=1
-export ASUKA_DSH_HOME="${ASUKA_DSH_HOME:-$STATE}"
-export ASUKA_LOG_DIR="${ASUKA_LOG_DIR:-$STATE/logs}"
+LOG=$(mktemp -t mitsumeru-smoke)
+STATE=$(mktemp -d -t mitsumeru-smoke-state)
+export MITSUMERU_SMOKE=1
+export MITSUMERU_DSH_HOME="${MITSUMERU_DSH_HOME:-$STATE}"
+export MITSUMERU_LOG_DIR="${MITSUMERU_LOG_DIR:-$STATE/logs}"
 
 count_harness() { pgrep -f "@deepseek-ai/dsh/lib/bin.js" | wc -l | tr -d ' '; }
 

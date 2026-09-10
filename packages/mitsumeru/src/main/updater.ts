@@ -239,7 +239,7 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
     log(`update-downloaded version=${event.version} archives=${String(archivedVersions().length)}`)
     // The seam calls the same action the dialog's button calls, so a run can
     // prove the install path without a person clicking anything.
-    if (process.env.ASUKA_UPDATE_RESTART === '1') {
+    if (process.env.MITSUMERU_UPDATE_RESTART === '1') {
       installNow()
     } else {
       onDownloaded?.(event.version)
@@ -265,7 +265,7 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
 
   // ---- IPC ------------------------------------------------------------------
 
-  ipcMain.handle('asuka:update-check', (event) => {
+  ipcMain.handle('mitsumeru:update-check', (event) => {
     const senderUrl = event.senderFrame?.url ?? ''
     if (!isTrustedSender(senderUrl)) {
       log(`[lockdown] deny update-check-sender ${senderUrl}`)
@@ -274,9 +274,9 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
     return check('manual')
   })
 
-  ipcMain.handle('asuka:update-status', () => status)
+  ipcMain.handle('mitsumeru:update-status', () => status)
 
-  ipcMain.handle('asuka:update-restart', (event) => {
+  ipcMain.handle('mitsumeru:update-restart', (event) => {
     const senderUrl = event.senderFrame?.url ?? ''
     if (!isTrustedSender(senderUrl)) {
       log(`[lockdown] deny update-restart-sender ${senderUrl}`)
@@ -285,7 +285,7 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
     return installNow()
   })
 
-  ipcMain.handle('asuka:update-archive', () => archivedVersions())
+  ipcMain.handle('mitsumeru:update-archive', () => archivedVersions())
 
   const stop = (): void => {
     stopped = true

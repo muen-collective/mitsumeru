@@ -168,7 +168,7 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
  * closure — `node_modules/@deepseek-ai/dsh/lib/bin.js`. Epic 86 § Harness
  * artifact: no git checkout, no DSH workspace, no build step.
  *
- * `ASUKA_DSH_ENTRY` overrides the entry to wrap a different release (or a
+ * `MITSUMERU_DSH_ENTRY` overrides the entry to wrap a different release (or a
  * built checkout) without touching code — the drill seam.
  */
 export function harnessPaths(options: { stateDir: string; logDir: string; resourcesPath?: string }): {
@@ -182,7 +182,7 @@ export function harnessPaths(options: { stateDir: string; logDir: string; resour
     options.resourcesPath === undefined
       ? resolve(__dirname, '..', '..', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
       : resolve(options.resourcesPath, 'harness', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
-  const entry = process.env.ASUKA_DSH_ENTRY ?? installed
+  const entry = process.env.MITSUMERU_DSH_ENTRY ?? installed
   return {
     entry,
     cwd: resolve(entry, '..', '..'), // the @deepseek-ai/dsh package root

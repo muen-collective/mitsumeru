@@ -27,9 +27,9 @@
 #     a real download would have failed. The manifest is checked here now, entry
 #     by entry, against the bytes on disk.
 set -uo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
-APP=release/mac-arm64/Asuka.app
+APP=release/mac-arm64/Mitsumeru.app
 DMG=$(ls -t release/*arm64.dmg 2>/dev/null | head -1 || true)
 ZIP=$(ls -t release/*arm64-mac.zip 2>/dev/null | head -1 || true)
 status=0
@@ -133,8 +133,8 @@ fi
 if [ -n "$ZIP" ]; then
   tmp=$(mktemp -d)
   if ditto -x -k "$ZIP" "$tmp" >/dev/null 2>&1; then
-    check "zip: app inside carries a stapled ticket" xcrun stapler validate "$tmp/Asuka.app"
-    check "zip: app inside passes Gatekeeper" spctl -a -t exec "$tmp/Asuka.app"
+    check "zip: app inside carries a stapled ticket" xcrun stapler validate "$tmp/Mitsumeru.app"
+    check "zip: app inside passes Gatekeeper" spctl -a -t exec "$tmp/Mitsumeru.app"
   else
     echo "[FAIL] zip: could not extract $ZIP"
     status=1

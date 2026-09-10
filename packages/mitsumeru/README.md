@@ -1,4 +1,4 @@
-# asuka — the shell
+# mitsumeru — the shell
 
 Electron main process that spawns a DSH harness as a child, waits for its readiness line,
 then loads it into a locked-down window. Nothing of the harness is imported into this
@@ -41,7 +41,7 @@ harness boots byte-for-byte the same readiness contract as the built checkout.
 
 ```
 pnpm view @deepseek-ai/dsh dist-tags        # alpha / next / latest
-pnpm --filter asuka add @deepseek-ai/dsh@<version>
+pnpm --filter mitsumeru add @deepseek-ai/dsh@<version>
 pnpm build && pnpm smoke
 ```
 
@@ -50,13 +50,13 @@ tag that never reaches npm, fall back to a checkout:
 
 ```
 pnpm --filter dsh-python-runtime-closure deploy --prod /tmp/harness
-ASUKA_DSH_ENTRY=/tmp/harness/.../lib/bin.js pnpm start
+MITSUMERU_DSH_ENTRY=/tmp/harness/.../lib/bin.js pnpm start
 ```
 
 ### Packaging (macOS)
 
 ```
-pnpm package:dir     # release/mac-arm64/Asuka.app — runnable in place
+pnpm package:dir     # release/mac-arm64/Mitsumeru.app — runnable in place
 pnpm package:mac     # release/*.dmg + *.zip
 ```
 
@@ -153,7 +153,7 @@ signed-but-unnotarized build is reported as exactly that (`spctl`: `Unnotarized 
 ### Release labeling (T11)
 
 Internal builds carry `-dev` in the version, and the suffix travels with them everywhere:
-artifact filenames (`Asuka-0.1.0-dev-arm64.dmg`), the About panel, the startup log, the
+artifact filenames (`Mitsumeru-0.1.0-dev-arm64.dmg`), the About panel, the startup log, the
 update channel (`dev-mac.yml`), and any download link or release note that points at them.
 It comes off only when a build is promoted to production/public users.
 
@@ -172,7 +172,7 @@ a version its artifact does not carry. The same suffix drives the update channel
 ### Updates (T12)
 
 `electron-updater` against **our** releases — GitHub Releases on
-`github.com/muen-collective/asuka` — packed by electron-builder into
+`github.com/muen-collective/mitsumeru-shell` — packed by electron-builder into
 `Contents/Resources/app-update.yml` (`provider: github`, `owner`/`repo` from
 `src/shared/identity.ts`). The client resolves its channel from the release **tag**: it reads
 `releases.atom`, keeps the entries whose tag carries the matching semver prerelease
@@ -187,7 +187,7 @@ non-prerelease release. Client behaviour:
 | Cadence | every 6 h while the app stays open |
 | After a failure | 30 min retry (offline launch retries instead of waiting half a day) |
 | After sleep | check again 5 s after resume |
-| On demand | `asuka:update-check` IPC + `Check for Updates…` menu item |
+| On demand | `mitsumeru:update-check` IPC + `Check for Updates…` menu item |
 | Install | **only when asked** — see below; never mid-session, because the harness holds the user's work |
 | Rollback | every downloaded version is archived to `<userData>/updates/<version>/`, and `allowDowngrade` lets an older archive be installed over a newer one |
 
@@ -216,7 +216,7 @@ So the shell offers it: when a version is downloaded and archived, a dialog asks
 
 Proving the path needs two things at once — an app older than a published release — so it is a
 procedure rather than a smoke: build an older version that carries the trigger
-(`ASUKA_UPDATE_RESTART=1` takes the dialog out of the loop), run it from a normal location, and
+(`MITSUMERU_UPDATE_RESTART=1` takes the dialog out of the loop), run it from a normal location, and
 watch the version at that path change. Squirrel verifies the signature, not the notary ticket,
 so the test build needs signing but not notarization.
 
@@ -244,18 +244,18 @@ variables, not because it is the better credential.
 
 | Variable | Purpose |
 |---|---|
-| `ASUKA_DSH_ENTRY` | Spawn a different harness entry (drill seam) |
-| `ASUKA_DSH_HOME` | Harness state dir; defaults to `<userData>/mitsu-dsh` |
-| `ASUKA_LOG_DIR` | Harness log dir; defaults to `<userData>/logs` |
-| `ASUKA_UPDATE_FEED` | Point the updater at a plain-HTTP feed instead (test seam for `smoke:updater` — it does not exercise GitHub discovery; the packaged `app-update.yml` is authoritative) |
-| `ASUKA_UPDATE_DISABLE=1` | Start with no updater at all |
-| `ASUKA_UPDATE_RESTART=1` | Restart as soon as a download completes, instead of offering it (test seam for the install path) |
-| `ASUKA_SMOKE=1` | Quit once the harness UI reports loaded (used by `pnpm smoke`) |
-| `ASUKA_SCREENSHOT=1` | With smoke: capture a screenshot to `artifacts/` before quitting |
+| `MITSUMERU_DSH_ENTRY` | Spawn a different harness entry (drill seam) |
+| `MITSUMERU_DSH_HOME` | Harness state dir; defaults to `<userData>/mitsu-dsh` |
+| `MITSUMERU_LOG_DIR` | Harness log dir; defaults to `<userData>/logs` |
+| `MITSUMERU_UPDATE_FEED` | Point the updater at a plain-HTTP feed instead (test seam for `smoke:updater` — it does not exercise GitHub discovery; the packaged `app-update.yml` is authoritative) |
+| `MITSUMERU_UPDATE_DISABLE=1` | Start with no updater at all |
+| `MITSUMERU_UPDATE_RESTART=1` | Restart as soon as a download completes, instead of offering it (test seam for the install path) |
+| `MITSUMERU_SMOKE=1` | Quit once the harness UI reports loaded (used by `pnpm smoke`) |
+| `MITSUMERU_SCREENSHOT=1` | With smoke: capture a screenshot to `artifacts/` before quitting |
 
 State lives under Electron's `userData` (Epic 86 T8: `<userData>/mitsu-dsh` — picked once,
 never renamed), and `userData` itself is pinned by name (`app.setPath('userData',
-join(app.getPath('appData'), 'Asuka'))`) so a display-name change cannot strand state or
+join(app.getPath('appData'), 'Mitsumeru'))`) so a display-name change cannot strand state or
 land on the shipped Mitsumeru app's profile. `~/.dsh` is never touched.
 
 ### Open items (recorded, not yet resolved)

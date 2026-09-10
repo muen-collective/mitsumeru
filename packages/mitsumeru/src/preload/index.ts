@@ -3,7 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { APP_NAME } from '../shared/identity'
 
 /**
- * asuka preload.
+ * mitsumeru preload.
  *
  * External-link policy (decided 2026-09-09): a real click on a link opens the
  * reader's system browser. Nothing else ever opens a browser.
@@ -39,7 +39,7 @@ document.addEventListener(
     if (href === undefined) return
     // The main process decides: harness-origin links stay in-app, external ones
     // go to the system browser.
-    ipcRenderer.send('asuka:open-external', href)
+    ipcRenderer.send('mitsumeru:open-external', href)
   },
   true
 )
@@ -49,12 +49,12 @@ document.addEventListener(
 // so a running app can never claim a version the artifact does not carry (T11)
 // and the `-dev` label survives a rebuild.
 contextBridge.exposeInMainWorld(APP_NAME, {
-  getAppInfo: () => ipcRenderer.invoke('asuka:app-info'),
-  checkForUpdates: () => ipcRenderer.invoke('asuka:update-check'),
-  updateStatus: () => ipcRenderer.invoke('asuka:update-status'),
-  archivedVersions: () => ipcRenderer.invoke('asuka:update-archive'),
+  getAppInfo: () => ipcRenderer.invoke('mitsumeru:app-info'),
+  checkForUpdates: () => ipcRenderer.invoke('mitsumeru:update-check'),
+  updateStatus: () => ipcRenderer.invoke('mitsumeru:update-status'),
+  archivedVersions: () => ipcRenderer.invoke('mitsumeru:update-archive'),
   // Restart into a downloaded version. Exposed for completeness — the shell's own
   // window is the harness's page, so today the dialog and the menu are what
   // actually call it.
-  restartToUpdate: () => ipcRenderer.invoke('asuka:update-restart')
+  restartToUpdate: () => ipcRenderer.invoke('mitsumeru:update-restart')
 })

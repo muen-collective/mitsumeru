@@ -23,7 +23,7 @@ import {
 } from '../shared/identity'
 
 /**
- * asuka — our own Electron shell around a DSH release (Epic 86 Track B).
+ * mitsumeru — our own Electron shell around a DSH release (Epic 86 Track B).
  * - spawn + poll + load (the harness is a child process; never imported here)
  * - single instance lock
  * - shutdown — SIGTERM with 4s grace → SIGKILL, tracked + logged
@@ -35,19 +35,19 @@ const log = (message: string): void => {
 }
 
 // Pin the profile directory by name. Two reasons (Epic 86 T8):
-//   - our display name may change (asuka → mitsumeru) and the path must not;
+//   - our display name may change (mitsumeru → mitsumeru) and the path must not;
 //   - the shipping Mitsumeru app already owns ~/Library/Application Support/
 //     Mitsumeru, and two Electron apps must never share one profile.
-app.setPath('userData', join(app.getPath('appData'), 'Asuka'))
+app.setPath('userData', join(app.getPath('appData'), 'Mitsumeru'))
 
-const smoke = process.env.ASUKA_SMOKE === '1'
+const smoke = process.env.MITSUMERU_SMOKE === '1'
 // v5 lockdown scripted attempts: when set, the loaded UI fires intentional
 // violations so the deny log can be asserted (expected denies == 1).
-const lockdownProbe = process.env.ASUKA_LOCKDOWN_PROBE === '1'
+const lockdownProbe = process.env.MITSUMERU_LOCKDOWN_PROBE === '1'
 // File-action probe: injects a real path (+ a backticked one and a missing one)
 // and drives trusted clicks so reveal/miss can be asserted from the log.
 // Click probe: drives a trusted click on an injected external link.
-const clickProbe = process.env.ASUKA_CLICK_PROBE === '1'
+const clickProbe = process.env.MITSUMERU_CLICK_PROBE === '1'
 
 let mainWindow: BrowserWindow | null = null
 let updater: UpdaterController | null = null
@@ -131,7 +131,7 @@ function createSplashWindow(): BrowserWindow {
 
   // T5 + external-link policy: window.open / target=_blank is denied outright.
   // A browser launch is only ever driven by a real click, which arrives through
-  // the 'asuka:open-external' IPC below. Scripted opens therefore open
+  // the 'mitsumeru:open-external' IPC below. Scripted opens therefore open
   // nothing at all — no iframe, no stray browser tab.
   win.webContents.setWindowOpenHandler(({ url }) => {
     log(`[lockdown] deny window-open ${url}`)
@@ -161,7 +161,7 @@ function installPermissionDenial(): void {
 // External-link policy: the preload forwards trusted link clicks here. This is
 // the ONLY code path that opens a browser.
 function installExternalLinkHandler(): void {
-  ipcMain.on('asuka:open-external', (event, url: unknown) => {
+  ipcMain.on('mitsumeru:open-external', (event, url: unknown) => {
     if (typeof url !== 'string') return
     // Only the harness page may ask the shell to open something.
     const senderUrl = event.senderFrame?.url ?? ''
@@ -189,8 +189,8 @@ function loadSplash(): void {
 
 async function startHarnessAndLoad(): Promise<void> {
   // State lives under Electron's userData (Epic 86 T8: pick once, never rename).
-  const stateDir = process.env.ASUKA_DSH_HOME ?? join(app.getPath('userData'), 'mitsu-dsh')
-  const logDir = process.env.ASUKA_LOG_DIR ?? join(app.getPath('userData'), 'logs')
+  const stateDir = process.env.MITSUMERU_DSH_HOME ?? join(app.getPath('userData'), 'mitsu-dsh')
+  const logDir = process.env.MITSUMERU_LOG_DIR ?? join(app.getPath('userData'), 'logs')
   const paths = harnessPaths({
     stateDir,
     logDir,
@@ -232,7 +232,7 @@ async function startHarnessAndLoad(): Promise<void> {
       // browser). The URL path self-identifies so the browser tab is obviously
       // the probe, not a stray.
       await mainWindow.webContents.executeJavaScript(
-        "window.open('https://example.com/asuka-lockdown-probe','_blank'); 'probe-fired'"
+        "window.open('https://example.com/mitsumeru-lockdown-probe','_blank'); 'probe-fired'"
       )
       setTimeout(() => {
         log('lockdown-probe-done')
@@ -247,8 +247,8 @@ async function startHarnessAndLoad(): Promise<void> {
       const rectJson = (await mainWindow.webContents.executeJavaScript(`(() => {
         const a = document.createElement('a')
         a.id = 'wp-click-probe'
-        a.href = 'https://example.com/asuka-click-probe'
-        a.textContent = 'asuka click probe'
+        a.href = 'https://example.com/mitsumeru-click-probe'
+        a.textContent = 'mitsumeru click probe'
         a.style.cssText = 'position:fixed;top:12px;left:12px;z-index:2147483647;padding:8px;background:#fff;color:#000'
         document.body.appendChild(a)
         const r = a.getBoundingClientRect()
@@ -306,7 +306,7 @@ async function captureEvidence(dir: string): Promise<void> {
       log('screenshot-empty')
       return
     }
-    if (process.env.ASUKA_DOM_DEBUG === '1') {
+    if (process.env.MITSUMERU_DOM_DEBUG === '1') {
       // Diagnostic only: is the UI still booting at the 5s mark, and what is
       // actually on screen?
       await new Promise((resolve) => setTimeout(resolve, 10000))
@@ -451,12 +451,12 @@ app.whenReady().then(() => {
   installPermissionDenial()
   installExternalLinkHandler()
   installMenu()
-  ipcMain.handle('asuka:app-info', () => appInfo())
+  ipcMain.handle('mitsumeru:app-info', () => appInfo())
   // T12: a check 15 s after launch (+ jitter), every 6 h after that, again
   // after a sleep/wake, and on demand. Nothing here blocks the harness boot.
-  const feedOverride = process.env.ASUKA_UPDATE_FEED ?? ''
-  if (process.env.ASUKA_UPDATE_DISABLE === '1') {
-    log('update-disabled (ASUKA_UPDATE_DISABLE=1)')
+  const feedOverride = process.env.MITSUMERU_UPDATE_FEED ?? ''
+  if (process.env.MITSUMERU_UPDATE_DISABLE === '1') {
+    log('update-disabled (MITSUMERU_UPDATE_DISABLE=1)')
   } else {
     updater = startUpdater({
       log,
@@ -479,14 +479,14 @@ app.whenReady().then(() => {
     let captured = false
     const check = setInterval(() => {
       if (harnessUiLoaded) {
-        if (process.env.ASUKA_SCREENSHOT === '1' && !captured) {
+        if (process.env.MITSUMERU_SCREENSHOT === '1' && !captured) {
           // Evidence capture once, then quit via the same path.
           captured = true
           clearInterval(check)
           clearTimeout(deadline)
           // Always quit after capture (success or failure) so a capture hang
           // cannot block the smoke run forever.
-          // out/main → ../../artifacts = packages/asuka/artifacts in dev.
+          // out/main → ../../artifacts = packages/mitsumeru/artifacts in dev.
           void captureEvidence(join(__dirname, '../../artifacts')).finally(() => {
             log('smoke-quit')
             app.quit()

@@ -10,6 +10,6 @@ artifacts/
 
 # Generated build input/output inside the shell package (paths are repo-relative:
 # a slash in the middle of a pattern anchors it to this file's directory).
-packages/asuka/build/harness/
-packages/asuka/build/.harness-stage/
-packages/asuka/build/icon.iconset/
+packages/mitsumeru/build/harness/
+packages/mitsumeru/build/.harness-stage/
+packages/mitsumeru/build/icon.iconset/

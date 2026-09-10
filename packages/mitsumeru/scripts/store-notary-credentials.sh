@@ -13,15 +13,15 @@
 #   pnpm store:credentials
 #   NOTARY_PROFILE=my-profile pnpm store:credentials   # to use another name
 set -euo pipefail
-cd "$(dirname "$0")/.." # packages/asuka
+cd "$(dirname "$0")/.." # packages/mitsumeru
 
 PROFILE="${NOTARY_PROFILE:-asuka-notary}"
 
 # The team ID is not written into the config either — it is read back out of the
 # app that was signed, the same way notarize.sh reads the signing identity.
 TEAM_ID="${APPLE_TEAM_ID:-}"
-if [ -z "$TEAM_ID" ] && [ -d release/mac-arm64/Asuka.app ]; then
-  TEAM_ID=$(codesign -dvvv release/mac-arm64/Asuka.app 2>&1 | sed -n 's/^TeamIdentifier=//p' | head -1)
+if [ -z "$TEAM_ID" ] && [ -d release/mac-arm64/Mitsumeru.app ]; then
+  TEAM_ID=$(codesign -dvvv release/mac-arm64/Mitsumeru.app 2>&1 | sed -n 's/^TeamIdentifier=//p' | head -1)
 fi
 if [ -z "$TEAM_ID" ]; then
   read -r -p "Apple Team ID: " TEAM_ID || true

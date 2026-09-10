@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  packages/asuka:
+  packages/mitsumeru:
     dependencies:
       '@deepseek-ai/dsh':
         specifier: 0.1.5-alpha.2
