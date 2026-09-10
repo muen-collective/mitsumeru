@@ -118,12 +118,18 @@ if [ ! -f "$PACKAGED_CONFIG" ]; then
   bad "config: $PACKAGED_CONFIG is missing — a --dir build has no feed config; run pnpm package:mac"
 fi
 
-PACKAGED_CHANNEL=$(sed -n 's/^channel: //p' "$PACKAGED_CONFIG" | head -1)
-PACKAGED_FILE=${PACKAGED_CHANNEL:-latest}-mac.yml
-if [ "$PACKAGED_FILE" = "$CHANNEL_FILE" ]; then
-  ok "config: packaged channel '$PACKAGED_CHANNEL' names $CHANNEL_FILE"
+# With the generic provider the packaged config named the channel file, so a
+# mismatch (channel: dev in an app whose version says otherwise) was a real
+# failure mode worth asserting. With GitHub the field is gone: electron-builder
+# writes only provider/owner/repo/releaseType, and the channel comes from the
+# version at runtime (`0.1.0-dev` → `dev`) and from the release TAG at feed time.
+# So the assertion inverts — a `channel:` here would be a second source of truth
+# that can drift, and the version is the one that decides.
+PACKAGED_CHANNEL=$(sed -n 's/^channel: //p' "$PACKAGED_CONFIG" 2>/dev/null | head -1)
+if [ -z "$PACKAGED_CHANNEL" ]; then
+  ok "config: no channel pinned in app-update.yml — version $VERSION is the only source, and it names $CHANNEL_FILE"
 else
-  bad "config: packaged app-update.yml names $PACKAGED_FILE but the release manifest is $CHANNEL_FILE"
+  bad "config: app-update.yml pins channel '$PACKAGED_CHANNEL' — with the github provider the version and the tag decide it, and a pinned copy drifts"
 fi
 
 # With the generic provider this was a url; with GitHub it is owner/repo, and a
@@ -188,6 +194,14 @@ if grep -qE 'version [0-9.]+-dev dev-build' "$WORK/online.log"; then
   ok "online: startup log carries the -dev label (T11)"
 else
   bad "online: startup log is missing the -dev version label"
+fi
+
+# The version is what names the channel now that the packaged config carries
+# none, so the app's own startup line is the place to see it decided.
+if grep -q "update-feed .*channel=${CHANNEL_FILE%-mac.yml} " "$WORK/online.log"; then
+  ok "online: app resolved channel ${CHANNEL_FILE%-mac.yml} from its version"
+else
+  bad "online: no update-feed line naming channel ${CHANNEL_FILE%-mac.yml}"
 fi
 
 # --- B. feed unreachable -----------------------------------------------------
