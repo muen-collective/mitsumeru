@@ -71,6 +71,14 @@ rm -f "$APP_ZIP"
 # --- 2. repackage from the stapled app --------------------------------------
 
 echo "notarize: repackaging dmg + zip from the stapled app"
+# The old artifacts are deleted first, on purpose. electron-builder decides an
+# existing archive is "up to date" and skips rewriting it — measured 2026-09-10:
+# `skipped archiving reason=Archive file is up to date` on the zip, leaving one
+# built before the staple, whose app carries no ticket ("does not have a ticket
+# stapled to it", on the extracted copy). spctl still called that copy `accepted`
+# because it could reach Apple and ask. Deleting first makes the rewrite
+# unavoidable, which is the entire point of repackaging from the stapled app.
+rm -f release/*.dmg release/*.dmg.blockmap release/*.zip release/*.zip.blockmap
 npx electron-builder --mac dmg zip --prepackaged "$APP" --publish never
 
 # --- 3. the dmg -------------------------------------------------------------
