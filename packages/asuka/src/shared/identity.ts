@@ -12,16 +12,32 @@ export const PRODUCT_NAME = 'Asuka'
 export const APP_ID = 'com.muen.asuka'
 
 /**
- * Update feed (Epic 86 T12). Ours, and only ours — the wrap must never inherit
- * a `dshdesktop.com` feed, or a DSH release would overwrite this shell and its
- * signing identity with somebody else's build.
+ * Where releases live (Epic 86 T12). Ours, and only ours — the wrap must never
+ * inherit a `dshdesktop.com` feed, or a DSH release would overwrite this shell
+ * and its signing identity with somebody else's build.
  *
- * A generic feed: electron-updater appends `<channel>-mac.yml` and the artifact
- * names listed inside it. `scripts/check-identity.sh` keeps this value and the
- * builder's `publish.url` equal, so the packaged `app-update.yml` and the
- * dev-time override cannot drift apart.
+ * GitHub Releases rather than a self-hosted feed (decided 2026-09-10): the shell
+ * has no server to run, the org already has the account, and the provider needs
+ * no `url` to point at. What that buys costs one naming rule, because the client
+ * resolves its channel from the release tag:
+ *
+ *   - electron-updater reads `releases.atom`, keeps the entries whose tag's
+ *     semver prerelease matches the channel this build asks for, and then
+ *     downloads `<channel>-mac.yml` from that release's assets.
+ *     `v0.1.0-dev` → channel `dev` → `dev-mac.yml`.
+ *   - So **the tag carries the channel**. A `-dev` build published under a tag
+ *     without the `dev` prerelease is invisible to every dev client, and a
+ *     promoted `0.1.0` (channel `latest`) is served from the repository's
+ *     latest non-prerelease release.
+ *
+ * `owner`/`repo` are duplicated in electron-builder.yml (the builder cannot
+ * import TypeScript); `scripts/check-identity.sh` keeps the copies equal.
  */
-export const UPDATE_FEED_URL = 'https://updates.mitsumeru.app/asuka'
+export const UPDATE_OWNER = 'muen-collective'
+export const UPDATE_REPO = 'asuka'
+
+/** Human-facing page for the feed — logs and About, never client config. */
+export const UPDATE_FEED_URL = `https://github.com/${UPDATE_OWNER}/${UPDATE_REPO}/releases`
 
 /** The harness package we wrap. Version is pinned in package.json. */
 export const HARNESS_PACKAGE = '@deepseek-ai/dsh'

@@ -58,7 +58,15 @@ export interface UpdaterOptions {
   log: (message: string) => void
   /** Guard for IPC callers: only the window showing the harness may ask. */
   isTrustedSender: (url: string) => boolean
-  /** Overrides the packaged feed. Used by scripts/smoke-updater.sh. */
+  /**
+   * Test seam: swap the packaged GitHub feed for a plain HTTP one, which is what
+   * lets scripts/smoke-updater.sh drive the real client against a local server.
+   * It deliberately does NOT cover what is GitHub-specific — reading
+   * `releases.atom` to find the release whose tag carries the channel, then
+   * resolving `<channel>-mac.yml` among its assets. A green smoke therefore says
+   * the client logic is sound; it does not say a release is discoverable. Only a
+   * really published release can answer that.
+   */
   feedUrl?: string
   /** Test seam: register every trigger, but schedule nothing. */
   manualOnly?: boolean
@@ -164,10 +172,10 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
   autoUpdater.allowPrerelease = isDevVersion(app.getVersion())
 
   if (feedUrl !== undefined) {
-    // A feed override replaces the packaged app-update.yml for this session —
-    // and with it the channel recorded there, because setFeedURL builds the
-    // provider from these options alone. Left unsaid, the app asks for
-    // latest-mac.yml while the build published dev-mac.yml: the first run of
+    // The override replaces the packaged app-update.yml for this session — and
+    // with it the provider and the channel recorded there, because setFeedURL
+    // builds the provider from these options alone. Left unsaid, the app asks
+    // for latest-mac.yml while the build published dev-mac.yml: the first run of
     // scripts/smoke-updater.sh did exactly that and got a 404 from the feed.
     // Carry the channel across, derived by the same rule the builder used.
     const channel = releaseChannel(app.getVersion())

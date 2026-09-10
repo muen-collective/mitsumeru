@@ -39,21 +39,35 @@ extraResources:
 
 # Update feed (T12). electron-builder writes this into the app as
 # Contents/Resources/app-update.yml — that file, not this one, is what the
-# packaged updater reads. The url must equal UPDATE_FEED_URL in
+# packaged updater reads. owner/repo must equal UPDATE_OWNER/UPDATE_REPO in
 # src/shared/identity.ts, and scripts/check-identity.sh fails the build when the
 # two drift; the dev-time override is ASUKA_UPDATE_FEED.
 #
+# GitHub Releases, decided 2026-09-10. There is no `url` to point at, and one
+# rule comes with the provider — see identity.ts for the full reasoning: the
+# release **tag must carry the channel as its semver prerelease** (`v0.1.0-dev`),
+# because that is what the client matches against the entries in
+# `releases.atom` before downloading `dev-mac.yml` from that release's assets.
+#
 # No `channel` here on purpose: electron-builder derives it from the version
-# (`appInfo.channel`), so this build writes release/dev-mac.yml and asks the
-# feed for the same file, while a promoted `0.1.0` build writes and asks for
-# `latest-mac.yml`. That is the same `-dev` suffix that labels artifacts and
-# release notes (T11), used a second time as the channel. Measured with
+# (`appInfo.channel`), so this build writes release/dev-mac.yml and the packaged
+# app asks GitHub for the same file, while a promoted `0.1.0` build writes and
+# asks for `latest-mac.yml`. That is the same `-dev` suffix that labels artifacts
+# and release notes (T11), used a second time as the channel. Measured with
 # 0.1.0-dev: release/dev-mac.yml is produced and the packaged
 # Resources/app-update.yml carries `channel: dev`.
-# Nothing uploads from here either — the package scripts pass --publish never.
+#
+# `releaseType: prerelease`: a dev build belongs in the repository's prerelease
+# list, where the update client still sees it (the Atom feed lists prereleases)
+# but it never takes the "latest release" slot — that slot belongs to a promoted
+# build, which is what a `latest`-channel client resolves against. Nothing
+# uploads from here: the package scripts pass --publish never, and CI supplies
+# its own token when it publishes.
 publish:
-  - provider: generic
-    url: https://updates.mitsumeru.app/asuka
+  - provider: github
+    owner: muen-collective
+    repo: asuka
+    releaseType: prerelease
 
 mac:
   category: public.app-category.productivity

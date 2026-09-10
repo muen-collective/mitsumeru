@@ -16,6 +16,14 @@ const identity = readFileSync("src/shared/identity.ts", "utf8")
 const pick = (key) => new RegExp(`${key} = .([^\\x27]+).`).exec(identity)?.[1]
 
 const builder = readFileSync("electron-builder.yml", "utf8")
+// The feed is GitHub Releases: there is no `url` in the builder config any more,
+// so the check compares the coordinates the client resolves through instead.
+//
+// `-?` is not cosmetic: `publish` is a list, so the provider is written as
+// `  - provider: github` while owner/repo are plain indented keys. Without the
+// dash this check read `undefined` and failed a correct config (measured — the
+// first run of the switch).
+const feedProvider = /^\s*-?\s*provider: (.+)$/m.exec(builder)?.[1]
 const manifest = JSON.parse(readFileSync("package.json", "utf8"))
 // The splash screen is a plain HTML file, so it cannot import the module. It is
 // user-visible (it is the window title while the harness boots), which is
@@ -25,7 +33,9 @@ const renderer = readFileSync("src/renderer/index.html", "utf8")
 const checks = [
   ["electron-builder.yml appId", /^appId: (.+)$/m.exec(builder)?.[1], pick("APP_ID")],
   ["electron-builder.yml productName", /^productName: (.+)$/m.exec(builder)?.[1], pick("PRODUCT_NAME")],
-  ["electron-builder.yml publish.url", /^\s+url: (\S+)$/m.exec(builder)?.[1], pick("UPDATE_FEED_URL")],
+  ["electron-builder.yml publish.provider", feedProvider, "github"],
+  ["electron-builder.yml publish.owner", /^\s+owner: (.+)$/m.exec(builder)?.[1], pick("UPDATE_OWNER")],
+  ["electron-builder.yml publish.repo", /^\s+repo: (.+)$/m.exec(builder)?.[1], pick("UPDATE_REPO")],
   ["package.json productName", manifest.productName, pick("PRODUCT_NAME")],
   ["package.json name", manifest.name, pick("APP_NAME")],
   ["src/renderer/index.html <title>", /<title>([^<]+)<\/title>/.exec(renderer)?.[1]?.trim(), pick("PRODUCT_NAME")]
@@ -40,7 +50,7 @@ for (const [what, actual, expected] of checks) {
 }
 if (failed > 0) process.exit(1)
 console.log(`identity: single source confirmed — ${pick("APP_ID")} / ${pick("PRODUCT_NAME")} / ${pick("APP_NAME")}`)
-console.log(`identity: update feed — ${pick("UPDATE_FEED_URL")}`)
+console.log(`identity: update feed — github.com/${pick("UPDATE_OWNER")}/${pick("UPDATE_REPO")} releases (tag carries the channel: v<version>)`)
 '
 
 # The feed must never be somebody else's: the whole point of wrapping a release

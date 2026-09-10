@@ -1,0 +1,159 @@
+# Release build (Epic 86 T9–T12). Builds, signs, notarizes, gates, publishes.
+#
+# The feed is GitHub Releases on THIS repository, and the update client resolves
+# its channel from the release tag: `v0.1.0-dev` → channel `dev` → `dev-mac.yml`
+# among that release's assets. The tag is therefore not cosmetic — a `-dev`
+# build published under a tag without the `dev` prerelease is invisible to every
+# dev client. Same rule in reverse for a promoted build, which a `latest`
+# channel resolves from this repo's latest non-prerelease release.
+#
+# Secrets (never the repo):
+#   MAC_CERT_P12_BASE64          base64 of the Developer ID Application .p12
+#   MAC_CERT_PASSWORD            that .p12's password
+#   APPLE_ID                     Apple ID that owns the team
+#   APPLE_APP_SPECIFIC_PASSWORD  app-specific password for notarytool
+#   APPLE_TEAM_ID                4Q6GC57QG4
+# An App Store Connect API key would be the better long-term credential (scoped,
+# revocable per key); notarize.sh already accepts the three env vars above, so
+# this workflow uses the path that exists rather than inventing a second one.
+#
+# Publishing uploads what notarize.sh produced — it does not build again. The
+# order is the point: electron-builder uploads the pre-staple archives if it
+# publishes during packaging, which is exactly the defect T10 found in the first
+# notarized release (a zip whose app carried no ticket, while spctl still called
+# it accepted because it could reach Apple and ask).
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Build, sign, notarize and gate — but stop before publishing'
+        type: boolean
+        default: false
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14 # arm64; this build targets arm64 only
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: version + channel
+        id: v
+        run: |
+          VERSION=$(node -p "require('./packages/asuka/package.json').version")
+          case "$VERSION" in
+            *-dev) CHANNEL=dev ;;
+            *)     CHANNEL=latest ;;
+          esac
+          {
+            echo "version=$VERSION"
+            echo "channel=$CHANNEL"
+            echo "tag=v$VERSION"
+          } >> "$GITHUB_OUTPUT"
+          echo "release $VERSION (channel $CHANNEL), tag v$VERSION"
+
+      # A temporary keychain per run: the runner is disposable, and a certificate
+      # left in the default keychain is a credential in a shared place.
+      - name: import the signing certificate
+        env:
+          MAC_CERT_P12_BASE64: ${{ secrets.MAC_CERT_P12_BASE64 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/asuka.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          printf '%s' "$MAC_CERT_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$MAC_CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          # Without this, codesign prompts for keychain access and the build hangs
+          # until the job times out — the classic empty-diff CI failure.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "" "$KEYCHAIN"
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: package (signed, harness included)
+        working-directory: packages/asuka
+        run: pnpm package:mac
+
+      - name: notarize + staple (app, then dmg; archives rebuilt from the staple)
+        working-directory: packages/asuka
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: pnpm notarize
+
+      # The gate, not a formality: it is what caught the pre-staple zip. If this
+      # fails, nothing is published.
+      - name: release gate
+        working-directory: packages/asuka
+        run: pnpm verify:release
+
+      - name: labeling gate (-dev until promoted)
+        working-directory: packages/asuka
+        run: pnpm check:label
+
+      # The smokes drive the packaged app, which needs a window server. GitHub's
+      # macOS runners provide one, but this is the first place these three run
+      # outside the dev machine — treat a failure here as a real finding about
+      # the runner, not as noise to be deleted.
+      - name: accept the artifact (packaged-app smokes)
+        working-directory: packages/asuka
+        run: |
+          pnpm smoke
+          pnpm smoke:native
+          pnpm smoke:updater
+
+      - name: publish to GitHub Releases
+        if: ${{ inputs.dry_run != true }}
+        working-directory: packages/asuka
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.v.outputs.version }}
+          CHANNEL: ${{ steps.v.outputs.channel }}
+          TAG: ${{ steps.v.outputs.tag }}
+        run: |
+          # Release notes carry the -dev label (T11): the same suffix on the
+          # artifact, the tag and the notes is what makes "internal build" a
+          # property of the release rather than a thing people remember.
+          HARNESS=$(node -p "require('./package.json').dependencies['@deepseek-ai/dsh']")
+          NOTES=$(printf '%s\n' \
+            "Asuka $VERSION" \
+            "" \
+            "Wraps DeepSeek Harness $HARNESS. Channel: $CHANNEL." \
+            "" \
+            "Signed with Developer ID and notarized by Apple. Gate evidence: \`pnpm verify:release\`, plus the packaged-app smokes." )
+
+          case "$CHANNEL" in
+            dev) MODE=--prerelease ;;
+            *)   MODE=--latest ;;
+          esac
+
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "Asuka $VERSION" \
+            --notes "$NOTES" \
+            $MODE \
+            release/*.dmg release/*.zip release/*-mac.yml
+
+          echo "published $TAG ($MODE) with $(ls release/*.dmg release/*.zip release/*-mac.yml | wc -l | tr -d ' ') assets"

@@ -13,7 +13,11 @@
 #      failure, a retry scheduled, and an app that is still alive — an
 #      unreachable feed must never be fatal.
 #
-# The feed endpoint itself is a separate task; this proves the client half.
+# The feed is GitHub Releases (decided 2026-09-10). This smoke proves the client
+# half against a local stand-in: scheduling, the channel file name, the -dev
+# label, the offline path, and that the packaged config points at our repository.
+# What it cannot prove is GitHub's own side — matching the channel against the
+# tag's prerelease in `releases.atom`, which needs a really published release.
 set -uo pipefail
 cd "$(dirname "$0")/.." # packages/asuka
 
@@ -105,12 +109,39 @@ YML
 # records has to name the same file the client asks for. Checking both closes
 # the gap that a stale/mismatched channel would otherwise hide behind the
 # override.
-PACKAGED_CHANNEL=$(sed -n 's/^channel: //p' "$APP/Contents/Resources/app-update.yml" | head -1)
+# A `--dir` build ships without app-update.yml — electron-builder writes it only
+# for the dmg/zip targets (measured, T12) — and an absent file would otherwise
+# read as "provider=none, channel=latest", making a build look misconfigured when
+# it is merely the wrong kind of build. Say which it is.
+PACKAGED_CONFIG="$APP/Contents/Resources/app-update.yml"
+if [ ! -f "$PACKAGED_CONFIG" ]; then
+  bad "config: $PACKAGED_CONFIG is missing — a --dir build has no feed config; run pnpm package:mac"
+fi
+
+PACKAGED_CHANNEL=$(sed -n 's/^channel: //p' "$PACKAGED_CONFIG" | head -1)
 PACKAGED_FILE=${PACKAGED_CHANNEL:-latest}-mac.yml
 if [ "$PACKAGED_FILE" = "$CHANNEL_FILE" ]; then
   ok "config: packaged channel '$PACKAGED_CHANNEL' names $CHANNEL_FILE"
 else
   bad "config: packaged app-update.yml names $PACKAGED_FILE but the release manifest is $CHANNEL_FILE"
+fi
+
+# With the generic provider this was a url; with GitHub it is owner/repo, and a
+# wrong pair is a silent failure mode — the app would poll somebody else's
+# repository, or a 404 that looks like an offline machine.
+IDENTITY_REPO=$(node --input-type=module -e '
+import { readFileSync } from "node:fs";
+const src = readFileSync("src/shared/identity.ts", "utf8");
+const pick = (k) => new RegExp(`${k} = .([^\x27]+).`).exec(src)?.[1] ?? "";
+console.log(`${pick("UPDATE_OWNER")}/${pick("UPDATE_REPO")}`);
+')
+PACKAGED_PROVIDER=$(sed -n 's/^provider: //p' "$PACKAGED_CONFIG" | head -1)
+PACKAGED_OWNER=$(sed -n 's/^owner: //p' "$PACKAGED_CONFIG" | head -1)
+PACKAGED_REPO=$(sed -n 's/^repo: //p' "$PACKAGED_CONFIG" | head -1)
+if [ "$PACKAGED_PROVIDER" = github ] && [ "$PACKAGED_OWNER/$PACKAGED_REPO" = "$IDENTITY_REPO" ]; then
+  ok "config: packaged feed targets github.com/$PACKAGED_OWNER/$PACKAGED_REPO"
+else
+  bad "config: packaged feed is provider='${PACKAGED_PROVIDER:-none}' '${PACKAGED_OWNER:-none}/${PACKAGED_REPO:-none}' — expected github '$IDENTITY_REPO'"
 fi
 
 node "$WORK/feed.mjs" "$PORT" "$WORK/requests.log" "$(cat "$WORK/$CHANNEL_FILE")" &

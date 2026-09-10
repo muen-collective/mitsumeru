@@ -171,9 +171,15 @@ a version its artifact does not carry. The same suffix drives the update channel
 
 ### Updates (T12)
 
-`electron-updater` against **our** feed (`UPDATE_FEED_URL`), packed by electron-builder into
-`Contents/Resources/app-update.yml` (`provider: generic`; `channel: dev` for a `-dev` build,
-so the feed publishes `<url>/dev-mac.yml` and the artifact it names). Client behaviour:
+`electron-updater` against **our** releases — GitHub Releases on
+`github.com/muen-collective/asuka` — packed by electron-builder into
+`Contents/Resources/app-update.yml` (`provider: github`, `owner`/`repo` from
+`src/shared/identity.ts`). The client resolves its channel from the release **tag**: it reads
+`releases.atom`, keeps the entries whose tag carries the matching semver prerelease
+(`v0.1.0-dev` → channel `dev`), and downloads `dev-mac.yml` from that release's assets. So the
+tag carries the channel — a `-dev` build published under a tag without the `dev` prerelease is
+invisible to every dev client, and a promoted build is served from the repository's latest
+non-prerelease release. Client behaviour:
 
 | | |
 |---|---|
@@ -187,7 +193,31 @@ so the feed publishes `<url>/dev-mac.yml` and the artifact it names). Client beh
 
 An unreachable feed is a logged line, never a crash and never a blocked startup: the harness
 boots offline. `pnpm smoke:updater` runs the packaged app against a stand-in feed and asserts
-the request, the jittered delay, the parse, the 6 h cadence, and the offline path.
+the request, the jittered delay, the parse, the 6 h cadence, the offline path, and that the
+packaged config points at our repository. What it cannot cover is GitHub's own side of the
+protocol — matching the channel against the tag — because that needs a really published
+release. It also needs a `pnpm package:mac` build: a `--dir` build ships without
+`app-update.yml` at all.
+
+### Releasing
+
+`.github/workflows/release.yml` — manual (`workflow_dispatch`, with a dry-run switch) or on a
+`v*` tag. It builds, signs, notarizes, runs the gate and the packaged-app smokes, and only
+then publishes to GitHub Releases, uploading the artifacts `notarize.sh` produced rather than
+building a second set. A run needs these repository secrets:
+
+| Secret | What it is |
+|---|---|
+| `MAC_CERT_P12_BASE64` | base64 of the Developer ID Application certificate (`.p12`) |
+| `MAC_CERT_PASSWORD` | that `.p12`'s password |
+| `APPLE_ID` | the Apple ID that owns the team |
+| `APPLE_APP_SPECIFIC_PASSWORD` | app-specific password for `notarytool` |
+| `APPLE_TEAM_ID` | `4Q6GC57QG4` |
+
+An App Store Connect API key (`.p8` + key id + issuer) is the better long-term notarization
+credential — scoped and revocable per key rather than one password for the account; the
+workflow uses the app-specific password path because `notarize.sh` already accepts those three
+variables, not because it is the better credential.
 
 ### Environment knobs
 
@@ -196,7 +226,7 @@ the request, the jittered delay, the parse, the 6 h cadence, and the offline pat
 | `ASUKA_DSH_ENTRY` | Spawn a different harness entry (drill seam) |
 | `ASUKA_DSH_HOME` | Harness state dir; defaults to `<userData>/mitsu-dsh` |
 | `ASUKA_LOG_DIR` | Harness log dir; defaults to `<userData>/logs` |
-| `ASUKA_UPDATE_FEED` | Point the updater at a different feed (test seam; the packaged `app-update.yml` is authoritative) |
+| `ASUKA_UPDATE_FEED` | Point the updater at a plain-HTTP feed instead (test seam for `smoke:updater` — it does not exercise GitHub discovery; the packaged `app-update.yml` is authoritative) |
 | `ASUKA_UPDATE_DISABLE=1` | Start with no updater at all |
 | `ASUKA_SMOKE=1` | Quit once the harness UI reports loaded (used by `pnpm smoke`) |
 | `ASUKA_SCREENSHOT=1` | With smoke: capture a screenshot to `artifacts/` before quitting |
