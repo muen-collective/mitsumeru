@@ -1,0 +1,11 @@
+{
+  "name": "asuka-workspace",
+  "private": true,
+  "description": "Mitsu's own Electron shell around a DSH release (codenamed asuka). Epic 86 Track B.",
+  "scripts": {
+    "build": "pnpm --filter asuka build",
+    "start": "pnpm --filter asuka start",
+    "typecheck": "pnpm --filter asuka typecheck",
+    "smoke": "pnpm --filter asuka smoke"
+  }
+}

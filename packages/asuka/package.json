@@ -1,0 +1,26 @@
+{
+  "name": "asuka",
+  "productName": "Asuka",
+  "version": "0.1.0-dev",
+  "description": "Asuka — our own Electron shell around a DSH release. Epic 86 Track B.",
+  "private": true,
+  "main": "out/main/index.js",
+  "scripts": {
+    "postinstall": "install-electron",
+    "start": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json",
+    "smoke": "bash scripts/smoke.sh"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.1.5-alpha.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.4",
+    "electron": "^44.3.0",
+    "electron-vite": "^5.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

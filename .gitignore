@@ -1,0 +1,9 @@
+node_modules/
+out/
+dist/
+release/
+artifacts/
+.smoke-state/
+*.log
+*.tsbuildinfo
+.DS_Store
