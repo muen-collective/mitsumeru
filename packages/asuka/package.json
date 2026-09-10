@@ -1,7 +1,7 @@
 {
   "name": "asuka",
   "productName": "Asuka",
-  "version": "0.1.0-dev",
+  "version": "0.1.1-dev",
   "description": "Asuka — our own Electron shell around a DSH release. Epic 86 Track B.",
   "private": true,
   "main": "out/main/index.js",

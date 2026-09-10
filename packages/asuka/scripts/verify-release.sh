@@ -45,6 +45,20 @@ check() { # check <description> <command...>
 
 [ -d "$APP" ] || { echo "[FAIL] $APP missing — run pnpm package:mac"; exit 1; }
 
+# Exactly one of each artifact. `release/` accumulates across builds, and a mixed
+# directory is how a stale dmg or zip gets published next to the current one —
+# both the gate's own `ls -t | head -1` and the publish step's globs would take
+# it without complaint. Measured 2026-09-10: a 0.1.1-dev build left the previous
+# 0.1.0-dev dmg and zip in place, and only `pnpm check:label` noticed.
+dmg_count=$(ls release/*arm64.dmg 2>/dev/null | wc -l | tr -d ' ')
+zip_count=$(ls release/*arm64-mac.zip 2>/dev/null | wc -l | tr -d ' ')
+if [ "$dmg_count" = "1" ] && [ "$zip_count" = "1" ]; then
+  echo "[PASS] artifacts: exactly one dmg and one zip in release/"
+else
+  echo "[FAIL] artifacts: ${dmg_count} dmg and ${zip_count} zip in release/ — a mixed directory publishes a stale build"
+  status=1
+fi
+
 check "app: codesign --verify --deep --strict" codesign --verify --deep --strict "$APP"
 check "app: Gatekeeper (spctl -a -t exec)" spctl -a -t exec "$APP"
 
