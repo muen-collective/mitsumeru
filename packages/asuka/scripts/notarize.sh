@@ -16,9 +16,12 @@
 #
 # Credentials come from the environment or the login keychain, never the repo:
 #   xcrun notarytool store-credentials asuka-notary \
-#     --apple-id <apple id> --team-id <team id> --password <app-specific password>
+#     --apple-id "you@example.com" --team-id 4Q6GC57QG4
 #   NOTARY_PROFILE=asuka-notary pnpm notarize
 # or APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + APPLE_TEAM_ID.
+# The password is omitted on purpose: notarytool prompts for it hidden. Angle brackets
+# read as "substitute here" in prose but are redirection operators when pasted into zsh;
+# the message below therefore carries no bracketed placeholder.
 set -euo pipefail
 cd "$(dirname "$0")/.." # packages/asuka
 
@@ -32,9 +35,9 @@ elif [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" ] && [ -n
 else
   cat >&2 <<'MSG'
 [FAIL] no notarization credentials — nothing was submitted.
-  Store them once:  xcrun notarytool store-credentials asuka-notary \
-                      --apple-id <apple id> --team-id <team id> \
-                      --password <app-specific password>
+  Store them once (replace the quoted Apple ID with the real one):
+    xcrun notarytool store-credentials asuka-notary \
+      --apple-id "you@example.com" --team-id YOUR_TEAM_ID
   Then run:         NOTARY_PROFILE=asuka-notary pnpm notarize
   (or export APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + APPLE_TEAM_ID)
   Signing without notarization still works: pnpm package:mac

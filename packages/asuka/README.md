@@ -91,6 +91,20 @@ pnpm verify:release                 # codesign --verify --deep --strict, spctl, 
 NOTARY_PROFILE=asuka-notary pnpm notarize   # notarytool submit + staple, then repackage
 ```
 
+The `asuka-notary` profile is stored once, in the login keychain — never in the repo:
+
+```
+xcrun notarytool store-credentials asuka-notary \
+  --apple-id "you@example.com" --team-id 4Q6GC57QG4
+```
+
+Apple ID and team ID go on the command line; the app-specific password is left off on
+purpose, so notarytool prompts for it hidden instead of recording it in shell history.
+(`store-credentials` validates before saving by default, so a wrong password fails here
+rather than 40 minutes into a submission.) Replace the quoted Apple ID with the real one —
+the angle-bracket form in the old hints is a *placeholder convention*, and pasted verbatim
+into zsh `<` / `>` are redirection operators, which is a parse error, not a credential error.
+
 The signing identity is never written into the config: electron-builder takes it from the
 environment or the login keychain (`CSC_NAME`, `CSC_LINK`, `CSC_KEY_PASSWORD`) and fails
 when neither has one. What matters afterwards is *who actually signed*, so
