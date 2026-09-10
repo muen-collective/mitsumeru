@@ -16,6 +16,12 @@ const log = (message: string): void => {
   console.log(`[${APP_NAME}] ${message}`)
 }
 
+// Pin the profile directory by name. Two reasons (Epic 86 T8):
+//   - our display name may change (asuka → mitsumeru) and the path must not;
+//   - the shipping Mitsumeru app already owns ~/Library/Application Support/
+//     Mitsumeru, and two Electron apps must never share one profile.
+app.setPath('userData', join(app.getPath('appData'), 'Asuka'))
+
 const smoke = process.env.ASUKA_SMOKE === '1'
 // v5 lockdown scripted attempts: when set, the loaded UI fires intentional
 // violations so the deny log can be asserted (expected denies == 1).
@@ -162,9 +168,14 @@ function loadSplash(): void {
 
 async function startHarnessAndLoad(): Promise<void> {
   // State lives under Electron's userData (Epic 86 T8: pick once, never rename).
-  const stateDir = process.env.ASUKA_DSH_HOME ?? join(app.getPath('userData'), 'harness')
+  const stateDir = process.env.ASUKA_DSH_HOME ?? join(app.getPath('userData'), 'mitsu-dsh')
   const logDir = process.env.ASUKA_LOG_DIR ?? join(app.getPath('userData'), 'logs')
-  const paths = harnessPaths({ stateDir, logDir })
+  const paths = harnessPaths({
+    stateDir,
+    logDir,
+    // Packaged, the harness travels in Resources/harness, not node_modules.
+    resourcesPath: app.isPackaged ? process.resourcesPath : undefined
+  })
   harnessLogPath = paths.logPath
   log(`harness entry=${paths.entry}`)
   log(`harness stateDir=${paths.stateDir}`)

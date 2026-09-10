@@ -52,18 +52,49 @@ pnpm --filter dsh-python-runtime-closure deploy --prod /tmp/harness
 ASUKA_DSH_ENTRY=/tmp/harness/.../lib/bin.js pnpm start
 ```
 
+### Packaging (macOS)
+
+```
+pnpm package:dir     # release/mac-arm64/Asuka.app — runnable in place
+pnpm package:mac     # release/*.dmg + *.zip
+```
+
+Four things make the packaged app different from `pnpm start`:
+
+- **`asar: false`.** The harness is executed by node as a child process, so its files
+  cannot live inside an asar archive. electron-builder warns about this; the warning is
+  the design.
+- **The harness travels as a resource, not as app dependencies.** `scripts/prepare-harness.sh`
+  materializes the published closure into `Resources/harness/node_modules/` — a real-file,
+  symlink-free tree (hoisted linker), because electron-builder copies resources as plain
+  files and pnpm's workspace layout is a symlink farm. The script then compares the tree
+  against the closure this workspace already resolved: a re-resolution that drifts fails
+  the build instead of shipping. `src/main/harness.ts` looks there when `app.isPackaged`.
+- **The stage install runs outside the repo.** `pnpm install` from anywhere inside a
+  workspace member operates on the whole workspace; staged inside the package, a `--prod`
+  install strips that package's own devDependencies.
+- **No `node` on `PATH`.** Launched from Finder the PATH is minimal, so the shell falls
+  back to Electron-as-node (`ELECTRON_RUN_AS_NODE=1` + `process.execPath`) rather than
+  shipping a second runtime. In dev it still uses the node that launched it.
+
+Identity is checked, not assumed: `pnpm check:identity` asserts that `electron-builder.yml`
+and `package.json` still agree with `src/shared/identity.ts` — a half-finished rename fails
+the build.
+
 ### Environment knobs
 
 | Variable | Purpose |
 |---|---|
 | `ASUKA_DSH_ENTRY` | Spawn a different harness entry (drill seam) |
-| `ASUKA_DSH_HOME` | Harness state dir; defaults to `<userData>/harness` |
+| `ASUKA_DSH_HOME` | Harness state dir; defaults to `<userData>/mitsu-dsh` |
 | `ASUKA_LOG_DIR` | Harness log dir; defaults to `<userData>/logs` |
 | `ASUKA_SMOKE=1` | Quit once the harness UI reports loaded (used by `pnpm smoke`) |
 | `ASUKA_SCREENSHOT=1` | With smoke: capture a screenshot to `artifacts/` before quitting |
 
-State lives under Electron's `userData` (Epic 86 T8: `<userData>/harness` — picked once,
-never renamed). `~/.dsh` is never touched.
+State lives under Electron's `userData` (Epic 86 T8: `<userData>/mitsu-dsh` — picked once,
+never renamed), and `userData` itself is pinned by name (`app.setPath('userData',
+join(app.getPath('appData'), 'Asuka'))`) so a display-name change cannot strand state or
+land on the shipped Mitsumeru app's profile. `~/.dsh` is never touched.
 
 ### Open items (recorded, not yet resolved)
 
@@ -75,3 +106,7 @@ never renamed). `~/.dsh` is never touched.
 - **Branding title.** The published tarball serves `<title>DeepSeek Harness</title>`; a
   frontend built from a checkout says `<title>DSH Local Build</title>`. Both are accepted
   by `HARNESS_TITLES` — confirm which surface the brand swap targets (Epic 80/85).
+- **Signing cost.** A macOS build signs the app bundle *and* walks the whole harness
+  resource (24 445 files), which dominates build time. Only the handful of Mach-O files in
+  there (esbuild; and `node-pty`/`koffi` if they are ever built) need signatures at all —
+  T10 owns trimming this (`signIgnore`).

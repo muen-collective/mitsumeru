@@ -7,3 +7,9 @@ artifacts/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# Generated build input/output inside the shell package (paths are repo-relative:
+# a slash in the middle of a pattern anchors it to this file's directory).
+packages/asuka/build/harness/
+packages/asuka/build/.harness-stage/
+packages/asuka/build/icon.iconset/

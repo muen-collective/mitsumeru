@@ -11,6 +11,10 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json",
+    "harness": "bash scripts/prepare-harness.sh",
+    "check:identity": "bash scripts/check-identity.sh",
+    "package:dir": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --dir",
+    "package:mac": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --mac",
     "smoke": "bash scripts/smoke.sh"
   },
   "dependencies": {
@@ -19,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^24.13.4",
     "electron": "^44.3.0",
+    "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.2"

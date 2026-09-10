@@ -36,7 +36,16 @@ export function resolveNodePath(): string {
     .split(':')
     .map((dir) => join(dir, 'node'))
     .find(existsSync)
-  return fromPath ?? 'node'
+  if (fromPath !== undefined) return fromPath
+  // Packaged, launched from Finder: PATH is minimal and node is not on it.
+  // Electron's own binary runs as plain node with ELECTRON_RUN_AS_NODE=1, so
+  // the app carries no second runtime to ship or keep updated.
+  return process.execPath
+}
+
+/** True when the harness child will run via Electron-as-node (see resolveNodePath). */
+export function runsViaElectronNode(nodePath: string): boolean {
+  return nodePath === process.execPath
 }
 
 // No reservePort(): we pass --port 0 and let the OS pick — the readiness URL
@@ -50,7 +59,7 @@ export function resolveNodePath(): string {
 const READY_LINE = /dsh web: (https?:\/\/127\.0\.0\.1:\d+\/\?token=\S+)/
 
 /** Env for the child: isolate state, strip launcher pollution. */
-function childEnv(stateDir: string): NodeJS.ProcessEnv {
+function childEnv(stateDir: string, viaElectron: boolean): NodeJS.ProcessEnv {
   const clean: NodeJS.ProcessEnv = {}
   for (const [name, value] of Object.entries(process.env)) {
     if (
@@ -64,6 +73,7 @@ function childEnv(stateDir: string): NodeJS.ProcessEnv {
     clean[name] = value
   }
   clean.DSH_HOME = stateDir
+  if (viaElectron) clean.ELECTRON_RUN_AS_NODE = '1'
   return clean
 }
 
@@ -90,9 +100,10 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
     }
   }, readyTimeoutMs)
 
-  const child = spawn(resolveNodePath(), [entry, 'web', '--no-open', '--host', '127.0.0.1', '--port', '0'], {
+  const nodePath = resolveNodePath()
+  const child = spawn(nodePath, [entry, 'web', '--no-open', '--host', '127.0.0.1', '--port', '0'], {
     cwd,
-    env: childEnv(stateDir),
+    env: childEnv(stateDir, runsViaElectronNode(nodePath)),
     stdio: ['ignore', 'pipe', 'pipe']
   })
   onEvent?.(`spawned pid=${String(child.pid)}`)
@@ -160,15 +171,18 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
  * `ASUKA_DSH_ENTRY` overrides the entry to wrap a different release (or a
  * built checkout) without touching code — the drill seam.
  */
-export function harnessPaths(options: { stateDir: string; logDir: string }): {
+export function harnessPaths(options: { stateDir: string; logDir: string; resourcesPath?: string }): {
   entry: string
   cwd: string
   stateDir: string
   logPath: string
 } {
-  const entry =
-    process.env.ASUKA_DSH_ENTRY ??
-    resolve(__dirname, '..', '..', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
+  // Packaged: the tree built by scripts/prepare-harness.sh, next to the app.
+  const installed =
+    options.resourcesPath === undefined
+      ? resolve(__dirname, '..', '..', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
+      : resolve(options.resourcesPath, 'harness', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
+  const entry = process.env.ASUKA_DSH_ENTRY ?? installed
   return {
     entry,
     cwd: resolve(entry, '..', '..'), // the @deepseek-ai/dsh package root

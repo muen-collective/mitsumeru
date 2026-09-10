@@ -1,0 +1,60 @@
+# Packaging config for asuka (Epic 86 T9).
+#
+# Two constraints drive everything here:
+#   1. asar: false — the harness is executed by node as a child process, so its
+#      files cannot live inside an archive.
+#   2. npmRebuild: false — nothing in app/ is native; the harness travels as a
+#      resource tree built by scripts/prepare-harness.sh.
+appId: com.muen.asuka
+productName: Asuka
+copyright: Muen
+
+asar: false
+npmRebuild: false
+
+directories:
+  output: release
+  buildResources: build
+
+# app/ carries only our own build output plus the manifest. The trailing
+# exclusion matters: the harness is a production dependency (pnpm installs it),
+# and without it electron-builder collects that closure a second time into
+# Resources/app/node_modules — 168 MB of npm-resolved duplicates next to the
+# verified resource tree.
+files:
+  - out/**/*
+  - package.json
+  - '!node_modules/**'
+
+# The harness tree lands in Resources/harness/node_modules — where
+# src/main/harness.ts looks when app.isPackaged is true. Two entries because
+# electron-builder's copy filter drops any relative path that is exactly
+# `node_modules` (createFilter treats it as app dependencies), so the from-path
+# has to point inside the tree it ships.
+extraResources:
+  - from: build/harness/node_modules
+    to: harness/node_modules
+  - from: build/harness/package.json
+    to: harness/package.json
+
+mac:
+  category: public.app-category.productivity
+  icon: build/icon.icns
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  # Signing cost, measured 2026-09-10: `codesign --timestamp` is one network
+  # round-trip per file and the harness resource alone is 24 445 of them — a
+  # stamped `--dir` build ran past 40 minutes on this machine.
+  #   - signIgnore skips the harness tree. Those files are inert data (the
+  #     bundle seal still covers every one of them) and the only Mach-O inside
+  #     is esbuild's prebuilt binary, which upstream already ships signed.
+  #   - `timestamp: none` is a dev-build setting: notarization (T10) requires a
+  #     real timestamp, so T10 flips this back for releases.
+  signIgnore:
+    - '/harness/'
+  timestamp: none
+  target:
+    - target: dmg
+      arch: [arm64]
+    - target: zip
+      arch: [arm64]
