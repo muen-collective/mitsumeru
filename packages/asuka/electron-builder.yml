@@ -37,22 +37,50 @@ extraResources:
   - from: build/harness/package.json
     to: harness/package.json
 
+# Update feed (T12). electron-builder writes this into the app as
+# Contents/Resources/app-update.yml — that file, not this one, is what the
+# packaged updater reads. The url must equal UPDATE_FEED_URL in
+# src/shared/identity.ts, and scripts/check-identity.sh fails the build when the
+# two drift; the dev-time override is ASUKA_UPDATE_FEED.
+#
+# No `channel` here on purpose: electron-builder derives it from the version
+# (`appInfo.channel`), so this build writes release/dev-mac.yml and asks the
+# feed for the same file, while a promoted `0.1.0` build writes and asks for
+# `latest-mac.yml`. That is the same `-dev` suffix that labels artifacts and
+# release notes (T11), used a second time as the channel. Measured with
+# 0.1.0-dev: release/dev-mac.yml is produced and the packaged
+# Resources/app-update.yml carries `channel: dev`.
+# Nothing uploads from here either — the package scripts pass --publish never.
+publish:
+  - provider: generic
+    url: https://updates.mitsumeru.app/asuka
+
 mac:
   category: public.app-category.productivity
   icon: build/icon.icns
   hardenedRuntime: true
   gatekeeperAssess: false
-  # Signing cost, measured 2026-09-10: `codesign --timestamp` is one network
-  # round-trip per file and the harness resource alone is 24 445 of them — a
-  # stamped `--dir` build ran past 40 minutes on this machine.
-  #   - signIgnore skips the harness tree. Those files are inert data (the
-  #     bundle seal still covers every one of them) and the only Mach-O inside
-  #     is esbuild's prebuilt binary, which upstream already ships signed.
-  #   - `timestamp: none` is a dev-build setting: notarization (T10) requires a
-  #     real timestamp, so T10 flips this back for releases.
-  signIgnore:
-    - '/harness/'
-  timestamp: none
+  # Signing identity is never written here: electron-builder reads it from the
+  # environment or the login keychain (`CSC_NAME`, `CSC_LINK`,
+  # `CSC_KEY_PASSWORD`) and fails the build when neither has one. On this rig a
+  # single "Developer ID Application" identity is installed, so the check that
+  # matters is the one AFTER the build — scripts/verify-release.sh asserts which
+  # identity actually signed the artifact.
+  #
+  # Everything below the app root is signed, including the harness resource:
+  # `codesign --timestamp` costs one network round-trip per file and the harness
+  # is 24 445 of them, which is why an earlier dev profile skipped it. Measured
+  # 2026-09-10 with timestamps on and nothing skipped: 1 m 51 s for the whole
+  # `--dir` build, with all 10 Mach-O files inside the harness signed and
+  # stamped (the other 24 435 are data, and ship sealed by the outer bundle).
+  # So there is no dev-only signing shortcut here any more — a release build and
+  # a dev build differ only in version and credentials.
+  # Notarization is a separate, explicit step (T10): scripts/notarize.sh submits
+  # app + dmg to notarytool and staples both, and scripts/verify-release.sh is
+  # what proves it. It is not wired into `mac.notarize` here because the failure
+  # mode matters: a build must not depend on credentials a dev machine does not
+  # have, and a release must not silently skip the step that makes Gatekeeper
+  # accept it.
   target:
     - target: dmg
       arch: [arm64]

@@ -13,12 +13,17 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json",
     "harness": "bash scripts/prepare-harness.sh",
     "check:identity": "bash scripts/check-identity.sh",
-    "package:dir": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --dir",
-    "package:mac": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --mac",
-    "smoke": "bash scripts/smoke.sh"
+    "package:dir": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --dir --publish never",
+    "package:mac": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --mac --publish never",
+    "notarize": "bash scripts/notarize.sh",
+    "verify:release": "bash scripts/verify-release.sh",
+    "check:label": "bash scripts/check-version-label.sh",
+    "smoke": "bash scripts/smoke.sh",
+    "smoke:updater": "bash scripts/smoke-updater.sh"
   },
   "dependencies": {
-    "@deepseek-ai/dsh": "0.1.5-alpha.2"
+    "@deepseek-ai/dsh": "0.1.5-alpha.2",
+    "electron-updater": "^6.8.9"
   },
   "devDependencies": {
     "@types/node": "^24.13.4",

@@ -21,6 +21,7 @@ const manifest = JSON.parse(readFileSync("package.json", "utf8"))
 const checks = [
   ["electron-builder.yml appId", /^appId: (.+)$/m.exec(builder)?.[1], pick("APP_ID")],
   ["electron-builder.yml productName", /^productName: (.+)$/m.exec(builder)?.[1], pick("PRODUCT_NAME")],
+  ["electron-builder.yml publish.url", /^\s+url: (\S+)$/m.exec(builder)?.[1], pick("UPDATE_FEED_URL")],
   ["package.json productName", manifest.productName, pick("PRODUCT_NAME")],
   ["package.json name", manifest.name, pick("APP_NAME")]
 ]
@@ -34,4 +35,18 @@ for (const [what, actual, expected] of checks) {
 }
 if (failed > 0) process.exit(1)
 console.log(`identity: single source confirmed — ${pick("APP_ID")} / ${pick("PRODUCT_NAME")} / ${pick("APP_NAME")}`)
+console.log(`identity: update feed — ${pick("UPDATE_FEED_URL")}`)
 '
+
+# The feed must never be somebody else's: the whole point of wrapping a release
+# ourselves is that an upstream feed cannot replace this shell (Epic 86 §
+# Independence — dshdesktop.com is the feed DSH Desktop uses).
+#
+# Matched as a URL, not as a word: the rule being guarded is "no upstream feed
+# is configured", and these files are allowed to say the name while explaining
+# that. A bare grep would fail on this very comment.
+if grep -nEi '[a-z]+://[a-z0-9.-]*dshdesktop\.com' electron-builder.yml src/shared/identity.ts src/main/updater.ts; then
+  echo "[FAIL] an upstream (dshdesktop.com) feed URL is configured"
+  exit 1
+fi
+echo "identity: no upstream feed inherited"

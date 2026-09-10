@@ -1,8 +1,26 @@
-import { app, BrowserWindow, dialog, ipcMain, session, shell } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  session,
+  shell,
+  type MenuItemConstructorOptions
+} from 'electron'
 import { join } from 'node:path'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { spawnHarness, harnessPaths, type HarnessSession } from './harness'
-import { APP_NAME, HARNESS_TITLES } from '../shared/identity'
+import { startUpdater, type UpdaterController } from './updater'
+import {
+  APP_ID,
+  APP_NAME,
+  HARNESS_PACKAGE,
+  HARNESS_TITLES,
+  PRODUCT_NAME,
+  UPDATE_FEED_URL,
+  isDevVersion
+} from '../shared/identity'
 
 /**
  * asuka — our own Electron shell around a DSH release (Epic 86 Track B).
@@ -32,6 +50,7 @@ const lockdownProbe = process.env.ASUKA_LOCKDOWN_PROBE === '1'
 const clickProbe = process.env.ASUKA_CLICK_PROBE === '1'
 
 let mainWindow: BrowserWindow | null = null
+let updater: UpdaterController | null = null
 let session_harness: HarnessSession | null = null
 let harnessLogPath = ''
 let harnessOrigin = '' // set once the readiness URL is known; navigation fence
@@ -306,13 +325,103 @@ async function captureEvidence(dir: string): Promise<void> {
   }
 }
 
+// ---- app info + menu (T11) --------------------------------------------------
+
+/**
+ * What an About panel or a support conversation needs, read at runtime from one
+ * place. The version is Electron's own (`app.getVersion()` — the manifest's
+ * version field), so whatever the artifact says is what the running app says.
+ */
+function appInfo(): Record<string, string | boolean> {
+  return {
+    name: APP_NAME,
+    productName: PRODUCT_NAME,
+    appId: APP_ID,
+    version: app.getVersion(),
+    dev: isDevVersion(app.getVersion()),
+    harnessPackage: HARNESS_PACKAGE,
+    updateFeed: UPDATE_FEED_URL,
+    electron: process.versions.electron,
+    chrome: process.versions.chrome,
+    node: process.versions.node,
+    packaged: app.isPackaged
+  }
+}
+
+function installMenu(): void {
+  const version = app.getVersion()
+  const dev = isDevVersion(version)
+  // The panel renders these instead of the Info.plist defaults, so the label a
+  // person sees always matches the version in the artifact filename — including
+  // the `-dev` suffix that keeps an internal build from reading as released.
+  app.setAboutPanelOptions({
+    applicationName: PRODUCT_NAME,
+    applicationVersion: version,
+    version: '',
+    credits: dev
+      ? `Internal build — not for public distribution.\nWraps ${HARNESS_PACKAGE}.`
+      : `Wraps ${HARNESS_PACKAGE}.`
+  })
+
+  const template: MenuItemConstructorOptions[] = [
+    {
+      role: 'appMenu',
+      submenu: [
+        {
+          label: `About ${PRODUCT_NAME}`,
+          click: () => {
+            // Logged so the panel version can be asserted from a run, not only
+            // eyeballed in a screenshot.
+            log(`about-panel version=${version} dev=${String(dev)}`)
+            app.showAboutPanel()
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Check for Updates…',
+          click: () => {
+            void updater?.checkNow('menu')
+          }
+        },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    },
+    { role: 'editMenu' },
+    { role: 'viewMenu' },
+    { role: 'windowMenu' }
+  ]
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
 // ---- app lifecycle ---------------------------------------------------------
 
 app.whenReady().then(() => {
   if (!gotSingleInstanceLock) return // denied instance: already quitting
   log('app-ready')
+  log(
+    `version ${app.getVersion()}${isDevVersion(app.getVersion()) ? ' dev-build' : ''} packaged=${String(app.isPackaged)}`
+  )
   installPermissionDenial()
   installExternalLinkHandler()
+  installMenu()
+  ipcMain.handle('asuka:app-info', () => appInfo())
+  // T12: a check 15 s after launch (+ jitter), every 6 h after that, again
+  // after a sleep/wake, and on demand. Nothing here blocks the harness boot.
+  const feedOverride = process.env.ASUKA_UPDATE_FEED ?? ''
+  if (process.env.ASUKA_UPDATE_DISABLE === '1') {
+    log('update-disabled (ASUKA_UPDATE_DISABLE=1)')
+  } else {
+    updater = startUpdater({
+      log,
+      isTrustedSender: isHarnessNavigation,
+      feedUrl: feedOverride === '' ? undefined : feedOverride
+    })
+  }
   mainWindow = createSplashWindow()
   loadSplash()
   void startHarnessAndLoad()
@@ -360,6 +469,7 @@ app.on('window-all-closed', () => {
 // by the onEvent callback so the timing can be asserted.
 app.on('will-quit', () => {
   log('will-quit')
+  updater?.stop()
   session_harness?.stop('quit')
 })
 

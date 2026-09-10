@@ -44,6 +44,13 @@ document.addEventListener(
   true
 )
 
+// The shell's own surface for the page it hosts: which build this is, and the
+// update state. Read from the main process instead of baked in at build time,
+// so a running app can never claim a version the artifact does not carry (T11)
+// and the `-dev` label survives a rebuild.
 contextBridge.exposeInMainWorld(APP_NAME, {
-  version: '0.1.0-dev'
+  getAppInfo: () => ipcRenderer.invoke('asuka:app-info'),
+  checkForUpdates: () => ipcRenderer.invoke('asuka:update-check'),
+  updateStatus: () => ipcRenderer.invoke('asuka:update-status'),
+  archivedVersions: () => ipcRenderer.invoke('asuka:update-archive')
 })
