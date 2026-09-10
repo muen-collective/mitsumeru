@@ -91,7 +91,7 @@ pnpm verify:release                 # codesign --verify --deep --strict, spctl, 
 NOTARY_PROFILE=asuka-notary pnpm notarize   # notarytool submit + staple, then repackage
 ```
 
-The `asuka-notary` profile is stored once, in the login keychain — never in the repo:
+The `asuka-notary` profile is stored once, by notarytool — never in the repo:
 
 ```
 pnpm store:credentials               # asks for your Apple ID, then the password
@@ -104,7 +104,10 @@ credential error. The wrapper asks for the email address only, reads the team ID
 the signed app, and lets notarytool prompt for the app-specific password with hidden input,
 so the secret never enters shell history, `ps`, or any argv. `store-credentials` validates
 before saving by default, so a wrong password fails there rather than 40 minutes into a
-submission.
+submission. A working profile is proved by an authenticated call
+(`xcrun notarytool history --keychain-profile asuka-notary`), not by `security
+find-generic-password` — that lookup reports "item could not be found" for this profile
+even while notarization works (verified 2026-09-10).
 
 The signing identity is never written into the config: electron-builder takes it from the
 environment or the login keychain (`CSC_NAME`, `CSC_LINK`, `CSC_KEY_PASSWORD`) and fails
