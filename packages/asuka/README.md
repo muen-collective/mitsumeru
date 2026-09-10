@@ -188,7 +188,7 @@ non-prerelease release. Client behaviour:
 | After a failure | 30 min retry (offline launch retries instead of waiting half a day) |
 | After sleep | check again 5 s after resume |
 | On demand | `asuka:update-check` IPC + `Check for Updates…` menu item |
-| Install | on quit, never mid-session — the harness holds the user's work |
+| Install | **only when asked** — see below; never mid-session, because the harness holds the user's work |
 | Rollback | every downloaded version is archived to `<userData>/updates/<version>/`, and `allowDowngrade` lets an older archive be installed over a newer one |
 
 An unreachable feed is a logged line, never a crash and never a blocked startup: the harness
@@ -198,6 +198,27 @@ packaged config points at our repository. What it cannot cover is GitHub's own s
 protocol — matching the channel against the tag — because that needs a really published
 release. It also needs a `pnpm package:mac` build: a `--dir` build ships without
 `app-update.yml` at all.
+
+#### Installing an update is a separate step, and it is not automatic
+
+On macOS nothing installs unless the app asks. `autoInstallOnAppQuit` — which this shell sets,
+and which reads like it does the work — is inert there: electron-updater's `MacUpdater` extends
+`AppUpdater`, while the quit handler that flag depends on lives in `BaseUpdater`. The install
+runs through `quitAndInstall()` → Squirrel.Mac's ShipIt, which swaps the bundle and relaunches.
+
+Measured 2026-09-10, and the reason this section exists: an update downloaded and
+checksum-verified, then sat in `~/Library/Caches/<bundle-id>.ShipIt/` while ShipIt never
+launched — every earlier check passed because none of them installs anything.
+
+So the shell offers it: when a version is downloaded and archived, a dialog asks
+**Restart Now / Later**; the same action stays in the menu as `Restart to Update…`, because
+"Later" must not be the last word.
+
+Proving the path needs two things at once — an app older than a published release — so it is a
+procedure rather than a smoke: build an older version that carries the trigger
+(`ASUKA_UPDATE_RESTART=1` takes the dialog out of the loop), run it from a normal location, and
+watch the version at that path change. Squirrel verifies the signature, not the notary ticket,
+so the test build needs signing but not notarization.
 
 ### Releasing
 
@@ -228,6 +249,7 @@ variables, not because it is the better credential.
 | `ASUKA_LOG_DIR` | Harness log dir; defaults to `<userData>/logs` |
 | `ASUKA_UPDATE_FEED` | Point the updater at a plain-HTTP feed instead (test seam for `smoke:updater` — it does not exercise GitHub discovery; the packaged `app-update.yml` is authoritative) |
 | `ASUKA_UPDATE_DISABLE=1` | Start with no updater at all |
+| `ASUKA_UPDATE_RESTART=1` | Restart as soon as a download completes, instead of offering it (test seam for the install path) |
 | `ASUKA_SMOKE=1` | Quit once the harness UI reports loaded (used by `pnpm smoke`) |
 | `ASUKA_SCREENSHOT=1` | With smoke: capture a screenshot to `artifacts/` before quitting |
 

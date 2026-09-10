@@ -385,6 +385,16 @@ function installMenu(): void {
             void updater?.checkNow('menu')
           }
         },
+        {
+          // The same action the ready-dialog's first button takes. Reachable
+          // afterwards, because "Later" must not be the last word.
+          label: 'Restart to Update…',
+          click: () => {
+            if (updater?.installNow() !== true) {
+              log('update-install-skipped state=not-downloaded')
+            }
+          }
+        },
         { type: 'separator' },
         { role: 'hide' },
         { role: 'hideOthers' },
@@ -401,6 +411,36 @@ function installMenu(): void {
 }
 
 // ---- app lifecycle ---------------------------------------------------------
+
+/**
+ * A version is downloaded and verified — offer the restart.
+ *
+ * Not a nicety: on macOS nothing installs without this call (see
+ * `installNow` in updater.ts), so a download with no offer would sit in
+ * Squirrel's cache forever while the app kept telling itself it was up to date.
+ *
+ * Plain wording on purpose: a person reads this.
+ */
+function offerRestart(version: string): void {
+  log(`update-ready-offer version=${version}`)
+  void dialog
+    .showMessageBox({
+      type: 'info',
+      message: 'A new version is ready.',
+      detail: `${version} has been downloaded and checked. Restarting takes a few seconds.`,
+      buttons: ['Restart Now', 'Later'],
+      defaultId: 0,
+      cancelId: 1,
+      noLink: true
+    })
+    .then(({ response }) => {
+      if (response === 0) {
+        updater?.installNow()
+      } else {
+        log(`update-install-deferred version=${version}`)
+      }
+    })
+}
 
 app.whenReady().then(() => {
   if (!gotSingleInstanceLock) return // denied instance: already quitting
@@ -421,7 +461,8 @@ app.whenReady().then(() => {
     updater = startUpdater({
       log,
       isTrustedSender: isHarnessNavigation,
-      feedUrl: feedOverride === '' ? undefined : feedOverride
+      feedUrl: feedOverride === '' ? undefined : feedOverride,
+      onDownloaded: offerRestart
     })
   }
   mainWindow = createSplashWindow()

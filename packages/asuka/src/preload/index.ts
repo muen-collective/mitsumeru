@@ -52,5 +52,9 @@ contextBridge.exposeInMainWorld(APP_NAME, {
   getAppInfo: () => ipcRenderer.invoke('asuka:app-info'),
   checkForUpdates: () => ipcRenderer.invoke('asuka:update-check'),
   updateStatus: () => ipcRenderer.invoke('asuka:update-status'),
-  archivedVersions: () => ipcRenderer.invoke('asuka:update-archive')
+  archivedVersions: () => ipcRenderer.invoke('asuka:update-archive'),
+  // Restart into a downloaded version. Exposed for completeness — the shell's own
+  // window is the harness's page, so today the dialog and the menu are what
+  // actually call it.
+  restartToUpdate: () => ipcRenderer.invoke('asuka:update-restart')
 })

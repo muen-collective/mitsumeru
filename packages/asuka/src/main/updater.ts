@@ -70,19 +70,35 @@ export interface UpdaterOptions {
   feedUrl?: string
   /** Test seam: register every trigger, but schedule nothing. */
   manualOnly?: boolean
+  /**
+   * A version was downloaded and verified. The shell decides what to offer —
+   * this module holds no UI.
+   */
+  onDownloaded?: (version: string) => void
 }
 
 export interface UpdaterController {
   status: () => UpdateStatus
   /** Run a check now. Never rejects — failures land in the status. */
   checkNow: (trigger: string) => Promise<UpdateStatus>
+  /**
+   * Restart into the downloaded version. Returns false when nothing is ready.
+   *
+   * This is the only way an update is ever applied on macOS, and it is not
+   * optional plumbing: Squirrel installs when the app asks it to
+   * (`quitAndInstall`), and electron-updater's `autoInstallOnAppQuit` does
+   * nothing here — `MacUpdater` extends `AppUpdater`, while the quit handler
+   * that flag depends on lives in `BaseUpdater`. Measured 2026-09-10: a version
+   * downloaded, verified, and sat in Squirrel's cache because nothing called it.
+   */
+  installNow: () => boolean
   /** Archived versions under <userData>/updates, newest first. */
   archivedVersions: () => string[]
   stop: () => void
 }
 
 export function startUpdater(options: UpdaterOptions): UpdaterController {
-  const { log, isTrustedSender, feedUrl, manualOnly = false } = options
+  const { log, isTrustedSender, feedUrl, manualOnly = false, onDownloaded } = options
 
   let status: UpdateStatus = { state: 'idle', at: Date.now() }
   let nextTimer: NodeJS.Timeout | null = null
@@ -128,6 +144,20 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
       log(`update-archive-failed ${error instanceof Error ? error.message : String(error)}`)
       return undefined
     }
+  }
+
+  /**
+   * Restart into the downloaded version. See UpdaterController.installNow for
+   * why this exists at all rather than a flag doing it on quit.
+   */
+  const installNow = (): boolean => {
+    if (status.state !== 'downloaded') {
+      log(`update-install-skipped state=${status.state}`)
+      return false
+    }
+    log(`update-install-restart version=${status.version ?? 'unknown'}`)
+    autoUpdater.quitAndInstall()
+    return true
   }
 
   const check = async (trigger: string): Promise<UpdateStatus> => {
@@ -207,6 +237,13 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
     const archived = archive(event)
     setStatus({ state: 'downloaded', version: event.version, archived })
     log(`update-downloaded version=${event.version} archives=${String(archivedVersions().length)}`)
+    // The seam calls the same action the dialog's button calls, so a run can
+    // prove the install path without a person clicking anything.
+    if (process.env.ASUKA_UPDATE_RESTART === '1') {
+      installNow()
+    } else {
+      onDownloaded?.(event.version)
+    }
   })
   autoUpdater.on('error', (error) => {
     // Background failures surface here, not only as a rejected promise.
@@ -239,6 +276,15 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
 
   ipcMain.handle('asuka:update-status', () => status)
 
+  ipcMain.handle('asuka:update-restart', (event) => {
+    const senderUrl = event.senderFrame?.url ?? ''
+    if (!isTrustedSender(senderUrl)) {
+      log(`[lockdown] deny update-restart-sender ${senderUrl}`)
+      return false
+    }
+    return installNow()
+  })
+
   ipcMain.handle('asuka:update-archive', () => archivedVersions())
 
   const stop = (): void => {
@@ -248,5 +294,5 @@ export function startUpdater(options: UpdaterOptions): UpdaterController {
     autoUpdater.removeAllListeners()
   }
 
-  return { status: () => status, checkNow: check, archivedVersions, stop }
+  return { status: () => status, checkNow: check, installNow, archivedVersions, stop }
 }
