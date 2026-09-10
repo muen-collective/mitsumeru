@@ -17,13 +17,18 @@ const pick = (key) => new RegExp(`${key} = .([^\\x27]+).`).exec(identity)?.[1]
 
 const builder = readFileSync("electron-builder.yml", "utf8")
 const manifest = JSON.parse(readFileSync("package.json", "utf8"))
+// The splash screen is a plain HTML file, so it cannot import the module. It is
+// user-visible (it is the window title while the harness boots), which is
+// exactly how the pilot codename once shipped inside the packaged app.
+const renderer = readFileSync("src/renderer/index.html", "utf8")
 
 const checks = [
   ["electron-builder.yml appId", /^appId: (.+)$/m.exec(builder)?.[1], pick("APP_ID")],
   ["electron-builder.yml productName", /^productName: (.+)$/m.exec(builder)?.[1], pick("PRODUCT_NAME")],
   ["electron-builder.yml publish.url", /^\s+url: (\S+)$/m.exec(builder)?.[1], pick("UPDATE_FEED_URL")],
   ["package.json productName", manifest.productName, pick("PRODUCT_NAME")],
-  ["package.json name", manifest.name, pick("APP_NAME")]
+  ["package.json name", manifest.name, pick("APP_NAME")],
+  ["src/renderer/index.html <title>", /<title>([^<]+)<\/title>/.exec(renderer)?.[1]?.trim(), pick("PRODUCT_NAME")]
 ]
 
 let failed = 0
@@ -50,3 +55,12 @@ if grep -nEi '[a-z]+://[a-z0-9.-]*dshdesktop\.com' electron-builder.yml src/shar
   exit 1
 fi
 echo "identity: no upstream feed inherited"
+
+# The pilot's codename must not reach a user. It reached one exactly once: the
+# splash screen still said `wrap-pilot` (and described the harness internals) in
+# the packaged app, because the renderer is a static file no check looked at.
+if grep -rn 'wrap-pilot' src/ ; then
+  echo "[FAIL] the pilot codename 'wrap-pilot' is still in src/ — it ships in the app"
+  exit 1
+fi
+echo "identity: no pilot codename in src/"

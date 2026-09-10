@@ -81,7 +81,29 @@ Four things make the packaged app different from `pnpm start`:
 Identity is checked, not assumed: `pnpm check:identity` asserts that `electron-builder.yml`
 and `package.json` still agree with `src/shared/identity.ts` — a half-finished rename fails
 the build. It also asserts the update feed in the builder config is the feed in the module,
-and that no upstream feed (dshdesktop.com) is configured anywhere.
+that no upstream feed (dshdesktop.com) is configured anywhere, and that the splash screen's
+title matches `PRODUCT_NAME` with the pilot codename absent from `src/`. The renderer is a
+static file no check used to look at, and that is exactly where `wrap-pilot` shipped to users.
+
+### Native addons in the wrapped harness (T7)
+
+```
+pnpm package:mac && pnpm smoke:native      # runs the PACKAGED app
+```
+
+The harness is a foreign closure installed by pnpm, which blocks install scripts — so the
+question is not "did the build run" but "does the thing work". `pnpm smoke:native` answers it
+against the packaged app: a real pty spawn (`node-pty` and its `spawn-helper`), a real `libc`
+call through `koffi`, a real libvips encode through `sharp`, and the signature on every darwin
+addon. Nothing needs compiling on the release machine — the addons ship N-API prebuilds, which
+is why the harness child's Electron ABI (`modules=149`) differing from the system node's
+(`modules=127`) does not matter.
+
+It also records two facts that are easy to assume wrongly: the npm-installed harness serves
+`<title>DeepSeek Harness</title>` (that title is the harness's, not ours — the brand work has
+to rewrite it), and library validation is **off** in the shipped app (Electron's default
+`disable-library-validation` entitlement), proven by loading an ad-hoc-signed copy of the same
+addon in the same process.
 
 ### Signing + notarization (macOS, T10)
 

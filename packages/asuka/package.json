@@ -20,7 +20,8 @@
     "verify:release": "bash scripts/verify-release.sh",
     "check:label": "bash scripts/check-version-label.sh",
     "smoke": "bash scripts/smoke.sh",
-    "smoke:updater": "bash scripts/smoke-updater.sh"
+    "smoke:updater": "bash scripts/smoke-updater.sh",
+    "smoke:native": "bash scripts/smoke-native.sh"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.5-alpha.2",

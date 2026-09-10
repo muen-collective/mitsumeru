@@ -2,9 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>wrap-pilot</title>
+    <!--
+      Window title while the harness boots (the harness UI replaces it with its
+      own <title> once loaded). Kept equal to PRODUCT_NAME by
+      scripts/check-identity.sh: the name lives in src/shared/identity.ts, and a
+      rename that misses this file should fail the build, not ship.
+    -->
+    <title>Asuka</title>
   </head>
   <body>
-    <p>wrap-pilot placeholder — T2 replaces this with the DSH harness UI.</p>
+    <p>Starting…</p>
   </body>
 </html>

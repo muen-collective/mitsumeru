@@ -94,7 +94,9 @@ function createSplashWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    title: APP_NAME,
+    // The window title is user-visible, so it is the product name, not the
+    // package codename.
+    title: PRODUCT_NAME,
     show: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -271,7 +273,7 @@ async function startHarnessAndLoad(): Promise<void> {
     }
     const choice = await dialog.showMessageBox({
       type: 'error',
-      title: APP_NAME,
+      title: PRODUCT_NAME,
       message: 'The DSH harness failed to start.',
       detail: message,
       buttons: ['Retry', 'Show Log', 'Quit'],
