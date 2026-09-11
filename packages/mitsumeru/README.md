@@ -68,9 +68,10 @@ Four things make the packaged app different from `pnpm start`:
 - **The harness travels as a resource, not as app dependencies.** `scripts/prepare-harness.sh`
   materializes the published closure into `Resources/harness/node_modules/` — a real-file,
   symlink-free tree (hoisted linker), because electron-builder copies resources as plain
-  files and pnpm's workspace layout is a symlink farm. The script then compares the tree
-  against the closure this workspace already resolved: a re-resolution that drifts fails
-  the build instead of shipping. `src/main/harness.ts` looks there when `app.isPackaged`.
+  files and pnpm's workspace layout is a symlink farm. The stage install is pinned
+  (`pnpm.overrides`) to the closure this workspace already resolved, and the finished tree
+  is checked back against it: a newer upstream prerelease cannot silently re-resolve
+  what ships. `src/main/harness.ts` looks there when `app.isPackaged`.
 - **The stage install runs outside the repo.** `pnpm install` from anywhere inside a
   workspace member operates on the whole workspace; staged inside the package, a `--prod`
   install strips that package's own devDependencies.

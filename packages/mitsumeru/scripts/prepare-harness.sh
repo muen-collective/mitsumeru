@@ -9,9 +9,11 @@
 #   - the harness is executed by node as a child process, so nothing about it
 #     may live inside an asar archive (asar: false in electron-builder.yml).
 #
-# The staged install pins the same release the dev smoke signs off on, and the
-# result is checked back against the closure this workspace already resolved —
-# a fresh resolution that drifts is a failure, not a surprise in the field.
+# The staged install is pinned (overrides) to the closure the dev smoke signs
+# off on — the workspace's own resolved set — and the result is checked back
+# against it. Upstream publishes ranges, so a plain fresh resolve drifts the
+# day a newer prerelease lands (0.1.5-rc.1 did, measured 2026-09-11); a
+# drifted tree fails the build here instead of reaching the field.
 set -euo pipefail
 cd "$(dirname "$0")/.." # packages/mitsumeru
 
@@ -26,14 +28,37 @@ VERSION=$(node -p "require('./package.json').dependencies['@deepseek-ai/dsh']")
 
 rm -rf "$OUT" "$STAGE"
 mkdir -p "$STAGE"
-cat >"$STAGE/package.json" <<JSON
-{
-  "name": "mitsumeru-harness-resource",
-  "private": true,
-  "description": "Throwaway manifest for the packaged harness tree. Not published.",
-  "dependencies": { "@deepseek-ai/dsh": "$VERSION" }
+# Pin every package of the closure to what the workspace resolved. Without
+# this, the ranges the harness publishes (`^0.1.5-alpha.2`) resolve to whatever
+# prerelease is newest at install time, and the closure check below fails the
+# build over a resolution nobody chose. The override list is read from the
+# workspace store — the same source the check compares against, so the two
+# cannot disagree.
+# The pins go in pnpm-workspace.yaml, not package.json: pnpm 11 no longer reads
+# package.json#pnpm and warns when it finds it (measured 2026-09-11 — the first
+# attempt at this fix put them there and was silently ignored).
+node --input-type=module -e '
+import { readdirSync, writeFileSync } from "node:fs"
+
+const [version, outFile, yamlFile] = process.argv.slice(1)
+const overrides = {}
+for (const dir of readdirSync("../../node_modules/.pnpm")) {
+  if (!dir.startsWith("@deepseek-ai+")) continue
+  // Store dir names are `@scope+name@version` plus an optional `_<peer set>`
+  // suffix, so the version starts at the first `@` after the scope marker.
+  const at = dir.indexOf("@", 1)
+  overrides[dir.slice(0, at).replace("+", "/")] ??= dir.slice(at + 1).split("_")[0]
 }
-JSON
+writeFileSync(outFile, JSON.stringify({
+  name: "mitsumeru-harness-resource",
+  private: true,
+  description: "Throwaway manifest for the packaged harness tree. Not published.",
+  dependencies: { "@deepseek-ai/dsh": version },
+}, null, 2) + "\n")
+writeFileSync(yamlFile, "overrides:\n" + Object.entries(overrides)
+  .map(([name, v]) => `  ${JSON.stringify(name)}: ${JSON.stringify(v)}`)
+  .join("\n") + "\n")
+' "$VERSION" "$STAGE/package.json" "$STAGE/pnpm-workspace.yaml"
 
 # ignore-scripts: the harness's native addons (node-pty, koffi) are denied in
 # pnpm-workspace.yaml and the stock web profile boots without them.
