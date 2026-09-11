@@ -17,6 +17,16 @@ allowBuilds:
   # electron-builder's Windows target helper — macOS builds never run it.
   electron-winstaller: false
 
+# Supply-chain age gate (pnpm 11). The cutoff is the default 24 h, written down
+# because the value is what makes the exclusions below take effect: with no
+# `minimumReleaseAge` key at all, pnpm applies its default cutoff and silently
+# ignores `minimumReleaseAgeExclude` (measured 2026-09-11 — a harness re-pin to a
+# 21-hour-old prerelease stayed blocked with every entry listed below excluded).
+#
+# The pinned harness closure is the exception: it is reviewed by version, here,
+# rather than by clock. Everything else in the tree waits the day out.
+minimumReleaseAge: 1440
+
 minimumReleaseAgeExclude:
   - '@deepseek-ai/dsh-acp-app@0.1.5-alpha.2'
   - '@deepseek-ai/dsh-acp@0.1.5-alpha.2'

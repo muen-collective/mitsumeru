@@ -69,15 +69,24 @@ Four things make the packaged app different from `pnpm start`:
   materializes the published closure into `Resources/harness/node_modules/` — a real-file,
   symlink-free tree (hoisted linker), because electron-builder copies resources as plain
   files and pnpm's workspace layout is a symlink farm. The stage install is pinned
-  (`pnpm.overrides`) to the closure this workspace already resolved, and the finished tree
-  is checked back against it: a newer upstream prerelease cannot silently re-resolve
+  (`pnpm.overrides`) to the versions the pinned release declares, and the finished tree is
+  checked back against it: a newer upstream prerelease cannot silently re-resolve
   what ships. `src/main/harness.ts` looks there when `app.isPackaged`.
 - **The stage install runs outside the repo.** `pnpm install` from anywhere inside a
   workspace member operates on the whole workspace; staged inside the package, a `--prod`
   install strips that package's own devDependencies.
 - **No `node` on `PATH`.** Launched from Finder the PATH is minimal, so the shell falls
   back to Electron-as-node (`ELECTRON_RUN_AS_NODE=1` + `process.execPath`) rather than
-  shipping a second runtime. In dev it still uses the node that launched it.
+  shipping a second runtime. In dev it still uses the node that launched it. That fallback
+  also decides the harness's flags: the profile runs `patchReload: live`, so dsh loads
+  `cordis-plugin-hmr` for the live patch layer, and HMR refuses to construct without
+  `--expose-internals` — an error a plain-`node` launch cannot produce. `src/main/harness.ts`
+  therefore passes the flag whenever the child runs as Electron-as-node. Measured
+  2026-09-11, all four combinations: node boots with or without it, Electron-as-node dies
+  without it. This is why `pnpm smoke` alone was not enough — it launches the app as a
+  child of your shell, so node is on PATH and the failing path is never taken — and why
+  `pnpm smoke:finder` exists: same assertions, `env -i` with `PATH=/usr/bin:/bin`, which
+  is what a double-click actually gets.
 
 Identity is checked, not assumed: `pnpm check:identity` asserts that `electron-builder.yml`
 and `package.json` still agree with `src/shared/identity.ts` — a half-finished rename fails

@@ -101,11 +101,38 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
   }, readyTimeoutMs)
 
   const nodePath = resolveNodePath()
-  const child = spawn(nodePath, [entry, 'web', '--no-open', '--host', '127.0.0.1', '--port', '0'], {
-    cwd,
-    env: childEnv(stateDir, runsViaElectronNode(nodePath)),
-    stdio: ['ignore', 'pipe', 'pipe']
-  })
+  // `--expose-internals` is required, and only under Electron-as-node. The
+  // profile runs `patchReload: live`, so dsh loads cordis-plugin-hmr for the
+  // live patch layer, and HMR refuses to construct without the flag
+  // (`--expose-internals is required for HMR service`). Measured 2026-09-11,
+  // all four combinations: node boots with or without the flag, electron-as-node
+  // **dies** without it and survives with it. The flag is inert where it is not
+  // needed, so it is passed on both paths — the boot contract must not depend on
+  // which node the shell happened to resolve.
+  //
+  // This is why 0.1.3-dev booted on a dev machine and died on a real install:
+  // `pnpm smoke` launches the app as a child of the shell, so PATH has node and
+  // resolveNodePath picks it; launched from Finder PATH is minimal, resolveNodePath
+  // falls back to Electron-as-node, and the harness crashed before the UI came up.
+  // The smoke run does not reproduce the Finder one — `pnpm smoke:finder` does.
+  const child = spawn(
+    nodePath,
+    [
+      ...(runsViaElectronNode(nodePath) ? ['--expose-internals'] : []),
+      entry,
+      'web',
+      '--no-open',
+      '--host',
+      '127.0.0.1',
+      '--port',
+      '0'
+    ],
+    {
+      cwd,
+      env: childEnv(stateDir, runsViaElectronNode(nodePath)),
+      stdio: ['ignore', 'pipe', 'pipe']
+    }
+  )
   onEvent?.(`spawned pid=${String(child.pid)}`)
 
   const logStream = createWriteStream(logPath, { flags: 'a' })

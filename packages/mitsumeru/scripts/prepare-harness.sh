@@ -28,27 +28,51 @@ VERSION=$(node -p "require('./package.json').dependencies['@deepseek-ai/dsh']")
 
 rm -rf "$OUT" "$STAGE"
 mkdir -p "$STAGE"
-# Pin every package of the closure to what the workspace resolved. Without
-# this, the ranges the harness publishes (`^0.1.5-alpha.2`) resolve to whatever
-# prerelease is newest at install time, and the closure check below fails the
-# build over a resolution nobody chose. The override list is read from the
-# workspace store — the same source the check compares against, so the two
-# cannot disagree.
+# Pin every package of the closure to the version the pinned dsh release itself
+# declares. Upstream publishes ranges (`^0.1.5-alpha.2`), so without this the
+# stage resolves whatever prerelease is newest at install time and the build
+# ships a resolution nobody chose (0.1.5-rc.1 drifted in that way, measured
+# 2026-09-11).
+#
+# The list comes from the pinned @deepseek-ai/dsh@$VERSION manifest's own
+# dependencies — resolved through the store, so no network call — which makes the
+# pins and the closure check below agree by construction: both describe the SAME
+# release. Reading a lockfile instead does not work: the workspace store and
+# node_modules/.pnpm/lock.yaml both still list the previous closure for one
+# install after a re-pin (measured on the alpha.2 -> rc.2 re-pin).
+#
 # The pins go in pnpm-workspace.yaml, not package.json: pnpm 11 no longer reads
-# package.json#pnpm and warns when it finds it (measured 2026-09-11 — the first
+# package.json#pnpm and warns when it finds it (measured the same day — the first
 # attempt at this fix put them there and was silently ignored).
 node --input-type=module -e '
-import { readdirSync, writeFileSync } from "node:fs"
+import { readdirSync, readFileSync, writeFileSync } from "node:fs"
+import { join } from "node:path"
 
 const [version, outFile, yamlFile] = process.argv.slice(1)
-const overrides = {}
-for (const dir of readdirSync("../../node_modules/.pnpm")) {
-  if (!dir.startsWith("@deepseek-ai+")) continue
-  // Store dir names are `@scope+name@version` plus an optional `_<peer set>`
-  // suffix, so the version starts at the first `@` after the scope marker.
-  const at = dir.indexOf("@", 1)
-  overrides[dir.slice(0, at).replace("+", "/")] ??= dir.slice(at + 1).split("_")[0]
+const store = "../../node_modules/.pnpm"
+
+// The release itself, then the versions it declares. The closure is closed under
+// its own dependencies, so one level is the whole list.
+const dshDir = readdirSync(store).find((d) => d.startsWith(`@deepseek-ai+dsh@${version}`))
+if (dshDir === undefined) {
+  console.error(`[FAIL] @deepseek-ai/dsh@${version} is not in the store — run pnpm install`)
+  process.exit(1)
 }
+const dsh = JSON.parse(readFileSync(join(store, dshDir, "node_modules/@deepseek-ai/dsh/package.json"), "utf8"))
+
+const overrides = {}
+for (const [name, range] of Object.entries(dsh.dependencies ?? {})) {
+  if (!name.startsWith("@deepseek-ai/")) continue
+  // Pin to the version that release DECLARES for this package, not to the release
+  // version: the closure also carries differently-versioned packages
+  // (`@deepseek-ai/cordis@^4.0.2`, `cordis-plugin-hmr@^1.0.17`, `schemastery@^3.18.2`),
+  // and pinning those to 0.1.5-rc.2 asks the registry for a version that has
+  // never existed (measured 2026-09-11 — the whole stage install failed).
+  overrides[name] = range.replace(/^[~^]/u, "")
+}
+// The release pins itself absolutely: nothing declares @deepseek-ai/dsh but us.
+overrides["@deepseek-ai/dsh"] = version
+
 writeFileSync(outFile, JSON.stringify({
   name: "mitsumeru-harness-resource",
   private: true,
@@ -80,35 +104,58 @@ echo "harness resource: $OUT — @deepseek-ai/dsh@$VERSION, $files files, $links
 [ "$links" = '0' ] || { echo "[FAIL] symlinks in the resource tree"; exit 1; }
 [ -f "$OUT/node_modules/@deepseek-ai/dsh/lib/bin.js" ] || { echo "[FAIL] harness entry missing"; exit 1; }
 
-# Closure identity: every @deepseek-ai/dsh* package the workspace store pins
-# must appear at the same version, and nothing else may sneak in.
+# Closure identity: every package in the resource tree must BE the pinned release
+# — i.e. each member's manifest must be the one that release pins, at the version
+# that release pins. Nothing older or newer may be mixed in.
+#
+# The source is the pinned @deepseek-ai/dsh@$VERSION manifest's own dependency
+# map (resolved through the store, no network call), so the check and the stage
+# pins above describe the same release by construction. A store listing or a
+# lockfile cannot be used here: both still list the previous closure for one
+# install after a re-pin (measured 2026-09-11, on alpha.2 -> rc.2), which is
+# exactly the confusion this check exists to prevent.
+#
+# Extras are a different failure and are checked differently: a package the tree
+# did not need. A hoisted install can legitimately leave the closure files that no
+# package asks for — those are data, not drift — so extras are reported rather
+# than failing the build. Drift is what must fail.
 node --input-type=module -e '
 import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
+const [, version] = process.argv
 const store = "../../node_modules/.pnpm"
-const expected = new Set()
-for (const dir of readdirSync(store)) {
-  if (!dir.startsWith("@deepseek-ai+")) continue
-  // Store dir names are `@scope+name@version` plus an optional `_<peer set>`
-  // suffix, so the version starts at the first `@` after the scope marker.
-  const at = dir.indexOf("@", 1)
-  expected.add(`${dir.slice(0, at).replace("+", "/")}@${dir.slice(at + 1).split("_")[0]}`)
+const dshDir = readdirSync(store).find((d) => d.startsWith(`@deepseek-ai+dsh@${version}`))
+if (dshDir === undefined) {
+  console.error(`[FAIL] @deepseek-ai/dsh@${version} is not in the store`)
+  process.exit(1)
+}
+const dsh = JSON.parse(readFileSync(join(store, dshDir, "node_modules/@deepseek-ai/dsh/package.json"), "utf8"))
+
+// What $VERSION declares for each @deepseek-ai package it pulls in.
+const declared = new Map([["@deepseek-ai/dsh", version]])
+for (const [name, range] of Object.entries(dsh.dependencies ?? {})) {
+  if (!name.startsWith("@deepseek-ai/")) continue
+  declared.set(name, range.replace(/^[~^]/u, ""))
 }
 
 const scopeDir = "build/harness/node_modules/@deepseek-ai"
-const actual = new Set()
+const actual = new Map()
 for (const dir of readdirSync(scopeDir)) {
   const manifest = JSON.parse(readFileSync(join(scopeDir, dir, "package.json"), "utf8"))
-  actual.add(`${manifest.name}@${manifest.version}`)
+  actual.set(manifest.name, manifest.version)
 }
 
-const missing = [...expected].filter((p) => !actual.has(p))
-const extra = [...actual].filter((p) => !expected.has(p))
-console.log(`closure: ${actual.size} @deepseek-ai/* packages (workspace pins ${expected.size})`)
-if (missing.length > 0 || extra.length > 0) {
-  console.error("missing:", missing)
-  console.error("unexpected:", extra)
+const drifted = []
+for (const [name, want] of declared) {
+  const got = actual.get(name)
+  if (got === undefined) drifted.push(`${name}: missing (release pins ${want})`)
+  else if (got !== want) drifted.push(`${name}: ${got} (release pins ${want})`)
+}
+
+console.log(`closure: ${actual.size} @deepseek-ai/* packages (release pins ${declared.size})`)
+if (drifted.length > 0) {
+  console.error("drifted:", drifted)
   process.exit(1)
 }
-'
+' "$VERSION"

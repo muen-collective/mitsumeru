@@ -5,15 +5,24 @@
     <!--
       The loading screen: the surface a person sees before the harness exists.
 
-      It is deliberately self-contained — the mark and the wordmark are local
-      files, the typeface is the same one the marketing site serves, and nothing
-      is fetched. A splash that waits on a network call is a splash that
-      sometimes never appears.
+      It is deliberately self-contained — the typeface is local and nothing is
+      fetched. A splash that waits on a network call is a splash that sometimes
+      never appears.
 
-      White-label (epic 87, P9d): once the brand store exists, this file reads
-      it and shows the client's mark instead of ours, before the harness has
+      Type: JetBrains Mono (SIL OFL 1.1, see brand/OFL.txt), the monospace the
+      harness UI itself reads in — so the splash and the product share one voice.
+      Weight 400 body, 500/700 available.
+
+      No mark here (2026-09-11): the app icon already says who this is, in the
+      Dock and in the dmg. Repeating it full-size on a screen that is on for a
+      second read as a second logo, not as a loading state, and the icons' type
+      could not survive the scale anyway. What is left is the only thing the
+      screen has to say: that the thing is starting.
+
+      White-label (epic 87, P9d): once the brand store exists, this file reads it
+      and shows the client's line instead of ours, before the harness has
       finished booting. Until then it shows ours, and `verify:surfaces` asserts
-      the mark and the line are present rather than trusting the eye.
+      the line is present rather than trusting the eye.
 
       The copy is short on purpose: it is on screen for a second or two, and it
       is the only place we speak before the product does.
@@ -21,8 +30,21 @@
     <title>Mitsumeru</title>
     <style>
       @font-face {
-        font-family: 'RedAlert';
-        src: url('./brand/red-alert.ttf') format('truetype');
+        font-family: 'JetBrains Mono';
+        src: url('./brand/JetBrainsMono-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        src: url('./brand/JetBrainsMono-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        src: url('./brand/JetBrainsMono-Bold.ttf') format('truetype');
+        font-weight: 700;
         font-display: block;
       }
       html,
@@ -31,7 +53,7 @@
         height: 100%;
         background: #191a1a;
         color: #f2f2f2;
-        font-family: 'RedAlert', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
         overflow: hidden;
       }
       .stage {
@@ -40,7 +62,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 26px;
+        gap: 14px;
         /* The window is dark and empty for a moment; a whisper of motion keeps
            it from reading as a hang. */
         animation: settle 420ms ease-out both;
@@ -55,15 +77,9 @@
           transform: none;
         }
       }
-      .mark {
-        width: 132px;
-        height: 132px;
-        display: block;
-        /* The mark is a square rounded-rect; on this canvas it needs no frame. */
-      }
       .line {
         font-size: 19px;
-        letter-spacing: 0.32em;
+        letter-spacing: 0.18em;
         text-transform: lowercase;
         color: #8a8a8a;
         white-space: nowrap;
@@ -91,9 +107,8 @@
         }
       }
       .tagline {
-        margin-top: -6px;
-        font-size: 22px;
-        letter-spacing: 0.04em;
+        font-size: 20px;
+        letter-spacing: 0.02em;
         color: #f2f2f2;
       }
       /* Respect the system setting: a blinking caret is exactly the kind of
@@ -110,7 +125,6 @@
   </head>
   <body>
     <div class="stage">
-      <img class="mark" src="./brand/logo.png" alt="Mitsumeru" />
       <p class="line"><span class="prompt">+</span> starting mitsumeru<span class="caret"></span></p>
       <p class="tagline">The liberation begins here</p>
     </div>

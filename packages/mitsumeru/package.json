@@ -1,7 +1,7 @@
 {
   "name": "mitsumeru",
   "productName": "Mitsumeru",
-  "version": "0.1.3-dev",
+  "version": "0.1.4-dev",
   "description": "Mitsumeru — our own Electron shell around a DSH release. Epic 86 Track B.",
   "private": true,
   "main": "out/main/index.js",
@@ -20,11 +20,12 @@
     "verify:release": "bash scripts/verify-release.sh",
     "check:label": "bash scripts/check-version-label.sh",
     "smoke": "bash scripts/smoke.sh",
+    "smoke:finder": "bash scripts/smoke-finder.sh",
     "smoke:updater": "bash scripts/smoke-updater.sh",
     "smoke:native": "bash scripts/smoke-native.sh"
   },
   "dependencies": {
-    "@deepseek-ai/dsh": "0.1.5-alpha.2",
+    "@deepseek-ai/dsh": "0.1.5-rc.1",
     "electron-updater": "^6.8.9"
   },
   "devDependencies": {
