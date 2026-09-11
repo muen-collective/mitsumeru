@@ -182,7 +182,9 @@ a version its artifact does not carry. The same suffix drives the update channel
 ### Updates (T12)
 
 `electron-updater` against **our** releases — GitHub Releases on
-`github.com/muen-collective/mitsumeru-shell` — packed by electron-builder into
+`github.com/muen-collective/mitsumeru` (renamed from `mitsumeru-shell` on 2026-09-11;
+GitHub redirects the old path, so builds in the wild keep updating until they take this one) —
+packed by electron-builder into
 `Contents/Resources/app-update.yml` (`provider: github`, `owner`/`repo` from
 `src/shared/identity.ts`). The client resolves its channel from the release **tag**: it reads
 `releases.atom`, keeps the entries whose tag carries the matching semver prerelease

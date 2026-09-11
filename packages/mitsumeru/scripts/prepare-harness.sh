@@ -98,6 +98,31 @@ cp "$STAGE/package.json" "$OUT/package.json"
 cp -R "$STAGE/node_modules" "$OUT/node_modules"
 rm -rf "$OUT/node_modules/.bin" "$STAGE"
 
+# --- our own plugins, vendored into the tree ---------------------------------
+# A profile bundle is resolved from the INSTALLATION anchor first, then from the
+# profile directory (dsh-app-boot's resolveBundleDir). Our plugins live in this
+# repo, so they are in neither — which fails the boot with `cannot resolve profile
+# bundle "@muen/dsh-mitsumeru-appearance"`. Vendoring them into the shipped
+# node_modules puts them at the installation anchor, where every other bundle is
+# resolved from, and keeps them versioned with the app that ships them.
+#
+# Copied from source, not installed: these packages have no build step (the
+# lib/*.js lazy-CJS shape dsh loads directly), so what is copied IS what is
+# reviewed. Peer deps (react, cordis, the ui-* packages) are already in this tree.
+for pkg in dsh-mitsumeru-appearance; do
+  src="plugins/$pkg"
+  [ -d "$src" ] || { echo "[FAIL] shipped plugin missing: $src"; exit 1; }
+  dest="$OUT/node_modules/@muen/$pkg"
+  mkdir -p "$OUT/node_modules/@muen"
+  rm -rf "$dest"
+  mkdir -p "$dest/lib"
+  cp "$src/package.json" "$src/cordis.patch.yml" "$dest/"
+  cp "$src"/lib/*.js "$dest/lib/"
+  [ -f "$dest/lib/client.js" ] || { echo "[FAIL] $src has no client half"; exit 1; }
+  [ -f "$src/cordis.patch.yml" ] || { echo "[FAIL] $src has no patch layer"; exit 1; }
+  echo "harness resource: vendored @muen/$pkg"
+done
+
 links=$(find "$OUT" -type l | wc -l | tr -d ' ')
 files=$(find "$OUT" -type f | wc -l | tr -d ' ')
 echo "harness resource: $OUT — @deepseek-ai/dsh@$VERSION, $files files, $links symlinks"

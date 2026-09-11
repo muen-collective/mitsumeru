@@ -22,7 +22,8 @@
     "smoke": "bash scripts/smoke.sh",
     "smoke:finder": "bash scripts/smoke-finder.sh",
     "smoke:updater": "bash scripts/smoke-updater.sh",
-    "smoke:native": "bash scripts/smoke-native.sh"
+    "smoke:native": "bash scripts/smoke-native.sh",
+    "verify:mount": "bash scripts/verify-mount.sh"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.5-rc.1",

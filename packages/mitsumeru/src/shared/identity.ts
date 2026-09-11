@@ -34,10 +34,17 @@ export const APP_ID = 'com.muen.mitsumeru'
  * import TypeScript); `scripts/check-identity.sh` keeps the copies equal.
  */
 export const UPDATE_OWNER = 'muen-collective'
-// Not `mitsumeru` (the web app) and not `mitsumeru-desktop` (the dsh-desktop
-// fork we studied): the shell lives in its own repository, and this string is
-// the feed path compiled into every build.
-export const UPDATE_REPO = 'mitsumeru-shell'
+// Renamed 2026-09-11 from `mitsumeru-shell`. Two names had to move for this to
+// fit: the public website repo became `mitsumeru-site`, and the archived
+// `mitsumeru-desktop` fork (dataelement/dsh-desktop) stays archived. This repo
+// is the desktop app — our own Electron shell, not a fork of anyone's — so it
+// now owns the plain product name, and this string is the feed path compiled
+// into every build.
+//
+// GitHub redirects the old path, so builds already in the wild keep updating:
+// `mitsumeru-shell/releases/...` still resolves, and their compiled
+// app-update.yml keeps asking for that old path until they take an upgrade.
+export const UPDATE_REPO = 'mitsumeru'
 
 /** Human-facing page for the feed — logs and About, never client config. */
 export const UPDATE_FEED_URL = `https://github.com/${UPDATE_OWNER}/${UPDATE_REPO}/releases`

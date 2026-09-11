@@ -1,8 +1,97 @@
 import { spawn, type ChildProcess } from 'node:child_process'
-import { createWriteStream, existsSync, mkdirSync } from 'node:fs'
+import { createWriteStream, existsSync, mkdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 
 import { HARNESS_PACKAGE } from '../shared/identity'
+
+/**
+ * The profile this app boots. Ours, not dsh's stock `web`: `web` composes no
+ * plugin of ours, so the app would ship with every appearance surface silently
+ * absent. A literal rather than a setting — which profile the app boots is a
+ * property of this build, and a user-writable value here would be a way to make
+ * the app boot something that is not the app.
+ */
+const PROFILE = 'mitsu'
+
+/**
+ * Plugins this app ships and composes into its profile. One literal list, so the
+ * profile manifest and the bundle a build actually contains cannot drift apart.
+ */
+const SHIPPED_PLUGINS = ['@muen/dsh-mitsumeru-appearance']
+
+/**
+ * Ensure our profile exists before booting it, because dsh does NOT create a
+ * missing custom profile on request — measured: `dsh --profile mitsu` on a clean
+ * DSH_HOME dies with `profile "mitsu" does not exist; create it with 'dsh plugin
+ * --profile mitsu add <package>'`. That is a boot failure, not a missing plugin,
+ * so it would take out the whole app on a fresh install.
+ *
+ * Package installs are NOT needed here: `resolveBundleDir` resolves each bundle
+ * from the installation anchor FIRST and only then from the profile directory, so
+ * harnes-internal names (`@deepseek-ai/dsh-base`, `dsh-web-app`) resolve from the
+ * shipped install. That leaves a hand-written manifest for the plugins that ship
+ * inside this app — but the ES module import does NOT resolve from the
+ * installation. Measured: with the plugin only present in the harness tree, the
+ * boot died with `Cannot find package '@muen/dsh-mitsumeru-appearance' imported
+ * from <profileDir>`, because the loader imports each entry from the PROFILE
+ * anchor. `dsh plugin add` solves this by symlinking into the profile's
+ * node_modules, which is what the links below reproduce.
+ *
+ * Existing files are never overwritten: a profile the user has edited (or added
+ * plugins to) must survive an update.
+ */
+function ensureProfile(stateDir: string, pluginNames: string[], installRoot: string): string {
+  const profileDir = join(stateDir, 'profiles', PROFILE)
+  mkdirSync(profileDir, { recursive: true })
+
+  const manifestPath = join(profileDir, 'package.json')
+  if (!existsSync(manifestPath)) {
+    const manifest = {
+      name: `dsh-profile-${PROFILE}`,
+      private: true,
+      dependencies: {},
+      dsh: {
+        profile: {
+          bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', ...pluginNames],
+          patchReload: 'live'
+        }
+      }
+    }
+    writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2) + '\n')
+  }
+
+  const patchPath = join(profileDir, 'cordis.patch.yml')
+  if (!existsSync(patchPath)) {
+    writeFileSync(patchPath, '# Your patch layer for this dsh profile, applied after every bundle layer.\n[]\n')
+  }
+
+  const workspacePath = join(profileDir, 'pnpm-workspace.yaml')
+  if (!existsSync(workspacePath)) {
+    writeFileSync(workspacePath, 'packages:\n  - .\n\nnodeLinker: hoisted\nautoInstallPeers: false\n')
+  }
+
+  // Link each shipped plugin into the profile's node_modules, from the harness
+  // tree that shipped inside this app. Idempotent: a correct link is left alone,
+  // and one that can never resolve inside the asar is skipped rather than
+  // shipped as a broken symlink.
+  for (const name of pluginNames) {
+    const target = join(installRoot, 'node_modules', name)
+    if (!existsSync(target)) continue
+    const linkPath = join(profileDir, 'node_modules', name)
+    try {
+      const current = existsSync(linkPath) ? realpathSync(linkPath) : undefined
+      if (current === realpathSync(target)) continue
+      mkdirSync(dirname(linkPath), { recursive: true })
+      rmSync(linkPath, { recursive: true, force: true })
+      symlinkSync(target, linkPath, 'dir')
+    } catch {
+      // Best effort: a profile that cannot link still boots, just without that
+      // plugin — and the mount gate is what reports it, not a crash here.
+    }
+  }
+
+  return profileDir
+}
 
 export interface HarnessConfig {
   /** Absolute path to the DSH CLI entry (apps/cli/lib/bin.js at the pinned ref). */
@@ -115,12 +204,18 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
   // resolveNodePath picks it; launched from Finder PATH is minimal, resolveNodePath
   // falls back to Electron-as-node, and the harness crashed before the UI came up.
   // The smoke run does not reproduce the Finder one — `pnpm smoke:finder` does.
+  //
+  // Create the profile before asking dsh to boot it — dsh does not initialize a
+  // missing custom profile on request, it exits instead. See ensureProfile.
+  const profileDir = ensureProfile(stateDir, SHIPPED_PLUGINS, cwd)
+  onEvent?.(`profile ready ${profileDir}`)
   const child = spawn(
     nodePath,
     [
       ...(runsViaElectronNode(nodePath) ? ['--expose-internals'] : []),
       entry,
-      'web',
+      '--profile',
+      PROFILE,
       '--no-open',
       '--host',
       '127.0.0.1',
@@ -133,7 +228,7 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
       stdio: ['ignore', 'pipe', 'pipe']
     }
   )
-  onEvent?.(`spawned pid=${String(child.pid)}`)
+  onEvent?.(`spawned pid=${String(child.pid)} profile=${PROFILE}`)
 
   const logStream = createWriteStream(logPath, { flags: 'a' })
   const tee = (chunk: Buffer): void => {
