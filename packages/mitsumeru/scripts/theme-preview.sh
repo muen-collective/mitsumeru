@@ -65,12 +65,21 @@ fi
 
 # --- vendor the plugin from SOURCE (same copy prepare-harness.sh does) ---------
 # Cheap and idempotent, so an edit to the source tree is always what you see.
-DEST="$HARNESS/node_modules/@muen/$PLUGIN"
-mkdir -p "$DEST/lib" "$DEST/themes"
-cp "plugins/$PLUGIN/package.json" "plugins/$PLUGIN/cordis.patch.yml" "$DEST/"
-cp plugins/$PLUGIN/lib/*.js "$DEST/lib/"
-cp plugins/$PLUGIN/themes/*.json "$DEST/themes/"
-echo "theme:preview — vendored $PLUGIN from source"
+# BOTH plugins, not just the theme one. Vendoring only the theme left the brand
+# plugin at whatever some earlier script had copied there, and the same for the
+# theme whenever a hand-run `cp` was the last thing to touch it. That is how a
+# window came up showing a palette that had already been replaced.
+for pkg in dsh-eva-theme dsh-brand-mitsumeru; do
+  src="plugins/$pkg"
+  [ -d "$src" ] || { echo "theme:preview — WARNING: $src missing, skipping"; continue; }
+  dest="$HARNESS/node_modules/@muen/$pkg"
+  mkdir -p "$dest/lib"
+  [ -d "$src/themes" ] && mkdir -p "$dest/themes"
+  cp "$src/package.json" "$src/cordis.patch.yml" "$dest/" 2>/dev/null
+  cp "$src"/lib/*.js "$dest/lib/" 2>/dev/null
+  [ -d "$src/themes" ] && cp "$src"/themes/*.json "$dest/themes/" 2>/dev/null
+  echo "theme:preview — vendored $pkg from source"
+done
 
 # --- throwaway home, cleaned up on exit ---------------------------------------
 HOME_DIR=$(mktemp -d "${TMPDIR:-/tmp}/mitsumeru-theme-preview-XXXXXX")

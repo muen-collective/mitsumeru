@@ -18,9 +18,15 @@ const { tmpdir } = require('node:os')
 app.setPath('userData', mkdtempSync(require('node:path').join(tmpdir(), 'mitsumeru-probe-')))
 
 
-const [URL_ARG, THEME] = process.argv.slice(2)
+// Parse every argument ONCE, at module scope and before first use. A later
+// `const THEME = ...` shadowed the earlier one and threw "Cannot access 'THEME'
+// before initialization" because the reference above it was in the same scope.
+const ARGV = process.argv.slice(2)
+const URL_ARG = ARGV.find((a) => !a.startsWith('--'))
+const THEME = ARGV.find((a) => a === 'eva-01' || a === 'eva-00') ?? null
+const OPEN_SETTINGS = ARGV.includes('--settings')
 if (!URL_ARG) {
-  console.error('usage: theme-preview-open <url> [eva-01|eva-00]')
+  console.error('usage: theme-preview-open <url> [--settings] [eva-01|eva-00]')
   process.exit(2)
 }
 
@@ -72,7 +78,6 @@ app.whenReady().then(async () => {
   })()`)
   await wait(800)
 
-  const THEME = argv.find((a) => a === 'eva-01' || a === 'eva-00')
   if (THEME) {
     await win.webContents.executeJavaScript(`(() => {
       const label = ${JSON.stringify(THEME)} === 'eva-00' ? 'EVA 00' : 'EVA 01';
