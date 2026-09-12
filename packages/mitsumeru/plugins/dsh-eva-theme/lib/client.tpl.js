@@ -407,6 +407,25 @@ window.__ModuleLoader__.load({
 			const boost = (selector) =>
 				selector.split(",").map((part) => `${part.trim()}:not(#dsh-eva)`).join(",");
 			const SURFACE_RULES = [
+				// Inline code in prose (`/Volumes/...`, `project/README.md`).
+				//
+				// The app's own rule is
+				//   :not(pre) > code { ...; background-color: markdown-inline-code; ... }
+				// — a background and NO colour, so inline code inherited plain body
+				// text and read as ordinary prose in a box.
+				//
+				// Our theme cannot fix this with a token: there is no
+				// "--dsw-alias-markdown-inline-code-foreground" in the vocabulary,
+				// and the colour is simply absent from the app's rule. So it is set
+				// here, in the overlay that only mounts while an EVA skin is active
+				// (leaving the built-in appearance pixel-identical).
+				//
+				// Mint in dark, matching the links. In light it is the dark blue,
+				// because the mint does not carry on the near-white surface.
+				[
+					"[class*=\"_markdown\"] :not(pre) > code",
+					"  color: var(--dsw-alias-link);"
+				],
 				// The active tab: the app paints it `color: label-primary` over
 				// `background: markdown-tag` (_tabActive in its stylesheet).
 				// The fill alone is not enough to read as a theme colour, and
