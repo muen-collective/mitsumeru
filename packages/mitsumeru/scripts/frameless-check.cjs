@@ -63,7 +63,15 @@ app.whenReady().then(async () => {
     document.body.appendChild(strip);
 
     const fallback = document.getElementById('eva-drag-fallback');
+    // content must be padded below the band, or the brand row renders under the
+    // traffic lights (the collision this band exists to prevent)
+    const frame = document.createElement('div');
+    frame.className = '_frame_test';
+    document.body.appendChild(frame);
+    const legend = document.getElementById('eva-drag-legend');
     const out = {
+      contentPushed: Math.round(parseFloat(getComputedStyle(frame).paddingTop)),
+      legendAtBottom: legend ? getComputedStyle(legend).bottom !== 'auto' : null,
       stripRegion: region(strip),
       stripPadLeft: Math.round(parseFloat(getComputedStyle(strip).paddingLeft)),
       fallbackRegion: fallback ? region(fallback) : null,
@@ -91,6 +99,11 @@ app.whenReady().then(async () => {
     'a drag surface exists even with no tab strip', String(contract.fallbackRegion))
   check(contract.fallbackHeight === STRIP_HEIGHT,
     'the always-present bar covers the strip height', `${contract.fallbackHeight}px`)
+  check(contract.contentPushed === STRIP_HEIGHT,
+    'the app content is pushed below the reserved band (no traffic-light overlap)',
+    `padding-top=${contract.contentPushed}px, band=${STRIP_HEIGHT}px`)
+  check(contract.legendAtBottom === true,
+    'the debug legend sits at the bottom, not over the brand row')
   check(contract.fallbackPointer === 'none',
     'the always-present bar never swallows clicks', String(contract.fallbackPointer))
 

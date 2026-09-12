@@ -103,7 +103,10 @@ fi
 # Frameless prototype: no title bar, native traffic lights, drag strip.
 if [ "$FRAMELESS" -eq 1 ]; then
   echo "theme:preview — opening a FRAMELESS window (Ctrl-C here to stop)"
-  exec ./node_modules/.bin/electron scripts/frameless-open.cjs "$URL" "${EXTRA[@]}"
+  # ${EXTRA[@]+...} not ${EXTRA[@]}: under `set -u`, expanding an EMPTY
+  # array is an unbound-variable error, which killed the plain
+  # `--frameless` run (only `--frameless --no-outline` worked).
+  exec ./node_modules/.bin/electron scripts/frameless-open.cjs "$URL" ${EXTRA[@]+"${EXTRA[@]}"}
 fi
 
 # Interactive: a real, visible window on the live app. Edit a token, reload.

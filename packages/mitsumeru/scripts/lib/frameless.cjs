@@ -14,8 +14,19 @@
 // `no-drag` on the interactive things inside it — otherwise the whole strip
 // would be a drag handle and the session tabs would stop responding to clicks.
 
-/** The app's own top row: 10px top padding + 28px tall tabs. Measured. */
-const STRIP_HEIGHT = 38;
+/**
+ * Height of the reserved band at the top of the window. Everything in the app
+ * is pushed down by this much so it clears the traffic lights.
+ *
+ * MEASURED why it must be this tall: with the title bar hidden, the app's own
+ * brand row (`*_logoRow`) sits at y=6 with height 60, starting at x=12 — the
+ * same place the traffic lights land (x 18-70, y 12-26). They overlap, and the
+ * lights sit on top of the wordmark. Reserving a band and pushing content below
+ * it is what Figma and Discord do.
+ *
+ * 44px leaves the lights vertically centred with ~7px of air below them.
+ */
+const STRIP_HEIGHT = 44;
 
 /** macOS draws the traffic lights 14px tall. Centre them in the strip. */
 const LIGHT_SIZE = 14;
@@ -34,6 +45,17 @@ const windowOptions = () => ({
   titleBarStyle: 'hidden',
   trafficLightPosition: { x: 18, y: Math.round((STRIP_HEIGHT - LIGHT_SIZE) / 2) }
 });
+
+/**
+ * Push the app's own content below the reserved band.
+ *
+ * Both roots are moved: the frame owns the whole surface, and the sidebar
+ * column draws its own top. Without this the brand row renders underneath the
+ * traffic lights even though the band exists.
+ */
+const contentCss = (rootSelectors) => rootSelectors.map((sel) => `
+  ${sel} { padding-top: ${STRIP_HEIGHT}px !important; }
+`).join('\n');
 
 /** The traffic-light group is ~52px wide (3 x 12px + 2 x 8px gaps). */
 const LIGHT_INSET = 18 + 52 + 14;
@@ -75,6 +97,13 @@ const dragCss = (showDrag) => `
     -webkit-app-region: no-drag;
   }
 
+  /* Everything in the app is pushed below the reserved band so it clears the
+     traffic lights. Applied to the frame (whole surface) and the sidebar column
+     (which paints its own top edge). */
+  [class*="_frame"], [class*="sidebarCol"] {
+    padding-top: ${STRIP_HEIGHT}px !important;
+  }
+
   /* Always-present drag surface. Transparent and click-through: it exists only
      to give the window a grab target when no tab strip is on screen. */
   #eva-drag-fallback {
@@ -99,8 +128,9 @@ const dragCss = (showDrag) => `
     outline-offset: -1px;
   }
   /* label what the reader is looking at, once */
+  /* bottom, not top: at the top it covered the brand row it was describing */
   #eva-drag-legend {
-    position: fixed; top: ${STRIP_HEIGHT + 8}px; left: ${LIGHT_INSET + 8}px;
+    position: fixed; bottom: 10px; left: ${LIGHT_INSET + 8}px;
     z-index: 2147483001;
     font: 11px/1.5 ui-monospace, monospace;
     color: #ff5aa0; background: rgba(0,0,0,0.72);
