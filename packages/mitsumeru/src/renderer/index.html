@@ -21,11 +21,22 @@
 
       White-label (epic 87, P9d): once the brand store exists, this file reads it
       and shows the client's line instead of ours, before the harness has
-      finished booting. Until then it shows ours, and `verify:surfaces` asserts
-      the line is present rather than trusting the eye.
+      finished booting. Until then it shows ours.
 
-      The copy is short on purpose: it is on screen for a second or two, and it
-      is the only place we speak before the product does.
+      Copy and type set 2026-09-12 from the designer's Figma frame (1280x769).
+      The numbers below are solved against that frame rather than eyeballed —
+      size from the cap height of each line, letter-spacing from the measured ink
+      width, so the screen reproduces the design instead of resembling it. The
+      measurements, all at 1x:
+
+        line 1   ink 177x15px, 20 chars   -> 13.33px + 0.9px spacing
+        line 2   ink 136x9px,  29 chars   -> 8.48px - 0.3px spacing
+        caret    6x10px, 12px after the text
+        field    #000000, no margin; both lines optically centred
+
+      The field is pure black here, not the #191a1a the rest of the chrome uses:
+      the frame asks for #000000, and a startup screen that is very slightly off
+      its own design is the kind of detail that only shows up in screenshots.
     -->
     <title>Mitsumeru</title>
     <style>
@@ -51,7 +62,7 @@
       body {
         margin: 0;
         height: 100%;
-        background: #191a1a;
+        background: #000000;
         color: #f2f2f2;
         font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
         overflow: hidden;
@@ -62,7 +73,11 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 14px;
+        /* Measured from the frame: 24px of black between the two ink bands, of
+           which the descender-less line 1 leaves ~9px inside its own box and
+           line 2 leaves ~2px. Kept as one authored value rather than derived,
+           because it is the distance the designer placed, not a rhythm. */
+        gap: 12px;
         /* The window is dark and empty for a moment; a whisper of motion keeps
            it from reading as a hang. */
         animation: settle 420ms ease-out both;
@@ -78,22 +93,28 @@
         }
       }
       .line {
-        font-size: 19px;
-        letter-spacing: 0.18em;
-        text-transform: lowercase;
-        color: #8a8a8a;
+        font-size: 13.33px;
+        letter-spacing: 0.9px;
+        color: #f2f2f2;
         white-space: nowrap;
       }
-      .line .prompt {
-        color: #e00000;
+      /* `//` leads the line as decoration, in the same white as the text — the
+         frame draws it as part of the line, not as a highlighted prompt. */
+      .line .slashes {
+        color: #f2f2f2;
       }
+      /* The caret is the ONE red thing on the screen, and it blinks. Sized in
+         absolute px, not em: the frame's rectangle is 6x10px and it must stay
+         6x10 whatever the type does. It sits on the line's cap box, hanging 2px
+         below it — which is what vertical-align does here. Verified on the
+         capture: 240 red pixels at 2x, exactly 6x10 at 1x. */
       .line .caret {
         display: inline-block;
-        width: 0.42em;
-        height: 1em;
-        margin-left: 0.22em;
-        background: #e00000;
-        vertical-align: -0.14em;
+        width: 6px;
+        height: 10px;
+        margin-left: 12px;
+        background: #ff0000;
+        vertical-align: -2px;
         animation: blink 1s steps(1, end) infinite;
       }
       @keyframes blink {
@@ -107,9 +128,9 @@
         }
       }
       .tagline {
-        font-size: 20px;
-        letter-spacing: 0.02em;
-        color: #f2f2f2;
+        font-size: 8.48px;
+        letter-spacing: -0.3px;
+        color: #606060;
       }
       /* Respect the system setting: a blinking caret is exactly the kind of
          thing that setting exists for. */
@@ -125,8 +146,8 @@
   </head>
   <body>
     <div class="stage">
-      <p class="line"><span class="prompt">+</span> starting mitsumeru<span class="caret"></span></p>
-      <p class="tagline">The liberation begins here</p>
+      <p class="line"><span class="slashes">//</span>starting mitsumeru<span class="caret"></span></p>
+      <p class="tagline">stare intently at the void...</p>
     </div>
   </body>
 </html>

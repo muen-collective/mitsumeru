@@ -26,7 +26,10 @@
     "smoke:native": "bash scripts/smoke-native.sh",
     "verify:mount": "bash scripts/verify-mount.sh",
     "brand:probe": "bash scripts/brand-probe.sh",
-    "verify:surfaces": "bash scripts/verify-surfaces.sh"
+    "verify:surfaces": "bash scripts/verify-surfaces.sh",
+    "capture:live": "bash scripts/capture-live.sh",
+    "capture:app": "bash scripts/capture-app.sh",
+    "capture:loading": "node_modules/.bin/electron scripts/splash-shot.cjs artifacts/landing"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.5-rc.1",
