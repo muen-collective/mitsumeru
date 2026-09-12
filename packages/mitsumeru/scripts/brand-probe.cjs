@@ -12,7 +12,9 @@
 // longer emits):
 //
 //   OURS      an <img> in the brand row whose src is a base64 SVG containing the
-//             cyan mark #00EEFF (our wordmark and mark payloads both carry it)
+//             the brand dot; the design source (logo/*.svg) sets it per
+//             appearance — orange-red #FF5E00 on dark, red #FF0004 on light —
+//             so each payload carries one of those instead of a single cyan.
 //   UPSTREAM  an inline <svg> (FishLogo / BrandWordmark are React components)
 //   FALLBACK  the shell's own text seat: "Local Build" / "DeepSeek Harness"
 //
@@ -67,7 +69,9 @@ app.whenReady().then(async () => {
          return r.width > 0 && r.height > 0 && r.left < 320 && r.top < 110;
        };
 
-       // 1. our payloads: base64 SVG images carrying the cyan mark
+       // 1. our payloads: base64 SVG images carrying one of the dot colours
+       const DOT_HEXES = ['FF5E00', 'FF0004'];
+       const hasDot = (svg) => DOT_HEXES.some((hex) => svg.indexOf(hex) !== -1);
        const ours = [];
        for (const img of document.querySelectorAll('img')) {
          const src = img.getAttribute('src') || '';
@@ -75,7 +79,7 @@ app.whenReady().then(async () => {
          if (!inBrandBox(img)) continue;
          let svg = '';
          try { svg = atob(src.slice('data:image/svg+xml;base64,'.length)); } catch { continue; }
-         ours.push({ cyan: svg.indexOf('00EEFF') !== -1, bytes: svg.length, alt: img.getAttribute('alt') || '' });
+         ours.push({ dot: hasDot(svg), bytes: svg.length, alt: img.getAttribute('alt') || '' });
        }
 
        // 2. upstream's occupants are inline <svg> React components (FishLogo /
@@ -95,7 +99,7 @@ app.whenReady().then(async () => {
 
        return {
          ours,
-         cyanCount: ours.filter((o) => o.cyan).length,
+         dotCount: ours.filter((o) => o.dot).length,
          inlineSvg,
          seatText,
          title: document.title,
@@ -116,13 +120,13 @@ app.whenReady().then(async () => {
     return fail(`the app did not load (nodes=${probe.nodeCount}, bootWire=${probe.bootWired}) — auth or trust fence, not a brand result`)
   }
 
-  // Positive assertion first: our cyan mark must be IN the seat. Everything else
+  // Positive assertion first: our dot must be IN the seat. Everything else
   // is diagnosis.
-  if (probe.cyanCount === 0) {
+  if (probe.dotCount === 0) {
     const upstream = probe.inlineSvg.length > 0
       ? `an inline <svg> holds it — that is upstream's brand occupant (FishLogo/BrandWordmark), so ui-brand-official was not vacated or our bundle was not composed`
       : `no occupant of ours and no inline <svg> — the seat is on the shell fallback (${JSON.stringify(probe.seatText)})`
-    return fail(`the sidebar brand seat does not carry our mark (#00EEFF): ${upstream}`)
+    return fail(`the sidebar brand seat does not carry our dot (#FF5E00 / #FF0004): ${upstream}`)
   }
 
   // And the fallback must NOT also be showing: a contest in progress can leave
@@ -131,6 +135,6 @@ app.whenReady().then(async () => {
     return fail(`our mark is present but the shell fallback label "Local Build" also renders — partial brand mix`)
   }
 
-  console.log('[brand-probe] PASS: the sidebar brand seat carries our mark (#00EEFF), no upstream occupant')
+  console.log('[brand-probe] PASS: the sidebar brand seat carries our dot (#FF5E00 / #FF0004), no upstream occupant')
   app.exit(0)
 })

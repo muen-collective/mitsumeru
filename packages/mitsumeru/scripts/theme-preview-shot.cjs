@@ -112,6 +112,15 @@ async function drawRoleBoard(win, themeId) {
     bubble.style.cssText = 'display:inline-block;padding:7px 12px;border-radius:12px;background:color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, var(--dsw-alias-bg-layer-2))';
     row('user bubble', bubble, 'brand 40% over bg-layer-2', 'color-mix(...)');
 
+    // the brand dot, as the sidebar actually renders it
+    const markImg = document.querySelector('img.mu-mark--light, img.mu-mark--dark, .mu-mark');
+    const markVis = markImg && getComputedStyle(markImg).display !== 'none' ? markImg
+                  : document.querySelector('img.mu-mark');
+    const dot = document.createElement('img');
+    if (markVis) dot.src = markVis.getAttribute('src') || markVis.src;
+    dot.style.cssText = 'width:26px;height:26px;display:inline-block';
+    row('logo dot', dot, 'logo/*.svg', (markVis ? (markVis.className || '') : 'no mark in DOM'));
+
     row('text', text('primary label', 'color:var(--dsw-alias-label-primary)'), '--dsw-alias-label-primary', v('--dsw-alias-label-primary'));
     row('separator', (() => { const e = document.createElement('span'); e.style.cssText = 'display:block;height:2px;width:100%;background:var(--dsw-alias-separator-primary)'; return e; })(), '--dsw-alias-separator-primary', v('--dsw-alias-separator-primary'));
 

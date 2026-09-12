@@ -103,13 +103,27 @@ if [ -d "$HARNESS/node_modules/@deepseek-ai" ]; then
         if (!svg.startsWith("<svg") || !svg.includes("</svg>")) { console.error("a payload is not SVG"); process.exit(1) }
         if (svg.includes("Mitsumeru")) wordmark++  // the wordmark carries its own alt-ish text node
       }
-      // The cyan dot is the mark: #00EEFF, present in the Mark slot.
-      if (!hits.some((h) => Buffer.from(h, "base64").toString("utf8").includes("00EEFF"))) {
-        console.error("no cyan mark (#00EEFF) in any payload"); process.exit(1)
+      // The dot is the brand accent. The design source of record (logo/*.svg)
+      // sets it per appearance: orange-red on dark, red on light. Both wordmark
+      // variants AND both mark variants must carry one of them — an asset that
+      // still held the old cyan #00EEFF would mean the wrong file was embedded.
+      const want = ["FF5E00", "FF0004"]
+      const found = new Set()
+      for (const h of hits) {
+        const svg = Buffer.from(h, "base64").toString("utf8")
+        for (const hex of want) if (svg.includes(hex)) found.add(hex)
       }
-      console.log(`${hits.length} embedded SVG asset(s), cyan mark present`)
+      if (found.size < 2) {
+        console.error(`dot colours found: ${[...found].join(", ") || "none"} — want both ${want.join(" and ")}`)
+        process.exit(1)
+      }
+      if (hits.some((h) => Buffer.from(h, "base64").toString("utf8").includes("00EEFF"))) {
+        console.error("a payload still carries the old cyan #00EEFF")
+        process.exit(1)
+      }
+      console.log(`${hits.length} embedded SVG asset(s), both dot colours present, no cyan`)
     ' "$DEST/lib/client.js" >/dev/null 2>&1; then
-      ok "bundle: embedded brand assets decode (cyan mark + wordmark present)"
+      ok "bundle: embedded brand assets decode (both dot colours, no stale cyan)"
     else
       bad "bundle: embedded brand assets are missing or unreadable — the row would mount blank"
     fi

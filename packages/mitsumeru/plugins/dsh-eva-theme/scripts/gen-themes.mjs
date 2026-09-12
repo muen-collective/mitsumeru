@@ -173,13 +173,13 @@ const TOKEN_MAPS = {
   light: {
     '--dsw-static-blue-450': 'purple',
     '--dsw-static-blue-500': 'purple',
-    '--dsw-ctp-sky': 'teal',
+    '--dsw-ctp-sky': 'blueSoft',
     '--dsw-ctp-peach': 'orange',
-    '--dsw-ctp-lavender': 'purpleText',
-    '--dsw-ctp-blue': 'navy',
-    '--dsw-ctp-pink': 'purpleText',
-    '--dsw-ctp-teal': 'teal',
-    '--dsw-ctp-sapphire': 'tealDeep',
+    '--dsw-ctp-lavender': 'blueMid',
+    '--dsw-ctp-blue': 'purple',
+    '--dsw-ctp-pink': 'blueSoft',
+    '--dsw-ctp-teal': 'blueSoft',
+    '--dsw-ctp-sapphire': 'blueMid',
     '--dsw-ctp-rosewater': 'orange',
     '--dsw-ctp-flamingo': 'red',
     '--dsw-ctp-maroon': 'red',
@@ -274,7 +274,10 @@ const TOKEN_MAPS = {
     '--dsw-alias-button-tool-bar-hover': { color: 'overlay2', alpha: 0.6 },
     '--dsw-alias-label-primary-bluish': 'text',
     '--dsw-alias-label-primary-dimmed': 'subtext0',
-    '--dsw-alias-label-primary-foreground': 'base',
+    // The primary button is `background: button-primary-fill; color: here`.
+    // The light fill needs a dark label; this was mapped to the near-white
+    // surface from when the light accent was a deep navy.
+    '--dsw-alias-label-primary-foreground': 'purpleText',
     '--dsw-alias-label-primary-inverted': 'base',
     '--shiki-foreground': 'text',
     '--shiki-background': 'mantle',
