@@ -52,7 +52,7 @@ const SHIPPED_PLUGINS = ['@muen/dsh-mitsumeru-appearance', '@muen/dsh-brand-mits
  * below for why leaving an existing file untouched turned out to be a bug rather
  * than a kindness.
  */
-function ensureProfile(stateDir: string, pluginNames: string[], installRoot: string): string {
+function ensureProfile(stateDir: string, pluginNames: string[], harnessRoot: string): string {
   const profileDir = join(stateDir, 'profiles', PROFILE)
   mkdirSync(profileDir, { recursive: true })
 
@@ -101,12 +101,26 @@ function ensureProfile(stateDir: string, pluginNames: string[], installRoot: str
   }
 
   // Link each shipped plugin into the profile's node_modules, from the harness
-  // tree that shipped inside this app. Idempotent: a correct link is left alone,
-  // and one that can never resolve inside the asar is skipped rather than
-  // shipped as a broken symlink.
+  // tree that shipped inside this app.
+  //
+  // The target is the harness ROOT's node_modules — where prepare-harness.sh
+  // vendored the package — NOT the directory the dsh package happens to live in.
+  // Measured 2026-09-11, and it cost a release: the spawn cwd
+  // (`<Res>/harness/node_modules/@deepseek-ai/dsh`) was passed here, so every
+  // lookup went to `<…>/@deepseek-ai/dsh/node_modules/@muen/…`, which does not
+  // exist. Every link was skipped by the `continue` below, and dsh then died at
+  // boot with `cannot resolve profile bundle "@muen/dsh-mitsumeru-appearance"` —
+  // the bundle list named a package that was in the tree but linked nowhere.
   for (const name of pluginNames) {
-    const target = join(installRoot, 'node_modules', name)
-    if (!existsSync(target)) continue
+    const target = join(harnessRoot, 'node_modules', name)
+    if (!existsSync(target)) {
+      // Reported, not silently skipped. The skip that used to live here is what
+      // let a non-booting build reach a download: dsh fails the boot on its own,
+      // but nothing said which package or where it had looked. The caller logs
+      // this, and smoke / verify:surfaces turn it into a failure.
+      console.log(`[harness] plugin-missing ${name} (looked in ${target})`)
+      continue
+    }
     const linkPath = join(profileDir, 'node_modules', name)
     try {
       const current = existsSync(linkPath) ? realpathSync(linkPath) : undefined
@@ -114,9 +128,12 @@ function ensureProfile(stateDir: string, pluginNames: string[], installRoot: str
       mkdirSync(dirname(linkPath), { recursive: true })
       rmSync(linkPath, { recursive: true, force: true })
       symlinkSync(target, linkPath, 'dir')
-    } catch {
-      // Best effort: a profile that cannot link still boots, just without that
-      // plugin — and the mount gate is what reports it, not a crash here.
+      console.log(`[harness] plugin-linked ${name}`)
+    } catch (error) {
+      // Loud, and named. A link that cannot be made is a package the boot will
+      // not find, so it is the same class of failure as the missing target above
+      // and must not read as a quiet success.
+      console.log(`[harness] plugin-link-failed ${name}: ${String(error)}`)
     }
   }
 
@@ -126,7 +143,9 @@ function ensureProfile(stateDir: string, pluginNames: string[], installRoot: str
 export interface HarnessConfig {
   /** Absolute path to the DSH CLI entry (apps/cli/lib/bin.js at the pinned ref). */
   entry: string
-  /** Working directory for the child (repo root). */
+  /** The harness tree root: where this app's own plugin packages are vendored. */
+  harnessRoot: string
+  /** Working directory for the child (the dsh package root). */
   cwd: string
   /** Isolated DSH_HOME — all harness user data lands here, never ~/.dsh. */
   stateDir: string
@@ -197,7 +216,7 @@ function childEnv(stateDir: string, viaElectron: boolean): NodeJS.ProcessEnv {
 }
 
 export function spawnHarness(config: HarnessConfig): HarnessSession {
-  const { entry, cwd, stateDir, logPath, readyTimeoutMs = 45_000, onEvent } = config
+  const { entry, harnessRoot, cwd, stateDir, logPath, readyTimeoutMs = 45_000, onEvent } = config
 
   mkdirSync(dirname(logPath), { recursive: true })
   mkdirSync(stateDir, { recursive: true })
@@ -237,7 +256,7 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
   //
   // Create the profile before asking dsh to boot it — dsh does not initialize a
   // missing custom profile on request, it exits instead. See ensureProfile.
-  const profileDir = ensureProfile(stateDir, SHIPPED_PLUGINS, cwd)
+  const profileDir = ensureProfile(stateDir, SHIPPED_PLUGINS, harnessRoot)
   onEvent?.(`profile ready ${profileDir}`)
   const child = spawn(
     nodePath,
@@ -325,18 +344,39 @@ export function spawnHarness(config: HarnessConfig): HarnessSession {
  */
 export function harnessPaths(options: { stateDir: string; logDir: string; resourcesPath?: string }): {
   entry: string
+  /** The harness tree root — the anchor this app's plugins are vendored under. */
+  harnessRoot: string
   cwd: string
   stateDir: string
   logPath: string
 } {
-  // Packaged: the tree built by scripts/prepare-harness.sh, next to the app.
+  // Where the ENTRY lives and where OUR PLUGINS live are two different anchors,
+  // and conflating them is what made 0.1.5-dev unbootable. Measured 2026-09-11:
+  //
+  //            entry lives in                        plugins live in
+  //   dev      <pkg>/node_modules/@deepseek-ai/dsh    <pkg>/build/harness/node_modules
+  //   shipped  <Res>/harness/node_modules/@deepseek-ai/dsh   <Res>/harness/node_modules
+  //
+  // In a packaged app the two coincide (the tree IS the entry's parent), which is
+  // why the earlier code — deriving the plugin anchor from the entry via
+  // `resolve(entry, '..', '..')` — looked right and was wrong twice over: it
+  // pointed one level too deep (`…/@deepseek-ai/dsh/node_modules/@muen`), and in
+  // dev it did not name the staged tree at all. Both are stated separately now.
+  const harnessRoot =
+    options.resourcesPath === undefined
+      ? resolve(__dirname, '..', '..', 'build', 'harness')
+      : resolve(options.resourcesPath, 'harness')
+  // The entry still resolves from `require` in dev, so `electron-vite dev` and
+  // the smokes keep wrapping the workspace's own closure rather than whatever
+  // happens to be staged. MITSUMERU_DSH_ENTRY is the documented override.
   const installed =
     options.resourcesPath === undefined
       ? resolve(__dirname, '..', '..', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
-      : resolve(options.resourcesPath, 'harness', 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
+      : resolve(harnessRoot, 'node_modules', HARNESS_PACKAGE, 'lib', 'bin.js')
   const entry = process.env.MITSUMERU_DSH_ENTRY ?? installed
   return {
     entry,
+    harnessRoot,
     cwd: resolve(entry, '..', '..'), // the @deepseek-ai/dsh package root
     stateDir: options.stateDir,
     logPath: join(options.logDir, `harness-${String(Date.now())}.log`)

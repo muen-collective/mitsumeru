@@ -112,9 +112,19 @@ function createSplashWindow(): BrowserWindow {
     log('window-shown')
   })
 
+  // Both halves of this are guarded, and the guards are the fix for a crash,
+  // not defensive habit. Measured 2026-09-11: when the harness dies during boot
+  // — which is exactly what a bad profile bundle list causes — `did-finish-load`
+  // fires for the *splash* window's teardown while the main window is being
+  // destroyed, and `win.webContents.getTitle()` throws `TypeError: Object has
+  // been destroyed`. That turned a clean "harness failed to start" into an
+  // uncaught exception on the main process, which is a worse failure to debug
+  // than the one that caused it.
   win.webContents.on('did-finish-load', () => {
-    log(`window-title ${win.webContents.getTitle()}`)
-    if (HARNESS_TITLES.includes(win.webContents.getTitle())) {
+    if (win.isDestroyed() || win.webContents.isDestroyed()) return
+    const title = win.webContents.getTitle()
+    log(`window-title ${title}`)
+    if (HARNESS_TITLES.includes(title)) {
       harnessUiLoaded = true
       log('harness-ui-loaded')
     }
@@ -127,7 +137,7 @@ function createSplashWindow(): BrowserWindow {
   // launch. `page-title-updated` is the documented way to decline the change.
   win.on('page-title-updated', (event) => {
     event.preventDefault()
-    win.setTitle(PRODUCT_NAME)
+    if (!win.isDestroyed()) win.setTitle(PRODUCT_NAME)
   })
 
   // T5: navigation fence — renderer/user navigation may only stay on the
