@@ -26,7 +26,24 @@ const PROFILE = 'mitsu'
  * Plugins this app ships and composes into its profile. One literal list, so the
  * profile manifest and the bundle a build actually contains cannot drift apart.
  */
-const SHIPPED_PLUGINS = ['@muen/dsh-mitsumeru-appearance', '@muen/dsh-brand-mitsumeru']
+const SHIPPED_PLUGINS = ['@muen/dsh-brand-mitsumeru']
+
+/**
+ * Packages this app used to compose and no longer does. Removing one from
+ * SHIPPED_PLUGINS is not enough to retract it, and assuming otherwise was wrong:
+ * the reconciler keeps any bundle that is not shipped and not base, because that
+ * is how a user's own plugin is preserved. A dropped package therefore looks
+ * exactly like a user-added one and survives forever.
+ *
+ * Listed here so it is actively removed from a profile that has it.
+ *
+ * `@muen/dsh-mitsumeru-appearance` dropped 2026-09-12 on request, while its design
+ * is reconsidered: it wrote the `--dsw-*` brand roles, and a theme plugin now
+ * wants those same tokens, so shipping both means two layers competing per-token
+ * with mount order deciding the winner. Its source stays in `plugins/`; it is
+ * simply not vendered into a build.
+ */
+const RETIRED_PLUGINS = ['@muen/dsh-mitsumeru-appearance']
 
 /**
  * Ensure our profile exists before booting it, because dsh does NOT create a
@@ -85,7 +102,15 @@ function ensureProfile(stateDir: string, pluginNames: string[], harnessRoot: str
   profile.bundles = [
     ...base,
     ...pluginNames,
-    ...existing.filter((name) => !base.includes(name) && !pluginNames.includes(name))
+    ...existing.filter(
+      (name) =>
+        !base.includes(name) &&
+        !pluginNames.includes(name) &&
+        // A package we used to ship is removed here, not merely "not added":
+        // without this it is indistinguishable from one the user added
+        // themselves and would be kept forever. See RETIRED_PLUGINS.
+        !RETIRED_PLUGINS.includes(name)
+    )
   ]
   profile.patchReload ??= 'live'
   writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2) + '\n')

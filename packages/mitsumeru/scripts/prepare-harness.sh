@@ -102,7 +102,7 @@ rm -rf "$OUT/node_modules/.bin" "$STAGE"
 # A profile bundle is resolved from the INSTALLATION anchor first, then from the
 # profile directory (dsh-app-boot's resolveBundleDir). Our plugins live in this
 # repo, so they are in neither — which fails the boot with `cannot resolve profile
-# bundle "@muen/dsh-mitsumeru-appearance"`. Vendoring them into the shipped
+# bundle "@muen/dsh-brand-mitsumeru"`. Vendoring them into the shipped
 # node_modules puts them at the installation anchor, where every other bundle is
 # resolved from, and keeps them versioned with the app that ships them.
 #
@@ -116,7 +116,12 @@ rm -rf "$OUT/node_modules/.bin" "$STAGE"
 # cordis.patch.yml disables that row and inserts ours, so it has to be a COMPOSED
 # bundle — being present on disk is not enough — or the whale keeps the seat.
 # See that file for the measurement.
-for pkg in dsh-mitsumeru-appearance dsh-brand-mitsumeru; do
+#
+# ONE package, and the list is deliberately short. The appearance plugin was
+# dropped on 2026-09-12 while its design is reconsidered (see SHIPPED_PLUGINS in
+# src/main/harness.ts for why). Its source stays in plugins/ and is simply not
+# vendored, which also keeps it out of a signed build.
+for pkg in dsh-brand-mitsumeru; do
   src="plugins/$pkg"
   [ -d "$src" ] || { echo "[FAIL] shipped plugin missing: $src"; exit 1; }
   dest="$OUT/node_modules/@muen/$pkg"

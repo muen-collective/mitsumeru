@@ -30,7 +30,6 @@ set -uo pipefail
 cd "$(dirname "$0")/.." # packages/mitsumeru
 
 BRAND=dsh-brand-mitsumeru
-APPEARANCE=dsh-mitsumeru-appearance
 HARNESS=build/harness
 status=0
 ok()   { echo "[PASS] $1"; }

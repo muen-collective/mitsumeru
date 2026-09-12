@@ -19,7 +19,6 @@ PROFILE=mitsu
 HARNESS=build/harness
 ENTRY="$HARNESS/node_modules/@deepseek-ai/dsh/lib/bin.js"
 BRAND=@muen/dsh-brand-mitsumeru
-APPEARANCE=@muen/dsh-mitsumeru-appearance
 
 [ -f "$ENTRY" ] || { echo "[FAIL] $ENTRY missing — run: pnpm harness"; exit 1; }
 
@@ -48,12 +47,16 @@ writeFileSync(join(dir, "package.json"), JSON.stringify({
 }, undefined, 2) + "\n")
 writeFileSync(join(dir, "cordis.patch.yml"), "[]\n")
 writeFileSync(join(dir, "pnpm-workspace.yaml"), "packages:\n  - .\n")
-' "$HOME_DIR" "$PROFILE" "$APPEARANCE" "$BRAND"
+' "$HOME_DIR" "$PROFILE" "$BRAND"
 
 # Each plugin must also be reachable from the PROFILE anchor: the loader imports
 # every entry from there, which is why `dsh plugin add` symlinks into the
 # profile's own node_modules. Reproduced, not assumed.
-for name in "$APPEARANCE" "$BRAND"; do
+#
+# ONE entry, matching SHIPPED_PLUGINS. The appearance plugin used to be composed
+# here too; it was dropped 2026-09-12 and the probe mirrors what ships, so this
+# list must move with it or the probe stops representing the app.
+for name in "$BRAND"; do
   src="$HARNESS/node_modules/$name"
   [ -d "$src" ] || { echo "[FAIL] $src is not in the harness tree — run: pnpm harness"; exit 1; }
   dest="$HOME_DIR/profiles/$PROFILE/node_modules/$name"
