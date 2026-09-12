@@ -14,6 +14,15 @@ if (!URL_ARG || !OUT_DIR) {
 }
 app.commandLine.appendSwitch('disable-gpu')
 
+// Each run boots a new harness on a new port and that port's token issues its
+// own dsh-auth cookie. Sharing Electron's default profile accumulates them until
+// the Cookie header exceeds Node's 16 KB maxHeaderSize and the server answers
+// 431 before the app loads. Measured: 70 cookies, ~17.6 KB. Isolate instead.
+const { mkdtempSync } = require('node:fs')
+const { tmpdir } = require('node:os')
+app.setPath('userData', mkdtempSync(require('node:path').join(tmpdir(), 'mitsumeru-probe-')))
+
+
 const THEMES = [
   { id: 'eva-01', label: 'EVA 01' },
   { id: 'eva-00', label: 'EVA 00' }

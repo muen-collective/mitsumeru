@@ -22,6 +22,32 @@
 // Exit 0 = our mark holds the seat. Non-zero = it does not, naming the winner.
 const { app, BrowserWindow } = require('electron')
 
+/**
+ * Every probe boots a NEW harness on a NEW random port, and each port's token
+ * issues its own `dsh-auth-*` cookie with a 30-day life. Electron keeps one
+ * shared cookie jar at ~/Library/Application Support/Electron, so cookies
+ * accumulate one per run — measured: 70 of them, ~17.6 KB of Cookie header,
+ * over Node's 16 KB maxHeaderSize. The server then answers **431 Request
+ * Header Fields Too Large** before the app loads, and the failure surfaces as
+ * "the app did not load (nodes=3)" — which reads like a harness or plugin bug
+ * and is not one.
+ *
+ * So each probe gets its own throwaway profile. The cookie jar starts empty
+ * every run, and nothing lands in the developer's real one.
+ */
+function isolateProfile() {
+  if (typeof app === 'undefined') return null;
+  const { mkdtempSync } = require('node:fs');
+  const { tmpdir } = require('node:os');
+  const { join } = require('node:path');
+  const dir = mkdtempSync(join(tmpdir(), 'mitsumeru-probe-'));
+  app.setPath('userData', dir);
+  return dir;
+}
+
+isolateProfile();
+
+
 const URL_ARG = process.argv[2]
 if (!URL_ARG) {
   console.error('usage: brand-probe <url-with-token>')
@@ -117,7 +143,7 @@ app.whenReady().then(async () => {
   console.log('[brand-probe] brand text present:', JSON.stringify(probe.seatText))
 
   if (!probe.bootWired || probe.nodeCount < 100) {
-    return fail(`the app did not load (nodes=${probe.nodeCount}, bootWire=${probe.bootWired}) — auth or trust fence, not a brand result`)
+    return fail(`the app did not load (nodes=${probe.nodeCount}, bootWire=${probe.bootWired}) — auth, trust fence, or an over-large Cookie header. If nodes is tiny (under ~10), suspect HTTP 431: repeated probe runs accumulate one dsh-auth cookie per harness PORT in the shared Electron profile, and past Node's 16KB maxHeaderSize the server answers 431 before the app loads. isolateProfile() prevents it; an older profile needs its dsh-auth cookies cleared.`)
   }
 
   // Positive assertion first: our dot must be IN the seat. Everything else

@@ -3,6 +3,15 @@
 //
 // Usage: electron scripts/frameless-open.cjs <url> [--no-outline]
 const { app, BrowserWindow } = require('electron')
+
+// Each run boots a new harness on a new port and that port's token issues its
+// own dsh-auth cookie. Sharing Electron's default profile accumulates them until
+// the Cookie header exceeds Node's 16 KB maxHeaderSize and the server answers
+// 431 before the app loads. Measured: 70 cookies, ~17.6 KB. Isolate instead.
+const { mkdtempSync } = require('node:fs')
+const { tmpdir } = require('node:os')
+app.setPath('userData', mkdtempSync(require('node:path').join(tmpdir(), 'mitsumeru-probe-')))
+
 const { windowOptions, applyDragRegions, STRIP_HEIGHT, LIGHT_INSET } = require('./lib/frameless.cjs')
 
 const argv = process.argv.slice(2)

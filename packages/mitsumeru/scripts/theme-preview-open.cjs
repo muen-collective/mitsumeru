@@ -9,6 +9,15 @@
 // Usage: electron scripts/theme-preview-open.cjs <url> [themeId]
 const { app, BrowserWindow } = require('electron')
 
+// Each run boots a new harness on a new port and that port's token issues its
+// own dsh-auth cookie. Sharing Electron's default profile accumulates them until
+// the Cookie header exceeds Node's 16 KB maxHeaderSize and the server answers
+// 431 before the app loads. Measured: 70 cookies, ~17.6 KB. Isolate instead.
+const { mkdtempSync } = require('node:fs')
+const { tmpdir } = require('node:os')
+app.setPath('userData', mkdtempSync(require('node:path').join(tmpdir(), 'mitsumeru-probe-')))
+
+
 const [URL_ARG, THEME] = process.argv.slice(2)
 if (!URL_ARG) {
   console.error('usage: theme-preview-open <url> [eva-01|eva-00]')
