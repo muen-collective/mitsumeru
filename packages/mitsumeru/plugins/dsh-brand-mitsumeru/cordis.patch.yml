@@ -1,0 +1,25 @@
+# @muen/dsh-brand-mitsumeru — the two rows that put our mark in the sidebar.
+#
+# TWO entries, and both are load-bearing. Measured 2026-09-11 against the
+# shipped harness tree (@deepseek-ai/dsh@0.1.5-rc.1):
+#
+#   1. `ui-brand-official` is upstream's occupant of the same two seats, mounted
+#      by dsh-web-app's own bundle patch (cordis.patch.yml:259). The seats are
+#      exclusive — the fork's patch says it outright, "two occupants cannot
+#      share either brand seat" — so mounting ours without disabling that one is
+#      a coin flip decided by mount order. That coin flip is the whole reason
+#      this app kept showing the whale: nothing here occupied the seat, so the
+#      fallback occupant (and then upstream's) won by default.
+#   2. Our own row, inserted after the disable, so it lands in the vacated seat.
+#
+# The id `ui-brand-official` is the id upstream ships, not ours: `disabled: true`
+# targets it by id, and if a future dsh release renames that row this disable
+# silently stops applying. verify:surfaces asserts the rendered mark is OUR
+# wordmark, so a rename shows up as a failure rather than as a quiet revert to
+# the whale. That is the point of the gate.
+- id: ui-brand-official
+  disabled: true
+
+- insert:
+    - id: brand-mitsumeru
+      name: '@muen/dsh-brand-mitsumeru'

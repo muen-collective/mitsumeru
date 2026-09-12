@@ -1,7 +1,7 @@
 {
   "name": "mitsumeru",
   "productName": "Mitsumeru",
-  "version": "0.1.4-dev",
+  "version": "0.1.5-dev",
   "description": "Mitsumeru — our own Electron shell around a DSH release. Epic 86 Track B.",
   "private": true,
   "main": "out/main/index.js",
@@ -12,6 +12,7 @@
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json",
     "harness": "bash scripts/prepare-harness.sh",
+    "icon": "bash scripts/make-icon.sh",
     "check:identity": "bash scripts/check-identity.sh",
     "package:dir": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --dir --publish never",
     "package:mac": "electron-vite build && bash scripts/prepare-harness.sh && bash scripts/check-identity.sh && electron-builder --mac --publish never",
@@ -23,7 +24,9 @@
     "smoke:finder": "bash scripts/smoke-finder.sh",
     "smoke:updater": "bash scripts/smoke-updater.sh",
     "smoke:native": "bash scripts/smoke-native.sh",
-    "verify:mount": "bash scripts/verify-mount.sh"
+    "verify:mount": "bash scripts/verify-mount.sh",
+    "brand:probe": "bash scripts/brand-probe.sh",
+    "verify:surfaces": "bash scripts/verify-surfaces.sh"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.5-rc.1",

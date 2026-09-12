@@ -1,5 +1,14 @@
 import { spawn, type ChildProcess } from 'node:child_process'
-import { createWriteStream, existsSync, mkdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync
+} from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 
 import { HARNESS_PACKAGE } from '../shared/identity'
@@ -17,7 +26,7 @@ const PROFILE = 'mitsu'
  * Plugins this app ships and composes into its profile. One literal list, so the
  * profile manifest and the bundle a build actually contains cannot drift apart.
  */
-const SHIPPED_PLUGINS = ['@muen/dsh-mitsumeru-appearance']
+const SHIPPED_PLUGINS = ['@muen/dsh-mitsumeru-appearance', '@muen/dsh-brand-mitsumeru']
 
 /**
  * Ensure our profile exists before booting it, because dsh does NOT create a
@@ -37,28 +46,49 @@ const SHIPPED_PLUGINS = ['@muen/dsh-mitsumeru-appearance']
  * anchor. `dsh plugin add` solves this by symlinking into the profile's
  * node_modules, which is what the links below reproduce.
  *
- * Existing files are never overwritten: a profile the user has edited (or added
- * plugins to) must survive an update.
+ * The user's part of a profile is never overwritten: their other bundles, any
+ * plugin they added, and every other key in the manifest are preserved. What IS
+ * recomputed on each launch is the shipped plugin set — see the manifest comment
+ * below for why leaving an existing file untouched turned out to be a bug rather
+ * than a kindness.
  */
 function ensureProfile(stateDir: string, pluginNames: string[], installRoot: string): string {
   const profileDir = join(stateDir, 'profiles', PROFILE)
   mkdirSync(profileDir, { recursive: true })
 
+  // Every shipped plugin has to be linked AND composed, and the manifest's
+  // `bundles` list is what composes it. A plugin present in the harness tree but
+  // absent from that list is simply not mounted — which is the exact failure this
+  // app shipped with: the sidebar brand seat kept its upstream occupant because
+  // our brand bundle was never in the list. So the shipped set is recomputed from
+  // SHIPPED_PLUGINS on every launch rather than written once on first run.
+  //
+  // This reverses the earlier "write it only when missing" rule, and the reason
+  // is measured: 0.1.4-dev could not be fixed in place. The profile already
+  // existed on every machine that had run the app, so a newly shipped plugin
+  // could never reach an installed app, and the only way to get one in was to
+  // delete the profile and lose the user's sessions with it.
+  //
+  // What the user owns survives: their own bundles keep their order and come
+  // after ours, their added plugins are not dropped, and every other key in the
+  // file is carried through untouched.
   const manifestPath = join(profileDir, 'package.json')
-  if (!existsSync(manifestPath)) {
-    const manifest = {
-      name: `dsh-profile-${PROFILE}`,
-      private: true,
-      dependencies: {},
-      dsh: {
-        profile: {
-          bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', ...pluginNames],
-          patchReload: 'live'
-        }
-      }
-    }
-    writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2) + '\n')
-  }
+  const manifest = existsSync(manifestPath)
+    ? (JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>)
+    : ({ name: `dsh-profile-${PROFILE}`, private: true, dependencies: {}, dsh: {} } as Record<string, unknown>)
+
+  manifest.name ??= `dsh-profile-${PROFILE}`
+  const dsh = (manifest.dsh ??= {}) as Record<string, unknown>
+  const profile = (dsh.profile ??= {}) as Record<string, unknown>
+  const base = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app']
+  const existing = Array.isArray(profile.bundles) ? (profile.bundles as string[]) : []
+  profile.bundles = [
+    ...base,
+    ...pluginNames,
+    ...existing.filter((name) => !base.includes(name) && !pluginNames.includes(name))
+  ]
+  profile.patchReload ??= 'live'
+  writeFileSync(manifestPath, JSON.stringify(manifest, undefined, 2) + '\n')
 
   const patchPath = join(profileDir, 'cordis.patch.yml')
   if (!existsSync(patchPath)) {

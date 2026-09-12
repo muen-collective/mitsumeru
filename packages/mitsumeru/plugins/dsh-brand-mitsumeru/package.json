@@ -1,0 +1,34 @@
+{
+  "name": "@muen/dsh-brand-mitsumeru",
+  "version": "0.0.1",
+  "description": "Mitsumeru default brand — hardcoded Mitsumeru wordmark + cyan-blue dot filling the DSH brand slots (sidebar.brand.mark / sidebar.brand.name / conversation.hero.brand.mark). The self-branded replacement for @deepseek-ai/dsh-client-ui-brand-official in a mitsumeru profile.",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml"
+  ],
+  "author": "Muen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muen-collective/muen-plugins.git"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "slots"
+      ],
+      "platform": "web"
+    }
+  }
+}

@@ -109,7 +109,14 @@ rm -rf "$OUT/node_modules/.bin" "$STAGE"
 # Copied from source, not installed: these packages have no build step (the
 # lib/*.js lazy-CJS shape dsh loads directly), so what is copied IS what is
 # reviewed. Peer deps (react, cordis, the ui-* packages) are already in this tree.
-for pkg in dsh-mitsumeru-appearance; do
+#
+# dsh-brand-mitsumeru is in this list for a reason worth stating: the sidebar
+# brand seat is exclusive, and upstream mounts its own occupant there
+# (ui-brand-official, inserted by dsh-web-app's patch). Our package's
+# cordis.patch.yml disables that row and inserts ours, so it has to be a COMPOSED
+# bundle — being present on disk is not enough — or the whale keeps the seat.
+# See that file for the measurement.
+for pkg in dsh-mitsumeru-appearance dsh-brand-mitsumeru; do
   src="plugins/$pkg"
   [ -d "$src" ] || { echo "[FAIL] shipped plugin missing: $src"; exit 1; }
   dest="$OUT/node_modules/@muen/$pkg"
