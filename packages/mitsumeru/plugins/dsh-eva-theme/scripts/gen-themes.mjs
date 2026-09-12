@@ -101,7 +101,21 @@ const TOKEN_MAPS = {
     '--dsw-alias-markdown-citation': 'surface0',
     '--dsw-alias-markdown-inline-code': 'surface0',
     '--dsw-alias-markdown-placeholder': 'surface0',
-    '--dsw-alias-markdown-tag': 'surface0',
+    // Links and the active tab take the SECONDARY accent (EVA mint), not the
+    // brand purple: the purple already carries buttons, user bubbles and icons,
+    // so these two read as a different family on purpose.
+    //
+    // `--dsw-alias-link` matters more than it looks: the built-in theme defines
+    // it (as --dsw-static-deepseek-500) and we did not, so markdown links,
+    // file mentions and source links fell through to that built-in purple
+    // instead of any colour we chose. Nothing warned — the token is simply
+    // absent from our table.
+    '--dsw-alias-link': 'accent2',
+    // The active tab is `color: label-primary; background: markdown-tag`, so the
+    // tab family is expressed through its fill. A flat accent2 fill reads as a
+    // green chip; tinting it keeps the chrome quiet while the tab text still
+    // comes up green.
+    '--dsw-alias-markdown-tag': { color: 'accent2', alpha: 0.16 },
     '--dsw-alias-toast-bg': 'mantle',
     '--dsw-alias-tooltip-bg': 'surface0',
     '--dsw-specific-sidebar-fill': 'mantle',
@@ -222,7 +236,10 @@ const TOKEN_MAPS = {
     '--dsw-alias-markdown-citation': 'mantle',
     '--dsw-alias-markdown-inline-code': 'base',
     '--dsw-alias-markdown-placeholder': 'mantle',
-    '--dsw-alias-markdown-tag': 'mantle',
+    // Same two roles as dark (see there), with the deeper green: the bright
+    // mint does not carry on the pale surface.
+    '--dsw-alias-link': 'accent2',
+    '--dsw-alias-markdown-tag': { color: 'accent2', alpha: 0.16 },
     '--dsw-alias-toast-bg': 'surface0',
     '--dsw-alias-tooltip-bg': 'surface1',
     '--dsw-specific-sidebar-fill': 'mantle',

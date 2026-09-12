@@ -29,7 +29,8 @@
     "verify:surfaces": "bash scripts/verify-surfaces.sh",
     "capture:live": "bash scripts/capture-live.sh",
     "capture:app": "bash scripts/capture-app.sh",
-    "capture:loading": "node_modules/.bin/electron scripts/splash-shot.cjs artifacts/landing"
+    "capture:loading": "node_modules/.bin/electron scripts/splash-shot.cjs artifacts/landing",
+    "theme:preview": "bash scripts/theme-preview.sh"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.5-rc.1",

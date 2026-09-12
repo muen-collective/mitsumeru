@@ -196,7 +196,8 @@ window.__ModuleLoader__.load({
       "--dsw-alias-markdown-citation": "#2a232a",
       "--dsw-alias-markdown-inline-code": "#2a232a",
       "--dsw-alias-markdown-placeholder": "#2a232a",
-      "--dsw-alias-markdown-tag": "#2a232a",
+      "--dsw-alias-link": "#3ddc97",
+      "--dsw-alias-markdown-tag": "rgba(61, 220, 151, 0.16)",
       "--dsw-alias-toast-bg": "#0e0d0e",
       "--dsw-alias-tooltip-bg": "#2a232a",
       "--dsw-specific-sidebar-fill": "#0e0d0e",
@@ -397,7 +398,8 @@ window.__ModuleLoader__.load({
       "--dsw-alias-markdown-citation": "#ffffff",
       "--dsw-alias-markdown-inline-code": "#f4f7f8",
       "--dsw-alias-markdown-placeholder": "#ffffff",
-      "--dsw-alias-markdown-tag": "#ffffff",
+      "--dsw-alias-link": "#1f7a4d",
+      "--dsw-alias-markdown-tag": "rgba(31, 122, 77, 0.16)",
       "--dsw-alias-toast-bg": "#e3ecf0",
       "--dsw-alias-tooltip-bg": "#eef3f5",
       "--dsw-specific-sidebar-fill": "#ffffff",
@@ -810,6 +812,20 @@ window.__ModuleLoader__.load({
 			const boost = (selector) =>
 				selector.split(",").map((part) => `${part.trim()}:not(#dsh-eva)`).join(",");
 			const SURFACE_RULES = [
+				// The active tab: the app paints it `color: label-primary` over
+				// `background: markdown-tag` (_tabActive in its stylesheet).
+				// The fill alone is not enough to read as a theme colour, and
+				// label-primary is plain text colour by design — so the tab's
+				// TEXT is set to the secondary accent here, the same token the
+				// links use, which keeps "green means navigational" consistent.
+				//
+				// Matched on a class substring rather than a suffix: the real
+				// class is `_tabActive_17p4l_243` — a CSS-module hash — so a
+				// [class$=...] selector would never match it.
+				[
+					"[class*=\"_tabActive\"]",
+					"  color: var(--dsw-alias-link);"
+				],
 				[
 					"[class$=\"_userStack\"] [class$=\"_bubble\"]",
 					"  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, var(--dsw-alias-bg-layer-2));"

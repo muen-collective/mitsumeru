@@ -407,6 +407,20 @@ window.__ModuleLoader__.load({
 			const boost = (selector) =>
 				selector.split(",").map((part) => `${part.trim()}:not(#dsh-eva)`).join(",");
 			const SURFACE_RULES = [
+				// The active tab: the app paints it `color: label-primary` over
+				// `background: markdown-tag` (_tabActive in its stylesheet).
+				// The fill alone is not enough to read as a theme colour, and
+				// label-primary is plain text colour by design — so the tab's
+				// TEXT is set to the secondary accent here, the same token the
+				// links use, which keeps "green means navigational" consistent.
+				//
+				// Matched on a class substring rather than a suffix: the real
+				// class is `_tabActive_17p4l_243` — a CSS-module hash — so a
+				// [class$=...] selector would never match it.
+				[
+					"[class*=\"_tabActive\"]",
+					"  color: var(--dsw-alias-link);"
+				],
 				[
 					"[class$=\"_userStack\"] [class$=\"_bubble\"]",
 					"  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, var(--dsw-alias-bg-layer-2));"
