@@ -30,7 +30,8 @@
     "capture:live": "bash scripts/capture-live.sh",
     "capture:app": "bash scripts/capture-app.sh",
     "capture:loading": "node_modules/.bin/electron scripts/splash-shot.cjs artifacts/landing",
-    "theme:preview": "bash scripts/theme-preview.sh"
+    "theme:preview": "bash scripts/theme-preview.sh",
+    "frameless:check": "node_modules/.bin/electron scripts/frameless-check.cjs"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.5-rc.1",

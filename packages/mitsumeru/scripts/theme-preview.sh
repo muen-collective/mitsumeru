@@ -12,6 +12,10 @@
 #   pnpm theme:preview              boot a window you can click around in
 #   pnpm theme:preview --shot       boot, capture both themes, exit
 #   pnpm theme:preview --shot eva-00   capture one theme only
+#   pnpm theme:preview --frameless  boot a FRAMELESS window (no title bar,
+#                                   native traffic lights, drag strip) to
+#                                   judge moving the window by hand
+#                                   add --no-outline to hide the debug outlines
 #
 # Screenshots land in artifacts/theme-preview/.
 set -uo pipefail
@@ -22,13 +26,17 @@ HARNESS=build/harness
 ENTRY="$HARNESS/node_modules/@deepseek-ai/dsh/lib/bin.js"
 OUT_DIR=artifacts/theme-preview
 SHOT=0
+FRAMELESS=0
 ONLY=""
+EXTRA=()
 
 for arg in "$@"; do
   case "$arg" in
     --shot) SHOT=1 ;;
+    --frameless) FRAMELESS=1 ;;
+    --no-outline) EXTRA+=("$arg") ;;
     eva-01|eva-00) ONLY="$arg" ;;
-    *) echo "usage: theme:preview [--shot] [eva-01|eva-00]"; exit 2 ;;
+    *) echo "usage: theme:preview [--shot|--frameless] [--no-outline] [eva-01|eva-00]"; exit 2 ;;
   esac
 done
 
@@ -90,6 +98,12 @@ if [ "$SHOT" -eq 1 ]; then
   [ -n "$ONLY" ] && ARGS+=("$ONLY")
   ./node_modules/.bin/electron scripts/theme-preview-shot.cjs "${ARGS[@]}"
   exit $?
+fi
+
+# Frameless prototype: no title bar, native traffic lights, drag strip.
+if [ "$FRAMELESS" -eq 1 ]; then
+  echo "theme:preview — opening a FRAMELESS window (Ctrl-C here to stop)"
+  exec ./node_modules/.bin/electron scripts/frameless-open.cjs "$URL" "${EXTRA[@]}"
 fi
 
 # Interactive: a real, visible window on the live app. Edit a token, reload.
