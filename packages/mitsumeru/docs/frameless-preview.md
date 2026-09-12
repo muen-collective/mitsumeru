@@ -40,6 +40,14 @@ pnpm theme:preview
 ```
 (same as above — the plain command is the normal-window version.)
 
+The window opens **on the app**, not on Settings — Settings is a modal, so
+opening it on launch would block the app you are trying to look at. Use
+`--settings` if you want it opened for you:
+
+```bash
+pnpm theme:preview --settings
+```
+
 ```bash
 pnpm theme:preview --shot
 ```

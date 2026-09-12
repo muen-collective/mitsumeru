@@ -35,13 +35,16 @@ app.whenReady().then(async () => {
   await win.loadURL(URL_ARG)
   await wait(6000)
 
-  // open Settings so the theme row is on screen straight away
-  await win.webContents.executeJavaScript(`(() => {
-    const b = Array.from(document.querySelectorAll('button'))
-      .find((el) => ['Settings','设置'].includes((el.textContent||'').trim()));
-    if (b) b.click(); return !!b;
-  })()`)
-  await wait(2500)
+  // Settings is a MODAL: opening it on launch blocks the app the review is
+  // about, so it is opt-in via --settings.
+  if (OPEN_SETTINGS) {
+    await win.webContents.executeJavaScript(`(() => {
+      const b = Array.from(document.querySelectorAll('button'))
+        .find((el) => ['Settings','设置'].includes((el.textContent||'').trim()));
+      if (b) b.click(); return !!b;
+    })()`)
+    await wait(2500)
+  }
 
   // clear the first-run overlay + scrim so the window shows the app, not setup
   await win.webContents.executeJavaScript(`(() => {
@@ -69,6 +72,7 @@ app.whenReady().then(async () => {
   })()`)
   await wait(800)
 
+  const THEME = argv.find((a) => a === 'eva-01' || a === 'eva-00')
   if (THEME) {
     await win.webContents.executeJavaScript(`(() => {
       const label = ${JSON.stringify(THEME)} === 'eva-00' ? 'EVA 00' : 'EVA 01';

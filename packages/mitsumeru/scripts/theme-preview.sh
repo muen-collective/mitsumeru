@@ -41,13 +41,15 @@ for arg in "$@"; do
     --shot) SHOT=1 ;;
     --frameless) FRAMELESS=1 ;;
     --no-outline) EXTRA+=("$arg") ;;
+    --settings) EXTRA+=("$arg") ;;
     eva-01|eva-00) ONLY="$arg" ;;
     --help|-h)
-      echo "usage: theme:preview [--shot] [--frameless] [--no-outline] [eva-01|eva-00]"
+      echo "usage: theme:preview [--shot] [--frameless] [--settings] [--no-outline] [eva-01|eva-00]"
       echo "  (no flags)   a normal window to click around in"
       echo "  --shot       screenshot both themes, then exit"
       echo "  --frameless  no title bar; drag strip at the top"
       echo "  --no-outline  hide the pink/blue drag debugging outlines"
+      echo "  --settings   open Settings on launch (it is a modal, so it blocks the app otherwise)"
       exit 0 ;;
     *) IGNORED+=("$arg") ;;
   esac
