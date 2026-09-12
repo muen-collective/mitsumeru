@@ -205,7 +205,11 @@ const TOKEN_MAPS = {
     '--dsw-alias-label-dimmed': 'subtext1',
     '--dsw-alias-brand-primary': 'purple',
     '--dsw-alias-brand-text': 'base',
-    '--dsw-alias-button-primary-hover': 'purpleText',
+    // Hover must NOT be purpleText: that is also label-primary-foreground
+    // below, so the label took the same colour as the fill it sat on and
+    // vanished (contrast 1.00). A LIGHTER shift, not a darker one — darker
+    // moves the fill toward the dark-blue label.
+    '--dsw-alias-button-primary-hover': 'blueHover',
     '--dsw-alias-button-primary-dimmed': 'mantle',
     '--dsw-alias-button-elevated-fill': 'base',
     '--dsw-alias-button-floating-fill': 'base',

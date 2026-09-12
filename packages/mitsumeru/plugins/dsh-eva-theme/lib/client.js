@@ -367,7 +367,7 @@ window.__ModuleLoader__.load({
       "--dsw-alias-label-dimmed": "#44546b",
       "--dsw-alias-brand-primary": "#6fa8dc",
       "--dsw-alias-brand-text": "#f5f7fa",
-      "--dsw-alias-button-primary-hover": "#1b3a8c",
+      "--dsw-alias-button-primary-hover": "#82b4e3",
       "--dsw-alias-button-primary-dimmed": "#ffffff",
       "--dsw-alias-button-elevated-fill": "#f5f7fa",
       "--dsw-alias-button-floating-fill": "#f5f7fa",

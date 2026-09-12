@@ -190,6 +190,17 @@ if [ -f "plugins/$THEME/package.json" ]; then
   [ -f "plugins/$THEME/themes/eva-01.json" ] && [ -f "plugins/$THEME/themes/eva-00.json" ] \
     && ok "source: both EVA token tables are generated" \
     || bad "source: themes/eva-0{0,1}.json missing — run node scripts/gen-themes.mjs"
+
+  # Legibility. The light theme once shipped button-primary-hover and
+  # label-primary-foreground as the SAME token, so the primary button's label
+  # vanished on hover (contrast 1.00) — invisible in a screenshot, since you
+  # have to hover, and the theme vocabulary says nothing about those two being
+  # related. This asserts the relationships that matter instead.
+  if node plugins/$THEME/scripts/check-contrast.mjs > /dev/null 2>&1; then
+    ok "bundle: theme colours are legible and interactive states are distinct"
+  else
+    bad "bundle: a theme colour is unreadable or a state is invisible — run: node plugins/$THEME/scripts/check-contrast.mjs"
+  fi
 else
   bad "source: plugins/$THEME is missing — the app ships no EVA theme"
 fi
