@@ -277,9 +277,13 @@ land on the shipped Mitsumeru app's profile. `~/.dsh` is never touched.
   (`pnpm-workspace.yaml → allowBuilds`). The stock `web` profile boots without them;
   terminal/subprocess features may need them built, and `node-pty` needs a per-arch,
   per-Electron-ABI build. Verify before packaging (T9).
-- **Branding title.** The published tarball serves `<title>DeepSeek Harness</title>`; a
-  frontend built from a checkout says `<title>DSH Local Build</title>`. Both are accepted
-  by `HARNESS_TITLES` — confirm which surface the brand swap targets (Epic 80/85).
+- **Branding title — resolved 2026-09-11.** The published tarball serves
+  `<title>DeepSeek Harness</title>` and a checkout build says `<title>DSH Local
+  Build</title>`; both are accepted by `HARNESS_TITLES`, and the window title is
+  *ours* regardless — `page-title-updated` is declined, so the browser title the
+  harness renders never becomes the window's. The piece that was genuinely open —
+  which brand occupies the sidebar — is now `@muen/dsh-brand-mitsumeru` plus a
+  patch that stands `ui-brand-official` down. See README § Brand.
 - **Signing cost — resolved 2026-09-10 (T10).** The 40-minute build did not reproduce: a
   full `--dir` build with timestamps on and nothing skipped is 1 m 51 s, and the harness's
   10 Mach-O files come out signed and stamped. `signIgnore` and `timestamp: none` are gone;
