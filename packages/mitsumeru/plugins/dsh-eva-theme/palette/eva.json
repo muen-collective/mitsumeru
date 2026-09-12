@@ -377,11 +377,11 @@
       "teal": {
         "name": "teal",
         "order": 12,
-        "hex": "#6fa8dc",
+        "hex": "#00C4FF",
         "rgb": {
-          "r": 111,
-          "g": 168,
-          "b": 220
+          "r": 0,
+          "g": 196,
+          "b": 255
         }
       },
       "tealDeep": {
@@ -447,31 +447,31 @@
       "sky": {
         "name": "sky",
         "order": 19,
-        "hex": "#6fa8dc",
+        "hex": "#00C4FF",
         "rgb": {
-          "r": 111,
-          "g": 168,
-          "b": 220
+          "r": 0,
+          "g": 196,
+          "b": 255
         }
       },
       "purple": {
         "name": "purple",
         "order": 20,
-        "hex": "#1b3a8c",
+        "hex": "#000864",
         "rgb": {
-          "r": 27,
-          "g": 58,
-          "b": 140
+          "r": 0,
+          "g": 8,
+          "b": 100
         }
       },
       "purpleText": {
         "name": "purpleText",
         "order": 21,
-        "hex": "#6fa8dc",
+        "hex": "#00C4FF",
         "rgb": {
-          "r": 111,
-          "g": 168,
-          "b": 220
+          "r": 0,
+          "g": 196,
+          "b": 255
         }
       },
       "mint": {
@@ -514,24 +514,14 @@
           "b": 196
         }
       },
-      "blueHover": {
-        "name": "blueHover",
-        "order": 32,
-        "hex": "#82b4e3",
-        "rgb": {
-          "r": 130,
-          "g": 180,
-          "b": 227
-        }
-      },
       "blueHoverDeep": {
         "name": "blueHoverDeep",
         "order": 33,
-        "hex": "#12286b",
+        "hex": "#00063f",
         "rgb": {
-          "r": 18,
-          "g": 40,
-          "b": 107
+          "r": 0,
+          "g": 6,
+          "b": 63
         }
       }
     }
