@@ -30,15 +30,33 @@ FRAMELESS=0
 ONLY=""
 EXTRA=()
 
+# Unknown arguments are IGNORED with a note, not fatal. Pasting a command with
+# the trailing `# comment` still attached is easy to do — the shell only strips
+# a comment that starts a word, so `pnpm theme:preview                  # note`
+# arrives here as the literal words "#", "note". Refusing to run over that is a
+# worse outcome than starting the window the user asked for.
+IGNORED=()
 for arg in "$@"; do
   case "$arg" in
     --shot) SHOT=1 ;;
     --frameless) FRAMELESS=1 ;;
     --no-outline) EXTRA+=("$arg") ;;
     eva-01|eva-00) ONLY="$arg" ;;
-    *) echo "usage: theme:preview [--shot|--frameless] [--no-outline] [eva-01|eva-00]"; exit 2 ;;
+    --help|-h)
+      echo "usage: theme:preview [--shot] [--frameless] [--no-outline] [eva-01|eva-00]"
+      echo "  (no flags)   a normal window to click around in"
+      echo "  --shot       screenshot both themes, then exit"
+      echo "  --frameless  no title bar; drag strip at the top"
+      echo "  --no-outline  hide the pink/blue drag debugging outlines"
+      exit 0 ;;
+    *) IGNORED+=("$arg") ;;
   esac
 done
+
+if [ "${#IGNORED[@]}" -gt 0 ]; then
+  echo "theme:preview — ignoring unrecognised argument(s): ${IGNORED[*]}"
+  echo "                (a trailing '#' comment often arrives as arguments; just the command is enough)"
+fi
 
 [ -f "$ENTRY" ] || { echo "[FAIL] $ENTRY missing — run: pnpm harness"; exit 1; }
 [ -f "plugins/$PLUGIN/lib/client.js" ] || { echo "[FAIL] plugins/$PLUGIN missing"; exit 1; }

@@ -27,7 +27,7 @@ outlined to show you where you can grab.
 
 ### Seeing it without the outlines
 
-```bash
+```
 pnpm theme:preview --frameless --no-outline
 ```
 
@@ -36,9 +36,20 @@ Same window, no pink/blue debug lines. This is the version to judge on looks.
 ### If you don't want the frameless version
 
 ```bash
-pnpm theme:preview            # normal window
-pnpm theme:preview --shot     # screenshot both themes, then exit
+pnpm theme:preview
 ```
+(same as above — the plain command is the normal-window version.)
+
+```bash
+pnpm theme:preview --shot
+```
+Screenshots both themes to `artifacts/theme-preview/`, then exits.
+
+**Copy a line whole.** Do not include the `#` explanation if you copy from
+anywhere — a shell only treats `#` as a comment when it starts a word, so a
+pasted explanation arrives as arguments. Unknown arguments are now ignored with
+a warning rather than being fatal, and `pnpm theme:preview --help` lists the
+flags.
 
 ## Check it mechanically
 
