@@ -117,11 +117,18 @@ rm -rf "$OUT/node_modules/.bin" "$STAGE"
 # bundle — being present on disk is not enough — or the whale keeps the seat.
 # See that file for the measurement.
 #
-# ONE package, and the list is deliberately short. The appearance plugin was
-# dropped on 2026-09-12 while its design is reconsidered (see SHIPPED_PLUGINS in
-# src/main/harness.ts for why). Its source stays in plugins/ and is simply not
-# vendored, which also keeps it out of a signed build.
-for pkg in dsh-brand-mitsumeru; do
+# TWO packages. The appearance plugin was dropped on 2026-09-12 while its
+# design is reconsidered (see SHIPPED_PLUGINS in src/main/harness.ts for why).
+# Its source stays in plugins/ and is simply not vendored, which also keeps it
+# out of a signed build.
+#
+# dsh-eva-theme is here for the same reason the brand plugin is: its
+# cordis.patch.yml inserts the loader row, and being present on disk is not the
+# same as being composed. Its client bundle may require only the web shell's
+# seed module words — see the COMPATIBILITY note at the top of its
+# lib/client.tpl.js for the measured list and the one import that broke in
+# DSH Desktop 2.0.4.
+for pkg in dsh-brand-mitsumeru dsh-eva-theme; do
   src="plugins/$pkg"
   [ -d "$src" ] || { echo "[FAIL] shipped plugin missing: $src"; exit 1; }
   dest="$OUT/node_modules/@muen/$pkg"
@@ -130,6 +137,14 @@ for pkg in dsh-brand-mitsumeru; do
   mkdir -p "$dest/lib"
   cp "$src/package.json" "$src/cordis.patch.yml" "$dest/"
   cp "$src"/lib/*.js "$dest/lib/"
+  # A theme plugin keeps its generated token tables in themes/. The client
+  # bundle already inlines them (__SKINS__), so this is not load-bearing at
+  # runtime — it is copied so the vendored package matches the `files` list in
+  # its own manifest and can be read on disk when a theme is debugged.
+  if [ -d "$src/themes" ]; then
+    mkdir -p "$dest/themes"
+    cp "$src"/themes/*.json "$dest/themes/"
+  fi
   [ -f "$dest/lib/client.js" ] || { echo "[FAIL] $src has no client half"; exit 1; }
   [ -f "$src/cordis.patch.yml" ] || { echo "[FAIL] $src has no patch layer"; exit 1; }
   echo "harness resource: vendored @muen/$pkg"

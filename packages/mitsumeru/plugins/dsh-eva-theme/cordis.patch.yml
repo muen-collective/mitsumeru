@@ -1,0 +1,14 @@
+# @muen/dsh-eva-theme bundle patch: inserts the plugin's loader row into the web
+# plugin roster.
+#
+# ONE row, and the id must match the `id` the client bundle registers with
+# window.__ModuleLoader__ (dsh-client-modules keys its boot-graph rows by the
+# loader entry's package name and verifies the bundle registers exactly that).
+# Unlike dsh-brand-mitsumeru there is no upstream occupant to disable: no
+# shipped package registers third-party themes, so this row adds a seat rather
+# than contesting one. If a future dsh release ships a competing theme bundle
+# to the same seat, this file needs the `- id: <theirs>` + `disabled: true`
+# treatment the brand plugin documents.
+- insert:
+    - id: dsh-eva-theme
+      name: '@muen/dsh-eva-theme'
